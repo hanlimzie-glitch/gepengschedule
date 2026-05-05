@@ -49,6 +49,18 @@ const typeMeta: Record<DayItem["type"], { label: string; icon: JSX.Element }> = 
   offline: { label: "Offline", icon: <CloudOff className="w-5 h-5" /> },
 };
 
+const ornamentGlyphs: Record<OrnamentKey, string[]> = {
+  dots: ["•", "·", "•", "·"],
+  grid: ["□", "◇", "□", "◇"],
+  diagonal: ["╱", "╲", "╱", "╲"],
+  stars: ["✦", "✧", "⋆", "✩"],
+  hearts: ["♡", "♥", "♡", "❥"],
+  sakura: ["✿", "❀", "✽", "✿"],
+  crosses: ["✚", "✦", "†", "✚"],
+  circuit: ["⌁", "◇", "⟐", "⌬"],
+  none: [],
+};
+
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
   ({ title, subtitle, dateRange, days, characterUrl, charFit, theme, ratio, ornament }, ref) => {
     const w = 1920;
@@ -67,6 +79,29 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
         }}
       >
         <div className={`absolute inset-0 ornament-${ornament}`} style={{ opacity: 0.95 }} />
+        {ornament !== "none" && (
+          <div className="absolute inset-0" style={{ pointerEvents: "none", color: "hsl(var(--t-1))" }}>
+            {Array.from({ length: 36 }).map((_, i) => {
+              const glyph = ornamentGlyphs[ornament][i % ornamentGlyphs[ornament].length];
+              return (
+                <span
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    left: `${(i * 17) % 96}%`,
+                    top: `${(i * 29) % 92}%`,
+                    fontSize: 28 + ((i * 7) % 34),
+                    opacity: 0.16 + ((i % 3) * 0.06),
+                    transform: `rotate(${(i * 23) % 70 - 35}deg)`,
+                    lineHeight: 1,
+                  }}
+                >
+                  {glyph}
+                </span>
+              );
+            })}
+          </div>
+        )}
         <div
           className="absolute"
           style={{
