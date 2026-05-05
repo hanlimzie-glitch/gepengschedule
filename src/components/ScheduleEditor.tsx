@@ -19,18 +19,23 @@ const initialDays: DayItem[] = DAYS_ID.map((d) => ({
 }));
 
 const themes: { key: ThemeKey; label: string; swatch: string; defaultOrnament: OrnamentKey }[] = [
-  { key: "pink", label: "Pink Pastel", swatch: "linear-gradient(135deg,#ffb3d9,#d896ff)", defaultOrnament: "hearts" },
-  { key: "purple", label: "Purple Neon", swatch: "linear-gradient(135deg,#b14dff,#4dc3ff)", defaultOrnament: "waves" },
-  { key: "blue", label: "Blue Cyber", swatch: "linear-gradient(135deg,#33d6ff,#7a7aff)", defaultOrnament: "grid" },
-  { key: "cute", label: "Cute", swatch: "linear-gradient(135deg,#ffc299,#ff99c2)", defaultOrnament: "dots" },
+  { key: "cute", label: "Cute", swatch: "linear-gradient(135deg,#ffd1e8,#ffe0c2)", defaultOrnament: "hearts" },
+  { key: "aesthetic", label: "Aesthetic", swatch: "linear-gradient(135deg,#b14dff,#4dc3ff)", defaultOrnament: "stars" },
+  { key: "gothic", label: "Gothic", swatch: "linear-gradient(135deg,#1a0000,#4a0a0a)", defaultOrnament: "crosses" },
+  { key: "sakura", label: "Sakura", swatch: "linear-gradient(135deg,#ffb3cc,#ffe0e8)", defaultOrnament: "sakura" },
+  { key: "cyber", label: "Cyber", swatch: "linear-gradient(135deg,#00f0ff,#ff00aa)", defaultOrnament: "circuit" },
+  { key: "mint", label: "Mint", swatch: "linear-gradient(135deg,#7be0c2,#9be7f5)", defaultOrnament: "dots" },
 ];
 
 const ornamentOptions: { key: OrnamentKey; label: string }[] = [
   { key: "dots", label: "Dots" },
   { key: "grid", label: "Grid" },
   { key: "diagonal", label: "Diagonal" },
-  { key: "waves", label: "Waves" },
+  { key: "stars", label: "Stars" },
   { key: "hearts", label: "Hearts" },
+  { key: "sakura", label: "Sakura" },
+  { key: "crosses", label: "Crosses" },
+  { key: "circuit", label: "Circuit" },
   { key: "none", label: "None" },
 ];
 
