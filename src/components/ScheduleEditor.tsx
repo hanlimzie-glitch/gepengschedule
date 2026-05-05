@@ -69,7 +69,7 @@ export const ScheduleEditor = () => {
     if (t) setOrnament(t.defaultOrnament);
   };
 
-  const updateDay = (i: number, key: keyof DayItem, val: string) => {
+  const updateDay = <K extends keyof DayItem>(i: number, key: K, val: DayItem[K]) => {
     setDays((prev) => prev.map((d, idx) => (idx === i ? { ...d, [key]: val } : d)));
   };
 
@@ -338,6 +338,16 @@ export const ScheduleEditor = () => {
                 />
               </div>
             </div>
+            <Button
+              size="lg"
+              onClick={downloadPng}
+              disabled={busy}
+              className="mt-4 h-12 w-full rounded-xl text-base font-black tracking-wide shadow-[0_0_30px_hsl(var(--primary)/0.35)]"
+              style={{ background: "var(--gradient-accent)", color: "hsl(var(--primary-foreground))" }}
+            >
+              <Download className="w-5 h-5" />
+              {busy ? "Rendering..." : "Download Schedule"}
+            </Button>
           </div>
         </main>
       </div>
