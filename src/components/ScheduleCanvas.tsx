@@ -286,7 +286,9 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
             <span style={{ letterSpacing: "0.2em", textTransform: "uppercase" }}>
               <Moon className="inline w-5 h-5 mr-2" /> Stay tuned ♡
             </span>
-            <span style={{ letterSpacing: "0.2em", textTransform: "uppercase" }}>All times local</span>
+            {artBy && artBy.trim() && (
+              <span style={{ letterSpacing: "0.2em", textTransform: "uppercase" }}>{artBy}</span>
+            )}
           </footer>
         </div>
       </div>
