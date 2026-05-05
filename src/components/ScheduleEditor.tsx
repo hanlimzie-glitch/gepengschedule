@@ -1,6 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { toPng } from "html-to-image";
-import { Upload, Download, Sparkles, ImageIcon } from "lucide-react";
+import { Upload, Download, Sparkles, ImageIcon, UserRound, UsersRound, CloudOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,16 +15,22 @@ import { cn } from "@/lib/utils";
 const DAYS_ID = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
 
 const initialDays: DayItem[] = DAYS_ID.map((d) => ({
-  day: d, time: "19:00 WIB", title: "Just Chatting", note: "",
+  day: d, time: "19:00 WIB", title: "Just Chatting", note: "", type: "solo",
 }));
 
 const themes: { key: ThemeKey; label: string; swatch: string; defaultOrnament: OrnamentKey }[] = [
-  { key: "cute", label: "Cute", swatch: "linear-gradient(135deg,#ffd1e8,#ffe0c2)", defaultOrnament: "hearts" },
-  { key: "aesthetic", label: "Aesthetic", swatch: "linear-gradient(135deg,#b14dff,#4dc3ff)", defaultOrnament: "stars" },
-  { key: "gothic", label: "Gothic", swatch: "linear-gradient(135deg,#1a0000,#4a0a0a)", defaultOrnament: "crosses" },
-  { key: "sakura", label: "Sakura", swatch: "linear-gradient(135deg,#ffb3cc,#ffe0e8)", defaultOrnament: "sakura" },
-  { key: "cyber", label: "Cyber", swatch: "linear-gradient(135deg,#00f0ff,#ff00aa)", defaultOrnament: "circuit" },
-  { key: "mint", label: "Mint", swatch: "linear-gradient(135deg,#7be0c2,#9be7f5)", defaultOrnament: "dots" },
+  { key: "cute", label: "Cute", swatch: "linear-gradient(135deg,hsl(330 100% 78%),hsl(25 100% 82%))", defaultOrnament: "hearts" },
+  { key: "aesthetic", label: "Aesthetic", swatch: "linear-gradient(135deg,hsl(280 90% 75%),hsl(200 95% 75%))", defaultOrnament: "stars" },
+  { key: "gothic", label: "Gothic", swatch: "linear-gradient(135deg,hsl(0 0% 4%),hsl(0 80% 55%))", defaultOrnament: "crosses" },
+  { key: "sakura", label: "Sakura", swatch: "linear-gradient(135deg,hsl(340 90% 70%),hsl(350 100% 88%))", defaultOrnament: "sakura" },
+  { key: "cyber", label: "Cyber", swatch: "linear-gradient(135deg,hsl(180 100% 55%),hsl(320 100% 60%))", defaultOrnament: "circuit" },
+  { key: "mint", label: "Mint", swatch: "linear-gradient(135deg,hsl(160 70% 55%),hsl(190 80% 70%))", defaultOrnament: "dots" },
+];
+
+const scheduleTypes: { key: DayItem["type"]; label: string; icon: JSX.Element }[] = [
+  { key: "solo", label: "Solo", icon: <UserRound className="w-4 h-4" /> },
+  { key: "collab", label: "Collab", icon: <UsersRound className="w-4 h-4" /> },
+  { key: "offline", label: "Offline", icon: <CloudOff className="w-4 h-4" /> },
 ];
 
 const ornamentOptions: { key: OrnamentKey; label: string }[] = [
@@ -153,16 +159,7 @@ export const ScheduleEditor = () => {
             </p>
           </div>
         </div>
-        <Button
-          size="lg"
-          onClick={downloadPng}
-          disabled={busy}
-          className="text-base font-bold h-12 px-6 rounded-xl shadow-[0_0_30px_hsl(320_90%_70%/0.4)]"
-          style={{ background: "var(--gradient-accent)", color: "hsl(var(--background))" }}
-        >
-          <Download className="mr-2 w-5 h-5" />
-          {busy ? "Rendering..." : "Download Schedule"}
-        </Button>
+        <div className="hidden md:block text-sm text-muted-foreground">Preview di kanan, download di bawah preview</div>
       </header>
 
       <div className="max-w-[1800px] mx-auto grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-6">
@@ -215,7 +212,7 @@ export const ScheduleEditor = () => {
                   )}
                 >
                   <div className={`h-10 rounded mb-1 theme-${theme} ornament-${o.key}`}
-                       style={{ background: "hsl(var(--card))" }} />
+                       style={{ backgroundColor: "hsl(var(--t-card))" }} />
                   {o.label}
                 </button>
               ))}
@@ -269,6 +266,16 @@ export const ScheduleEditor = () => {
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-primary">{d.day}</span>
                   </div>
+                  <Select value={d.type} onValueChange={(v) => updateDay(i, "type", v as DayItem["type"])}>
+                    <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {scheduleTypes.map((type) => (
+                        <SelectItem key={type.key} value={type.key}>
+                          <span className="inline-flex items-center gap-2">{type.icon}{type.label}</span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <Input value={d.time} onChange={(e) => updateDay(i, "time", e.target.value)}
                          placeholder="19:00 WIB" className="h-8" />
                   <Input value={d.title} onChange={(e) => updateDay(i, "title", e.target.value)}
