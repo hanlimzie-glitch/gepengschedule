@@ -1,6 +1,5 @@
-import { useRef, useState, useCallback } from "react";
-import html2canvas from "html2canvas";
-import domtoimage from "dom-to-image-more";
+import { useRef, useState, useCallback, useEffect } from "react";
+import { toPng } from "html-to-image";
 import { Upload, Download, Sparkles, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { ScheduleCanvas, type DayItem, type ThemeKey } from "./ScheduleCanvas";
+import { ScheduleCanvas, type DayItem, type ThemeKey, type OrnamentKey } from "./ScheduleCanvas";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -19,11 +18,20 @@ const initialDays: DayItem[] = DAYS_ID.map((d) => ({
   day: d, time: "19:00 WIB", title: "Just Chatting", note: "",
 }));
 
-const themes: { key: ThemeKey; label: string; swatch: string }[] = [
-  { key: "pink", label: "Pink Pastel", swatch: "linear-gradient(135deg,#ffb3d9,#d896ff)" },
-  { key: "purple", label: "Purple Neon", swatch: "linear-gradient(135deg,#b14dff,#4dc3ff)" },
-  { key: "blue", label: "Blue Cyber", swatch: "linear-gradient(135deg,#33d6ff,#7a7aff)" },
-  { key: "cute", label: "Cute", swatch: "linear-gradient(135deg,#ffc299,#ff99c2)" },
+const themes: { key: ThemeKey; label: string; swatch: string; defaultOrnament: OrnamentKey }[] = [
+  { key: "pink", label: "Pink Pastel", swatch: "linear-gradient(135deg,#ffb3d9,#d896ff)", defaultOrnament: "hearts" },
+  { key: "purple", label: "Purple Neon", swatch: "linear-gradient(135deg,#b14dff,#4dc3ff)", defaultOrnament: "waves" },
+  { key: "blue", label: "Blue Cyber", swatch: "linear-gradient(135deg,#33d6ff,#7a7aff)", defaultOrnament: "grid" },
+  { key: "cute", label: "Cute", swatch: "linear-gradient(135deg,#ffc299,#ff99c2)", defaultOrnament: "dots" },
+];
+
+const ornamentOptions: { key: OrnamentKey; label: string }[] = [
+  { key: "dots", label: "Dots" },
+  { key: "grid", label: "Grid" },
+  { key: "diagonal", label: "Diagonal" },
+  { key: "waves", label: "Waves" },
+  { key: "hearts", label: "Hearts" },
+  { key: "none", label: "None" },
 ];
 
 export const ScheduleEditor = () => {
@@ -34,11 +42,21 @@ export const ScheduleEditor = () => {
   const [characterUrl, setCharacterUrl] = useState<string | null>(null);
   const [charFit, setCharFit] = useState<"cover" | "contain">("cover");
   const [theme, setTheme] = useState<ThemeKey>("pink");
+  const [ornament, setOrnament] = useState<OrnamentKey>("hearts");
   const [ratio, setRatio] = useState<"16:9" | "4:3">("16:9");
-  const [exporter, setExporter] = useState<"html2canvas" | "dom-to-image">("html2canvas");
   const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [scale, setScale] = useState(0.4);
+
   const canvasRef = useRef<HTMLDivElement>(null);
+  const previewWrapRef = useRef<HTMLDivElement>(null);
+
+  // Sync ornament when theme changes
+  const pickTheme = (k: ThemeKey) => {
+    setTheme(k);
+    const t = themes.find((x) => x.key === k);
+    if (t) setOrnament(t.defaultOrnament);
+  };
 
   const updateDay = (i: number, key: keyof DayItem, val: string) => {
     setDays((prev) => prev.map((d, idx) => (idx === i ? { ...d, [key]: val } : d)));
@@ -61,23 +79,43 @@ export const ScheduleEditor = () => {
     if (f) handleFile(f);
   };
 
+  // Responsive preview scaling (rAF debounced to avoid ResizeObserver loop)
+  useEffect(() => {
+    const wrap = previewWrapRef.current;
+    if (!wrap) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const s = Math.min(1, wrap.clientWidth / 1920);
+      setScale(s);
+    };
+    const ro = new ResizeObserver(() => {
+      if (raf) return;
+      raf = requestAnimationFrame(update);
+    });
+    ro.observe(wrap);
+    update();
+    return () => { ro.disconnect(); if (raf) cancelAnimationFrame(raf); };
+  }, []);
+
   const downloadPng = async () => {
     if (!canvasRef.current) return;
     setBusy(true);
     try {
-      let dataUrl: string;
-      if (exporter === "html2canvas") {
-        const canvas = await html2canvas(canvasRef.current, {
-          backgroundColor: null, scale: 1, useCORS: true, logging: false,
-        });
-        dataUrl = canvas.toDataURL("image/png");
-      } else {
-        dataUrl = await domtoimage.toPng(canvasRef.current, {
-          quality: 1,
-          width: canvasRef.current.offsetWidth,
-          height: canvasRef.current.offsetHeight,
-        });
-      }
+      const node = canvasRef.current;
+      const w = 1920;
+      const h = ratio === "16:9" ? 1080 : 1440;
+      const dataUrl = await toPng(node, {
+        width: w,
+        height: h,
+        pixelRatio: 2,
+        cacheBust: true,
+        style: {
+          transform: "none",
+          margin: "0",
+          inset: "auto",
+        },
+      });
       const a = document.createElement("a");
       a.href = dataUrl;
       a.download = `${title.replace(/\s+/g, "_")}_${ratio.replace(":", "x")}.png`;
@@ -85,15 +123,16 @@ export const ScheduleEditor = () => {
       toast.success("Schedule berhasil di-download! ✨");
     } catch (err) {
       console.error(err);
-      toast.error("Gagal export. Coba metode export lain.");
+      toast.error("Gagal export. Coba lagi.");
     } finally {
       setBusy(false);
     }
   };
 
+  const canvasH = ratio === "16:9" ? 1080 : 1440;
+
   return (
     <div className="min-h-screen p-4 md:p-8">
-      {/* Header */}
       <header className="max-w-[1800px] mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-fade-in">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
@@ -122,9 +161,7 @@ export const ScheduleEditor = () => {
       </header>
 
       <div className="max-w-[1800px] mx-auto grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-6">
-        {/* Sidebar editor */}
         <aside className="space-y-5 animate-fade-in">
-          {/* Title */}
           <Section title="Judul">
             <div className="space-y-3">
               <Field label="Judul utama">
@@ -140,16 +177,16 @@ export const ScheduleEditor = () => {
             </div>
           </Section>
 
-          {/* Theme */}
           <Section title="Tema">
             <div className="grid grid-cols-2 gap-3">
               {themes.map((t) => (
                 <button
+                  type="button"
                   key={t.key}
-                  onClick={() => setTheme(t.key)}
+                  onClick={() => pickTheme(t.key)}
                   className={cn(
                     "rounded-xl p-3 border-2 text-left transition-all hover:scale-[1.02]",
-                    theme === t.key ? "border-primary shadow-glow" : "border-border"
+                    theme === t.key ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border"
                   )}
                   style={{ background: "hsl(var(--card))" }}
                 >
@@ -160,7 +197,26 @@ export const ScheduleEditor = () => {
             </div>
           </Section>
 
-          {/* Character */}
+          <Section title="Ornament">
+            <div className="grid grid-cols-3 gap-2">
+              {ornamentOptions.map((o) => (
+                <button
+                  type="button"
+                  key={o.key}
+                  onClick={() => setOrnament(o.key)}
+                  className={cn(
+                    "rounded-lg p-2 border-2 text-xs font-semibold transition-all hover:scale-[1.02]",
+                    ornament === o.key ? "border-primary" : "border-border"
+                  )}
+                >
+                  <div className={`h-10 rounded mb-1 theme-${theme} ornament-${o.key}`}
+                       style={{ background: "hsl(var(--card))" }} />
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          </Section>
+
           <Section title="Karakter VTuber">
             <div
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -201,7 +257,6 @@ export const ScheduleEditor = () => {
             </div>
           </Section>
 
-          {/* Days */}
           <Section title="Jadwal Mingguan">
             <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
               {days.map((d, i) => (
@@ -220,61 +275,41 @@ export const ScheduleEditor = () => {
             </div>
           </Section>
 
-          {/* Export */}
           <Section title="Export">
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Rasio">
-                <Select value={ratio} onValueChange={(v) => setRatio(v as any)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="16:9">16:9 (1920×1080)</SelectItem>
-                    <SelectItem value="4:3">4:3 (1920×1440)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
-              <Field label="Library">
-                <Select value={exporter} onValueChange={(v) => setExporter(v as any)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="html2canvas">html2canvas</SelectItem>
-                    <SelectItem value="dom-to-image">dom-to-image</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
-            </div>
+            <Field label="Rasio">
+              <Select value={ratio} onValueChange={(v) => setRatio(v as any)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="16:9">16:9 (1920×1080)</SelectItem>
+                  <SelectItem value="4:3">4:3 (1920×1440)</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+            <p className="text-xs text-muted-foreground mt-2">
+              Output di-render @2x untuk hasil ultra HD.
+            </p>
           </Section>
         </aside>
 
-        {/* Preview */}
         <main className="animate-fade-in">
           <div className="glass rounded-2xl p-4 sticky top-4">
             <div className="flex items-center justify-between mb-3 px-2">
               <span className="text-sm text-muted-foreground">Preview ({ratio})</span>
               <span className="text-xs text-muted-foreground">
-                Output: {ratio === "16:9" ? "1920×1080" : "1920×1440"}
+                Output: {ratio === "16:9" ? "3840×2160" : "3840×2880"} (HD)
               </span>
             </div>
-            <div className="w-full overflow-hidden rounded-xl border border-border bg-black/30">
+            <div
+              ref={previewWrapRef}
+              className="w-full overflow-hidden rounded-xl border border-border bg-black/30"
+              style={{ height: canvasH * scale }}
+            >
               <div
-                className="origin-top-left"
                 style={{
-                  transform: "scale(var(--scale))",
                   width: 1920,
-                  height: ratio === "16:9" ? 1080 : 1440,
-                  // computed via CSS clamp via JS below
-                }}
-                ref={(el) => {
-                  if (!el) return;
-                  const parent = el.parentElement!;
-                  const update = () => {
-                    const s = parent.clientWidth / 1920;
-                    el.style.setProperty("--scale", String(s));
-                    parent.style.height = `${(ratio === "16:9" ? 1080 : 1440) * s}px`;
-                  };
-                  update();
-                  // observe resize
-                  const ro = new ResizeObserver(update);
-                  ro.observe(parent);
+                  height: canvasH,
+                  transform: `scale(${scale})`,
+                  transformOrigin: "top left",
                 }}
               >
                 <ScheduleCanvas
@@ -287,6 +322,7 @@ export const ScheduleEditor = () => {
                   charFit={charFit}
                   theme={theme}
                   ratio={ratio}
+                  ornament={ornament}
                 />
               </div>
             </div>
