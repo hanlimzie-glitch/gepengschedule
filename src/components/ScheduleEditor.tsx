@@ -340,6 +340,7 @@ export const ScheduleEditor = () => {
                   theme={theme}
                   ratio={ratio}
                   ornament={ornament}
+                  artBy={artBy}
                 />
               </div>
             </div>
