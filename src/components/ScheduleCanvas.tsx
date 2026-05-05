@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { Sparkles, Star, Heart } from "lucide-react";
+import { Sparkles, Star, Heart, Moon, Flower2 } from "lucide-react";
 
 export type DayItem = {
   day: string;
@@ -9,6 +9,7 @@ export type DayItem = {
 };
 
 export type ThemeKey = "pink" | "purple" | "blue" | "cute";
+export type OrnamentKey = "dots" | "grid" | "diagonal" | "waves" | "hearts" | "none";
 
 export type ScheduleProps = {
   title: string;
@@ -19,24 +20,18 @@ export type ScheduleProps = {
   charFit: "cover" | "contain";
   theme: ThemeKey;
   ratio: "16:9" | "4:3";
+  ornament: OrnamentKey;
 };
 
 const themeIcon: Record<ThemeKey, JSX.Element> = {
-  pink: <Heart className="w-5 h-5" fill="currentColor" />,
-  purple: <Sparkles className="w-5 h-5" />,
-  blue: <Star className="w-5 h-5" fill="currentColor" />,
-  cute: <Heart className="w-5 h-5" fill="currentColor" />,
-};
-
-const ornamentClass: Record<ThemeKey, string> = {
-  pink: "ornament-dots",
-  purple: "ornament-stars",
-  blue: "ornament-grid",
-  cute: "ornament-dots",
+  pink: <Heart className="w-6 h-6" fill="currentColor" />,
+  purple: <Sparkles className="w-6 h-6" />,
+  blue: <Star className="w-6 h-6" fill="currentColor" />,
+  cute: <Flower2 className="w-6 h-6" fill="currentColor" />,
 };
 
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
-  ({ title, subtitle, dateRange, days, characterUrl, charFit, theme, ratio }, ref) => {
+  ({ title, subtitle, dateRange, days, characterUrl, charFit, theme, ratio, ornament }, ref) => {
     const w = 1920;
     const h = ratio === "16:9" ? 1080 : 1440;
 
@@ -52,95 +47,105 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           fontFamily: "'Poppins', 'Inter', sans-serif",
         }}
       >
-        {/* Ornament background */}
-        <div className={`absolute inset-0 ${ornamentClass[theme]} opacity-60`} />
+        <div className={`absolute inset-0 ornament-${ornament}`} style={{ opacity: 0.7 }} />
         <div
-          className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full blur-3xl opacity-40"
-          style={{ background: "var(--gradient-accent)" }}
+          className="absolute"
+          style={{
+            top: -160, right: -160, width: 600, height: 600,
+            borderRadius: "9999px", filter: "blur(80px)", opacity: 0.4,
+            background: "var(--gradient-accent)",
+          }}
         />
         <div
-          className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full blur-3xl opacity-30"
-          style={{ background: "hsl(var(--t-2))" }}
+          className="absolute"
+          style={{
+            bottom: -160, left: -160, width: 500, height: 500,
+            borderRadius: "9999px", filter: "blur(80px)", opacity: 0.3,
+            background: "hsl(var(--t-2))",
+          }}
         />
 
-        {/* Content */}
-        <div className="relative h-full flex flex-col p-16">
-          {/* Header */}
-          <header className="flex items-end justify-between mb-10">
+        <div className="relative h-full flex flex-col" style={{ padding: 64 }}>
+          <header className="flex items-end justify-between" style={{ marginBottom: 40 }}>
             <div>
               <div
-                className="flex items-center gap-3 mb-3 text-2xl"
-                style={{ color: "hsl(var(--t-1))" }}
+                className="flex items-center"
+                style={{ gap: 12, marginBottom: 12, fontSize: 24, color: "hsl(var(--t-1))" }}
               >
                 {themeIcon[theme]}
-                <span className="uppercase tracking-[0.4em] font-semibold">
+                <span style={{ textTransform: "uppercase", letterSpacing: "0.4em", fontWeight: 600 }}>
                   Weekly Schedule
                 </span>
                 {themeIcon[theme]}
               </div>
               <h1
-                className="text-8xl font-black leading-none glow-text"
-                style={{ color: "hsl(var(--t-text))" }}
+                className="glow-text"
+                style={{ fontSize: 96, fontWeight: 900, lineHeight: 1, color: "hsl(var(--t-text))", margin: 0 }}
               >
                 {title || "VTuber Schedule"}
               </h1>
               {subtitle && (
-                <p className="mt-4 text-3xl font-light" style={{ color: "hsl(var(--t-muted))" }}>
+                <p style={{ marginTop: 16, fontSize: 30, fontWeight: 300, color: "hsl(var(--t-muted))" }}>
                   {subtitle}
                 </p>
               )}
             </div>
             <div
-              className="text-right px-8 py-4 rounded-2xl"
               style={{
+                textAlign: "right",
+                padding: "16px 32px",
+                borderRadius: 16,
                 background: "hsl(var(--t-card) / 0.7)",
                 border: "2px solid hsl(var(--t-border) / 0.6)",
               }}
             >
-              <div className="text-xl uppercase tracking-widest" style={{ color: "hsl(var(--t-1))" }}>
+              <div style={{ fontSize: 20, textTransform: "uppercase", letterSpacing: "0.2em", color: "hsl(var(--t-1))" }}>
                 Date
               </div>
-              <div className="text-4xl font-bold mt-1">{dateRange}</div>
+              <div style={{ fontSize: 40, fontWeight: 700, marginTop: 4 }}>{dateRange}</div>
             </div>
           </header>
 
-          {/* Body: schedule grid + character */}
-          <div className="flex-1 flex gap-10 min-h-0">
-            {/* Schedule grid */}
-            <div className="flex-1 grid grid-cols-2 grid-rows-4 gap-5">
+          <div className="flex-1 flex" style={{ gap: 40, minHeight: 0 }}>
+            <div
+              className="flex-1 grid"
+              style={{ gridTemplateColumns: "1fr 1fr", gridTemplateRows: "repeat(4, 1fr)", gap: 20 }}
+            >
               {days.map((d, i) => (
                 <div
                   key={i}
-                  className={`relative rounded-2xl p-6 flex gap-5 ${
-                    i === days.length - 1 ? "col-span-2" : ""
-                  }`}
+                  className="relative flex"
                   style={{
+                    gridColumn: i === days.length - 1 ? "span 2" : undefined,
+                    gap: 20,
+                    padding: 24,
+                    borderRadius: 16,
                     background: "hsl(var(--t-card) / 0.75)",
                     border: "2px solid hsl(var(--t-border) / 0.5)",
                     boxShadow: "var(--shadow-card)",
                   }}
                 >
                   <div
-                    className="flex flex-col items-center justify-center px-5 rounded-xl min-w-[140px]"
-                    style={{ background: "var(--gradient-accent)", color: "hsl(var(--t-bg-to))" }}
+                    className="flex flex-col items-center justify-center"
+                    style={{
+                      padding: "0 20px", borderRadius: 12, minWidth: 140,
+                      background: "var(--gradient-accent)", color: "hsl(var(--t-bg-to))",
+                    }}
                   >
-                    <div className="text-sm uppercase tracking-widest font-bold opacity-80">
+                    <div style={{ fontSize: 14, textTransform: "uppercase", letterSpacing: "0.2em", fontWeight: 700, opacity: 0.85 }}>
                       Day
                     </div>
-                    <div className="text-4xl font-black">{d.day}</div>
+                    <div style={{ fontSize: 36, fontWeight: 900, lineHeight: 1.1, textAlign: "center" }}>{d.day}</div>
                   </div>
                   <div className="flex-1 flex flex-col justify-center">
-                    <div
-                      className="text-xl font-bold mb-1"
-                      style={{ color: "hsl(var(--t-1))" }}
-                    >
+                    <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 4, color: "hsl(var(--t-1))" }}>
                       {d.time || "—"}
                     </div>
-                    <div className="text-2xl font-bold leading-tight" style={{ color: "hsl(var(--t-text))" }}>
+                    <div style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.15, color: "hsl(var(--t-text))" }}>
                       {d.title || "Free"}
                     </div>
                     {d.note && (
-                      <div className="text-lg mt-1" style={{ color: "hsl(var(--t-muted))" }}>
+                      <div style={{ fontSize: 18, marginTop: 4, color: "hsl(var(--t-muted))" }}>
                         {d.note}
                       </div>
                     )}
@@ -149,12 +154,12 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
               ))}
             </div>
 
-            {/* Character frame (4:3) */}
             <div
-              className="relative rounded-3xl overflow-hidden flex-shrink-0"
+              className="relative flex-shrink-0 overflow-hidden"
               style={{
                 width: ratio === "16:9" ? 600 : 700,
-                aspectRatio: "4 / 3",
+                height: "100%",
+                borderRadius: 24,
                 background: "hsl(var(--t-card))",
                 border: "4px solid hsl(var(--t-border))",
                 boxShadow: "var(--shadow-glow)",
@@ -166,39 +171,47 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
                   alt="VTuber character"
                   crossOrigin="anonymous"
                   style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: charFit,
-                    objectPosition: "center",
+                    width: "100%", height: "100%",
+                    objectFit: charFit, objectPosition: "center",
+                    display: "block",
                   }}
                 />
               ) : (
                 <div
-                  className="w-full h-full flex items-center justify-center text-3xl"
-                  style={{ color: "hsl(var(--t-muted))" }}
+                  className="w-full h-full flex items-center justify-center"
+                  style={{ fontSize: 28, color: "hsl(var(--t-muted))" }}
                 >
                   Upload your character ✨
                 </div>
               )}
-              {/* Frame corners */}
-              <div className="absolute top-3 left-3 w-12 h-12 border-t-4 border-l-4 rounded-tl-2xl"
-                style={{ borderColor: "hsl(var(--t-1))" }} />
-              <div className="absolute top-3 right-3 w-12 h-12 border-t-4 border-r-4 rounded-tr-2xl"
-                style={{ borderColor: "hsl(var(--t-1))" }} />
-              <div className="absolute bottom-3 left-3 w-12 h-12 border-b-4 border-l-4 rounded-bl-2xl"
-                style={{ borderColor: "hsl(var(--t-1))" }} />
-              <div className="absolute bottom-3 right-3 w-12 h-12 border-b-4 border-r-4 rounded-br-2xl"
-                style={{ borderColor: "hsl(var(--t-1))" }} />
+              {[
+                { top: 12, left: 12, bt: 4, bl: 4, br: 0, bb: 0, tl: 16 },
+                { top: 12, right: 12, bt: 4, br: 4, bl: 0, bb: 0, tr: 16 },
+                { bottom: 12, left: 12, bb: 4, bl: 4, bt: 0, br: 0, bbl: 16 },
+                { bottom: 12, right: 12, bb: 4, br: 4, bt: 0, bl: 0, bbr: 16 },
+              ].map((c, i) => (
+                <div key={i} className="absolute" style={{
+                  width: 48, height: 48,
+                  top: (c as any).top, left: (c as any).left, right: (c as any).right, bottom: (c as any).bottom,
+                  borderTopWidth: c.bt, borderLeftWidth: c.bl, borderRightWidth: c.br, borderBottomWidth: c.bb,
+                  borderStyle: "solid", borderColor: "hsl(var(--t-1))",
+                  borderTopLeftRadius: (c as any).tl ?? 0,
+                  borderTopRightRadius: (c as any).tr ?? 0,
+                  borderBottomLeftRadius: (c as any).bbl ?? 0,
+                  borderBottomRightRadius: (c as any).bbr ?? 0,
+                }} />
+              ))}
             </div>
           </div>
 
-          {/* Footer */}
           <footer
-            className="mt-8 flex items-center justify-between text-xl"
-            style={{ color: "hsl(var(--t-muted))" }}
+            className="flex items-center justify-between"
+            style={{ marginTop: 32, fontSize: 20, color: "hsl(var(--t-muted))" }}
           >
-            <span className="tracking-widest uppercase">Stay tuned ♡</span>
-            <span className="tracking-widest uppercase">All times local</span>
+            <span style={{ letterSpacing: "0.2em", textTransform: "uppercase" }}>
+              <Moon className="inline w-5 h-5 mr-2" /> Stay tuned ♡
+            </span>
+            <span style={{ letterSpacing: "0.2em", textTransform: "uppercase" }}>All times local</span>
           </footer>
         </div>
       </div>
