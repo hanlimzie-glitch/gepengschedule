@@ -63,7 +63,7 @@ const ornamentGlyphs: Record<OrnamentKey, string[]> = {
 };
 
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
-  ({ title, subtitle, dateRange, days, characterUrl, charFit, theme, ratio, ornament }, ref) => {
+  ({ title, subtitle, dateRange, days, characterUrl, charFit, theme, ratio, ornament, artBy }, ref) => {
     const w = 1920;
     const h = ratio === "16:9" ? 1080 : 1440;
 
