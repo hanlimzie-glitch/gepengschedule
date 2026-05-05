@@ -6,99 +6,28 @@
   :root {
     --background: 240 20% 6%;
     --foreground: 320 30% 96%;
-
     --card: 240 18% 10%;
     --card-foreground: 320 30% 96%;
-
     --popover: 240 18% 10%;
     --popover-foreground: 320 30% 96%;
-
     --primary: 320 90% 70%;
     --primary-foreground: 240 20% 6%;
-
     --secondary: 270 40% 20%;
     --secondary-foreground: 320 30% 96%;
-
     --muted: 240 15% 15%;
     --muted-foreground: 240 10% 65%;
-
     --accent: 280 80% 60%;
     --accent-foreground: 240 20% 6%;
-
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-
     --border: 270 25% 22%;
     --input: 270 25% 18%;
     --ring: 320 90% 70%;
-
     --radius: 0.875rem;
-
-    --t-1: 330 100% 80%;
-    --t-2: 280 90% 70%;
-    --t-bg-from: 320 60% 12%;
-    --t-bg-to: 260 60% 8%;
-    --t-card: 320 30% 12%;
-    --t-text: 320 30% 96%;
-    --t-muted: 320 20% 70%;
-    --t-border: 320 60% 35%;
-    --t-glow: 330 100% 70%;
-
-    --gradient-theme: linear-gradient(135deg, hsl(var(--t-bg-from)), hsl(var(--t-bg-to)));
-    --gradient-accent: linear-gradient(135deg, hsl(var(--t-1)), hsl(var(--t-2)));
-    --shadow-glow: 0 0 40px hsl(var(--t-glow) / 0.4);
-    --shadow-card: 0 8px 30px -10px hsl(var(--t-1) / 0.35);
 
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .theme-pink {
-    --t-1: 330 100% 78%;
-    --t-2: 290 90% 78%;
-    --t-bg-from: 330 50% 14%;
-    --t-bg-to: 300 50% 8%;
-    --t-card: 320 40% 14%;
-    --t-text: 330 30% 98%;
-    --t-muted: 320 25% 78%;
-    --t-border: 330 80% 60%;
-    --t-glow: 330 100% 70%;
-  }
-  .theme-purple {
-    --t-1: 280 100% 70%;
-    --t-2: 200 100% 65%;
-    --t-bg-from: 270 70% 10%;
-    --t-bg-to: 240 80% 5%;
-    --t-card: 270 40% 12%;
-    --t-text: 270 30% 98%;
-    --t-muted: 270 30% 78%;
-    --t-border: 280 90% 60%;
-    --t-glow: 280 100% 65%;
-  }
-  .theme-blue {
-    --t-1: 195 100% 60%;
-    --t-2: 250 100% 70%;
-    --t-bg-from: 220 80% 8%;
-    --t-bg-to: 240 90% 4%;
-    --t-card: 220 50% 12%;
-    --t-text: 200 30% 98%;
-    --t-muted: 200 30% 75%;
-    --t-border: 195 100% 55%;
-    --t-glow: 195 100% 60%;
-  }
-  .theme-cute {
-    --t-1: 25 100% 75%;
-    --t-2: 340 100% 80%;
-    --t-bg-from: 30 60% 16%;
-    --t-bg-to: 350 50% 12%;
-    --t-card: 25 40% 16%;
-    --t-text: 30 30% 98%;
-    --t-muted: 25 30% 80%;
-    --t-border: 25 90% 65%;
-    --t-glow: 25 100% 70%;
-  }
-}
-
-@layer base {
   * { @apply border-border; }
   body {
     @apply bg-background text-foreground;
@@ -110,12 +39,116 @@
   }
 }
 
+/* ============== THEMES (outside @layer to guarantee load order) ============== */
+
+.theme-cute {
+  --t-1: 330 100% 78%;
+  --t-2: 25 100% 82%;
+  --t-bg-from: 340 80% 92%;
+  --t-bg-to: 25 90% 90%;
+  --t-card: 0 0% 100%;
+  --t-text: 330 60% 30%;
+  --t-muted: 330 30% 50%;
+  --t-border: 330 90% 75%;
+  --t-glow: 330 100% 80%;
+  --t-font: 'Quicksand', 'Poppins', sans-serif;
+  --gradient-theme: linear-gradient(135deg, hsl(var(--t-bg-from)), hsl(var(--t-bg-to)));
+  --gradient-accent: linear-gradient(135deg, hsl(var(--t-1)), hsl(var(--t-2)));
+  --shadow-glow: 0 0 50px hsl(var(--t-glow) / 0.55);
+  --shadow-card: 0 8px 30px -8px hsl(var(--t-1) / 0.45);
+}
+
+.theme-aesthetic {
+  --t-1: 280 90% 75%;
+  --t-2: 200 95% 75%;
+  --t-bg-from: 270 60% 14%;
+  --t-bg-to: 220 70% 10%;
+  --t-card: 270 35% 18%;
+  --t-text: 270 30% 98%;
+  --t-muted: 270 25% 78%;
+  --t-border: 280 80% 65%;
+  --t-glow: 280 100% 70%;
+  --t-font: 'Playfair Display', 'Poppins', serif;
+  --gradient-theme: linear-gradient(135deg, hsl(var(--t-bg-from)), hsl(var(--t-bg-to)));
+  --gradient-accent: linear-gradient(135deg, hsl(var(--t-1)), hsl(var(--t-2)));
+  --shadow-glow: 0 0 60px hsl(var(--t-glow) / 0.5);
+  --shadow-card: 0 8px 30px -10px hsl(var(--t-1) / 0.4);
+}
+
+.theme-gothic {
+  --t-1: 0 80% 55%;
+  --t-2: 280 60% 35%;
+  --t-bg-from: 0 0% 4%;
+  --t-bg-to: 280 30% 6%;
+  --t-card: 0 0% 8%;
+  --t-text: 0 0% 96%;
+  --t-muted: 0 10% 65%;
+  --t-border: 0 70% 40%;
+  --t-glow: 0 100% 50%;
+  --t-font: 'Cormorant Garamond', 'Playfair Display', serif;
+  --gradient-theme: linear-gradient(135deg, hsl(var(--t-bg-from)), hsl(var(--t-bg-to)));
+  --gradient-accent: linear-gradient(135deg, hsl(var(--t-1)), hsl(var(--t-2)));
+  --shadow-glow: 0 0 50px hsl(var(--t-glow) / 0.6);
+  --shadow-card: 0 10px 30px -8px hsl(0 0% 0% / 0.7);
+}
+
+.theme-sakura {
+  --t-1: 340 90% 70%;
+  --t-2: 350 100% 88%;
+  --t-bg-from: 340 50% 96%;
+  --t-bg-to: 0 60% 92%;
+  --t-card: 0 0% 100%;
+  --t-text: 340 50% 28%;
+  --t-muted: 340 25% 50%;
+  --t-border: 340 80% 75%;
+  --t-glow: 340 100% 75%;
+  --t-font: 'Sawarabi Mincho', 'Playfair Display', serif;
+  --gradient-theme: linear-gradient(135deg, hsl(var(--t-bg-from)), hsl(var(--t-bg-to)));
+  --gradient-accent: linear-gradient(135deg, hsl(var(--t-1)), hsl(var(--t-2)));
+  --shadow-glow: 0 0 50px hsl(var(--t-glow) / 0.45);
+  --shadow-card: 0 8px 30px -10px hsl(var(--t-1) / 0.35);
+}
+
+.theme-cyber {
+  --t-1: 180 100% 55%;
+  --t-2: 320 100% 60%;
+  --t-bg-from: 230 80% 6%;
+  --t-bg-to: 260 90% 4%;
+  --t-card: 230 50% 10%;
+  --t-text: 180 30% 98%;
+  --t-muted: 180 30% 75%;
+  --t-border: 180 100% 50%;
+  --t-glow: 180 100% 55%;
+  --t-font: 'Orbitron', 'Poppins', sans-serif;
+  --gradient-theme: linear-gradient(135deg, hsl(var(--t-bg-from)), hsl(var(--t-bg-to)));
+  --gradient-accent: linear-gradient(135deg, hsl(var(--t-1)), hsl(var(--t-2)));
+  --shadow-glow: 0 0 60px hsl(var(--t-glow) / 0.6);
+  --shadow-card: 0 8px 30px -10px hsl(var(--t-1) / 0.45);
+}
+
+.theme-mint {
+  --t-1: 160 70% 55%;
+  --t-2: 190 80% 70%;
+  --t-bg-from: 160 40% 92%;
+  --t-bg-to: 190 50% 88%;
+  --t-card: 0 0% 100%;
+  --t-text: 180 50% 18%;
+  --t-muted: 180 20% 45%;
+  --t-border: 170 70% 55%;
+  --t-glow: 170 90% 60%;
+  --t-font: 'Quicksand', 'Poppins', sans-serif;
+  --gradient-theme: linear-gradient(135deg, hsl(var(--t-bg-from)), hsl(var(--t-bg-to)));
+  --gradient-accent: linear-gradient(135deg, hsl(var(--t-1)), hsl(var(--t-2)));
+  --shadow-glow: 0 0 40px hsl(var(--t-glow) / 0.4);
+  --shadow-card: 0 8px 30px -10px hsl(var(--t-1) / 0.3);
+}
+
 @layer utilities {
   .glow-text {
     text-shadow: 0 0 20px hsl(var(--t-glow) / 0.7), 0 0 40px hsl(var(--t-glow) / 0.4);
   }
   .gradient-text {
-    background: var(--gradient-accent);
+    background: linear-gradient(135deg, hsl(320 90% 70%), hsl(280 90% 70%));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -125,21 +158,61 @@
     backdrop-filter: blur(12px);
     border: 1px solid hsl(var(--border));
   }
-  .ornament-dots { background-image: radial-gradient(hsl(var(--t-1) / 0.45) 2px, transparent 2px); background-size: 28px 28px; }
-  .ornament-grid { background-image: linear-gradient(hsl(var(--t-1) / 0.18) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--t-1) / 0.18) 1px, transparent 1px); background-size: 48px 48px; }
-  .ornament-diagonal { background-image: repeating-linear-gradient(45deg, hsl(var(--t-1) / 0.14) 0 2px, transparent 2px 24px); }
-  .ornament-waves { background-image: radial-gradient(circle at 20% 50%, hsl(var(--t-1) / 0.2) 0, transparent 25%), radial-gradient(circle at 80% 30%, hsl(var(--t-2) / 0.2) 0, transparent 25%), radial-gradient(circle at 50% 80%, hsl(var(--t-1) / 0.16) 0, transparent 30%); }
-  .ornament-hearts { background-image: radial-gradient(hsl(var(--t-1) / 0.3) 3px, transparent 4px), radial-gradient(hsl(var(--t-2) / 0.3) 3px, transparent 4px); background-size: 60px 60px, 60px 60px; background-position: 0 0, 30px 30px; }
+
+  /* Ornaments — use theme color vars so they re-tint per theme */
+  .ornament-dots {
+    background-image: radial-gradient(hsl(var(--t-1) / 0.5) 2px, transparent 2.5px);
+    background-size: 28px 28px;
+  }
+  .ornament-grid {
+    background-image:
+      linear-gradient(hsl(var(--t-1) / 0.22) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--t-1) / 0.22) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .ornament-diagonal {
+    background-image: repeating-linear-gradient(45deg, hsl(var(--t-1) / 0.18) 0 2px, transparent 2px 22px);
+  }
+  .ornament-stars {
+    background-image:
+      radial-gradient(2px 2px at 20% 30%, hsl(var(--t-1) / 0.7), transparent 50%),
+      radial-gradient(1.5px 1.5px at 60% 70%, hsl(var(--t-2) / 0.6), transparent 50%),
+      radial-gradient(2.5px 2.5px at 80% 20%, hsl(var(--t-1) / 0.5), transparent 50%),
+      radial-gradient(1px 1px at 35% 85%, hsl(var(--t-2) / 0.7), transparent 50%);
+    background-size: 240px 240px;
+  }
+  .ornament-hearts {
+    background-image:
+      radial-gradient(hsl(var(--t-1) / 0.35) 3px, transparent 4px),
+      radial-gradient(hsl(var(--t-2) / 0.3) 3px, transparent 4px);
+    background-size: 60px 60px, 60px 60px;
+    background-position: 0 0, 30px 30px;
+  }
+  .ornament-sakura {
+    background-image:
+      radial-gradient(circle at 25% 25%, hsl(var(--t-1) / 0.45) 4px, transparent 6px),
+      radial-gradient(circle at 75% 60%, hsl(var(--t-2) / 0.4) 5px, transparent 7px),
+      radial-gradient(circle at 50% 90%, hsl(var(--t-1) / 0.35) 3px, transparent 5px);
+    background-size: 180px 180px;
+  }
+  .ornament-crosses {
+    background-image:
+      linear-gradient(hsl(var(--t-1) / 0.35) 50%, transparent 50%),
+      linear-gradient(90deg, hsl(var(--t-1) / 0.35) 50%, transparent 50%);
+    background-size: 4px 24px, 24px 4px;
+    background-position: center;
+  }
+  .ornament-circuit {
+    background-image:
+      linear-gradient(hsl(var(--t-1) / 0.3) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--t-2) / 0.25) 1px, transparent 1px),
+      radial-gradient(hsl(var(--t-1) / 0.6) 2px, transparent 3px);
+    background-size: 60px 60px, 60px 60px, 120px 120px;
+  }
   .ornament-none { background-image: none; }
 
   .animate-float { animation: float 6s ease-in-out infinite; }
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
   .animate-fade-in { animation: fadeIn 0.5s ease-out; }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 }
