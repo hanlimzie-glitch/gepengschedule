@@ -177,6 +177,10 @@ export const ScheduleEditor = () => {
                 <Input value={dateRange} onChange={(e) => setDateRange(e.target.value)}
                        placeholder="5 - 11 Mei 2026" />
               </Field>
+              <Field label="Art credit (di bawah karakter)">
+                <Input value={artBy} onChange={(e) => setArtBy(e.target.value)}
+                       placeholder="Art by @yourname" />
+              </Field>
             </div>
           </Section>
 
