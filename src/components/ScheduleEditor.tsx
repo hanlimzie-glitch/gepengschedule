@@ -46,7 +46,7 @@ export const ScheduleEditor = () => {
   const [days, setDays] = useState<DayItem[]>(initialDays);
   const [characterUrl, setCharacterUrl] = useState<string | null>(null);
   const [charFit, setCharFit] = useState<"cover" | "contain">("cover");
-  const [theme, setTheme] = useState<ThemeKey>("pink");
+  const [theme, setTheme] = useState<ThemeKey>("cute");
   const [ornament, setOrnament] = useState<OrnamentKey>("hearts");
   const [ratio, setRatio] = useState<"16:9" | "4:3">("16:9");
   const [busy, setBusy] = useState(false);
