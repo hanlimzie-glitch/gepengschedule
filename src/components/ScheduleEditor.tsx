@@ -49,6 +49,7 @@ export const ScheduleEditor = () => {
   const [title, setTitle] = useState("Huan Weekly Schedule");
   const [subtitle, setSubtitle] = useState("Powered by Lovable ♡");
   const [dateRange, setDateRange] = useState("5 - 11 Mei 2026");
+  const [artBy, setArtBy] = useState("Art by @yourname");
   const [days, setDays] = useState<DayItem[]>(initialDays);
   const [characterUrl, setCharacterUrl] = useState<string | null>(null);
   const [charFit, setCharFit] = useState<"cover" | "contain">("cover");
@@ -175,6 +176,10 @@ export const ScheduleEditor = () => {
               <Field label="Tanggal / Periode">
                 <Input value={dateRange} onChange={(e) => setDateRange(e.target.value)}
                        placeholder="5 - 11 Mei 2026" />
+              </Field>
+              <Field label="Art credit (di bawah karakter)">
+                <Input value={artBy} onChange={(e) => setArtBy(e.target.value)}
+                       placeholder="Art by @yourname" />
               </Field>
             </div>
           </Section>
@@ -335,6 +340,7 @@ export const ScheduleEditor = () => {
                   theme={theme}
                   ratio={ratio}
                   ornament={ornament}
+                  artBy={artBy}
                 />
               </div>
             </div>

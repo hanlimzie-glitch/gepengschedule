@@ -23,6 +23,7 @@ export type ScheduleProps = {
   theme: ThemeKey;
   ratio: "16:9" | "4:3";
   ornament: OrnamentKey;
+  artBy?: string;
 };
 
 const themeIcon: Record<ThemeKey, JSX.Element> = {
@@ -62,7 +63,7 @@ const ornamentGlyphs: Record<OrnamentKey, string[]> = {
 };
 
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
-  ({ title, subtitle, dateRange, days, characterUrl, charFit, theme, ratio, ornament }, ref) => {
+  ({ title, subtitle, dateRange, days, characterUrl, charFit, theme, ratio, ornament, artBy }, ref) => {
     const w = 1920;
     const h = ratio === "16:9" ? 1080 : 1440;
 
@@ -79,7 +80,7 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
         }}
       >
         <div className={`absolute inset-0 ornament-${ornament}`} style={{ opacity: 0.95 }} />
-        {ornament !== "none" && (
+        {ornament !== "none" && ornament !== "hearts" && ornament !== "sakura" && (
           <div className="absolute inset-0" style={{ pointerEvents: "none", color: "hsl(var(--t-1))" }}>
             {Array.from({ length: 36 }).map((_, i) => {
               const glyph = ornamentGlyphs[ornament][i % ornamentGlyphs[ornament].length];
@@ -285,7 +286,9 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
             <span style={{ letterSpacing: "0.2em", textTransform: "uppercase" }}>
               <Moon className="inline w-5 h-5 mr-2" /> Stay tuned ♡
             </span>
-            <span style={{ letterSpacing: "0.2em", textTransform: "uppercase" }}>All times local</span>
+            {artBy && artBy.trim() && (
+              <span style={{ letterSpacing: "0.2em", textTransform: "uppercase" }}>{artBy}</span>
+            )}
           </footer>
         </div>
       </div>

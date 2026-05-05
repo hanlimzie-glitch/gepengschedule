@@ -167,18 +167,24 @@
   background-size: 220px 220px;
 }
 .ornament-hearts {
-  background-image:
-    radial-gradient(circle at 35% 35%, hsl(var(--t-1) / 0.42) 0 8px, transparent 9px),
-    radial-gradient(circle at 65% 35%, hsl(var(--t-1) / 0.42) 0 8px, transparent 9px),
-    linear-gradient(45deg, transparent 0 44%, hsl(var(--t-1) / 0.42) 45% 65%, transparent 66%);
-  background-size: 74px 74px;
+  background-color: transparent;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><path d='M30 22c-7 0-12 5-12 12 0 11 12 18 12 18s12-7 12-18c0-7-5-12-12-12z' fill='black'/><path d='M88 70c-7 0-12 5-12 12 0 11 12 18 12 18s12-7 12-18c0-7-5-12-12-12z' fill='black'/></svg>");
+          mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><path d='M30 22c-7 0-12 5-12 12 0 11 12 18 12 18s12-7 12-18c0-7-5-12-12-12z' fill='black'/><path d='M88 70c-7 0-12 5-12 12 0 11 12 18 12 18s12-7 12-18c0-7-5-12-12-12z' fill='black'/></svg>");
+  -webkit-mask-repeat: repeat;
+          mask-repeat: repeat;
+  -webkit-mask-size: 120px 120px;
+          mask-size: 120px 120px;
+  background-image: linear-gradient(hsl(var(--t-1) / 0.55), hsl(var(--t-1) / 0.55));
 }
 .ornament-sakura {
-  background-image:
-    radial-gradient(ellipse at 45% 20%, hsl(var(--t-1) / 0.5) 0 9px, transparent 10px),
-    radial-gradient(ellipse at 60% 55%, hsl(var(--t-2) / 0.55) 0 10px, transparent 11px),
-    radial-gradient(ellipse at 30% 70%, hsl(var(--t-1) / 0.42) 0 7px, transparent 8px);
-  background-size: 150px 150px;
+  background-color: transparent;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><g fill='black'><g transform='translate(40 40)'><ellipse cx='0' cy='-12' rx='6' ry='10'/><ellipse cx='11' cy='-4' rx='6' ry='10' transform='rotate(72 11 -4)'/><ellipse cx='7' cy='10' rx='6' ry='10' transform='rotate(144 7 10)'/><ellipse cx='-7' cy='10' rx='6' ry='10' transform='rotate(216 -7 10)'/><ellipse cx='-11' cy='-4' rx='6' ry='10' transform='rotate(288 -11 -4)'/><circle r='3' fill='black'/></g><g transform='translate(115 95) scale(0.85) rotate(25)'><ellipse cx='0' cy='-12' rx='6' ry='10'/><ellipse cx='11' cy='-4' rx='6' ry='10' transform='rotate(72 11 -4)'/><ellipse cx='7' cy='10' rx='6' ry='10' transform='rotate(144 7 10)'/><ellipse cx='-7' cy='10' rx='6' ry='10' transform='rotate(216 -7 10)'/><ellipse cx='-11' cy='-4' rx='6' ry='10' transform='rotate(288 -11 -4)'/></g></g></svg>");
+          mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><g fill='black'><g transform='translate(40 40)'><ellipse cx='0' cy='-12' rx='6' ry='10'/><ellipse cx='11' cy='-4' rx='6' ry='10' transform='rotate(72 11 -4)'/><ellipse cx='7' cy='10' rx='6' ry='10' transform='rotate(144 7 10)'/><ellipse cx='-7' cy='10' rx='6' ry='10' transform='rotate(216 -7 10)'/><ellipse cx='-11' cy='-4' rx='6' ry='10' transform='rotate(288 -11 -4)'/><circle r='3' fill='black'/></g><g transform='translate(115 95) scale(0.85) rotate(25)'><ellipse cx='0' cy='-12' rx='6' ry='10'/><ellipse cx='11' cy='-4' rx='6' ry='10' transform='rotate(72 11 -4)'/><ellipse cx='7' cy='10' rx='6' ry='10' transform='rotate(144 7 10)'/><ellipse cx='-7' cy='10' rx='6' ry='10' transform='rotate(216 -7 10)'/><ellipse cx='-11' cy='-4' rx='6' ry='10' transform='rotate(288 -11 -4)'/></g></g></svg>");
+  -webkit-mask-repeat: repeat;
+          mask-repeat: repeat;
+  -webkit-mask-size: 160px 160px;
+          mask-size: 160px 160px;
+  background-image: linear-gradient(hsl(var(--t-1) / 0.5), hsl(var(--t-1) / 0.5));
 }
 .ornament-crosses {
   background-image:
