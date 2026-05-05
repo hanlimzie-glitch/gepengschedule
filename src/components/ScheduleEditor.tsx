@@ -49,6 +49,7 @@ export const ScheduleEditor = () => {
   const [title, setTitle] = useState("Huan Weekly Schedule");
   const [subtitle, setSubtitle] = useState("Powered by Lovable ♡");
   const [dateRange, setDateRange] = useState("5 - 11 Mei 2026");
+  const [artBy, setArtBy] = useState("Art by @yourname");
   const [days, setDays] = useState<DayItem[]>(initialDays);
   const [characterUrl, setCharacterUrl] = useState<string | null>(null);
   const [charFit, setCharFit] = useState<"cover" | "contain">("cover");
