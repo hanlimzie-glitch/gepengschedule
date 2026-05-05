@@ -34,9 +34,8 @@
 
     --radius: 0.875rem;
 
-    /* Theme accents (set per theme) */
-    --t-1: 330 100% 80%;        /* primary */
-    --t-2: 280 90% 70%;         /* secondary */
+    --t-1: 330 100% 80%;
+    --t-2: 280 90% 70%;
     --t-bg-from: 320 60% 12%;
     --t-bg-to: 260 60% 8%;
     --t-card: 320 30% 12%;
@@ -53,7 +52,6 @@
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Theme presets applied to .schedule-canvas */
   .theme-pink {
     --t-1: 330 100% 78%;
     --t-2: 290 90% 78%;
@@ -127,33 +125,19 @@
     backdrop-filter: blur(12px);
     border: 1px solid hsl(var(--border));
   }
-  .ornament-dots {
-    background-image: radial-gradient(hsl(var(--t-1) / 0.4) 1px, transparent 1px);
-    background-size: 14px 14px;
-  }
-  .ornament-grid {
-    background-image:
-      linear-gradient(hsl(var(--t-1) / 0.15) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--t-1) / 0.15) 1px, transparent 1px);
-    background-size: 32px 32px;
-  }
-  .ornament-stars::before {
-    content: "✦   ✧     ✦       ✧   ✦   ✧";
-    position: absolute; inset: 0;
-    color: hsl(var(--t-1) / 0.3);
-    font-size: 18px; letter-spacing: 1.5rem;
-    pointer-events: none; overflow: hidden;
-  }
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
+  .ornament-dots { background-image: radial-gradient(hsl(var(--t-1) / 0.45) 2px, transparent 2px); background-size: 28px 28px; }
+  .ornament-grid { background-image: linear-gradient(hsl(var(--t-1) / 0.18) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--t-1) / 0.18) 1px, transparent 1px); background-size: 48px 48px; }
+  .ornament-diagonal { background-image: repeating-linear-gradient(45deg, hsl(var(--t-1) / 0.14) 0 2px, transparent 2px 24px); }
+  .ornament-waves { background-image: radial-gradient(circle at 20% 50%, hsl(var(--t-1) / 0.2) 0, transparent 25%), radial-gradient(circle at 80% 30%, hsl(var(--t-2) / 0.2) 0, transparent 25%), radial-gradient(circle at 50% 80%, hsl(var(--t-1) / 0.16) 0, transparent 30%); }
+  .ornament-hearts { background-image: radial-gradient(hsl(var(--t-1) / 0.3) 3px, transparent 4px), radial-gradient(hsl(var(--t-2) / 0.3) 3px, transparent 4px); background-size: 60px 60px, 60px 60px; background-position: 0 0, 30px 30px; }
+  .ornament-none { background-image: none; }
+
+  .animate-float { animation: float 6s ease-in-out infinite; }
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-8px); }
   }
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease-out;
-  }
+  .animate-fade-in { animation: fadeIn 0.5s ease-out; }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
