@@ -1,11 +1,12 @@
 import { forwardRef } from "react";
-import { Sparkles, Star, Heart, Moon, Flower2, Skull, Cpu, Leaf } from "lucide-react";
+import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff } from "lucide-react";
 
 export type DayItem = {
   day: string;
   time: string;
   title: string;
   note: string;
+  type: "solo" | "collab" | "offline";
 };
 
 export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint";
@@ -42,6 +43,24 @@ const themeFont: Record<ThemeKey, string> = {
   mint: "'Quicksand', 'Poppins', sans-serif",
 };
 
+const typeMeta: Record<DayItem["type"], { label: string; icon: JSX.Element }> = {
+  solo: { label: "Solo", icon: <UserRound className="w-5 h-5" /> },
+  collab: { label: "Collab", icon: <UsersRound className="w-5 h-5" /> },
+  offline: { label: "Offline", icon: <CloudOff className="w-5 h-5" /> },
+};
+
+const ornamentGlyphs: Record<OrnamentKey, string[]> = {
+  dots: ["•", "·", "•", "·"],
+  grid: ["□", "◇", "□", "◇"],
+  diagonal: ["╱", "╲", "╱", "╲"],
+  stars: ["✦", "✧", "⋆", "✩"],
+  hearts: ["♡", "♥", "♡", "❥"],
+  sakura: ["✿", "❀", "✽", "✿"],
+  crosses: ["✚", "✦", "†", "✚"],
+  circuit: ["⌁", "◇", "⟐", "⌬"],
+  none: [],
+};
+
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
   ({ title, subtitle, dateRange, days, characterUrl, charFit, theme, ratio, ornament }, ref) => {
     const w = 1920;
@@ -59,7 +78,30 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           fontFamily: themeFont[theme],
         }}
       >
-        <div className={`absolute inset-0 ornament-${ornament}`} style={{ opacity: 0.7 }} />
+        <div className={`absolute inset-0 ornament-${ornament}`} style={{ opacity: 0.95 }} />
+        {ornament !== "none" && (
+          <div className="absolute inset-0" style={{ pointerEvents: "none", color: "hsl(var(--t-1))" }}>
+            {Array.from({ length: 36 }).map((_, i) => {
+              const glyph = ornamentGlyphs[ornament][i % ornamentGlyphs[ornament].length];
+              return (
+                <span
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    left: `${(i * 17) % 96}%`,
+                    top: `${(i * 29) % 92}%`,
+                    fontSize: 28 + ((i * 7) % 34),
+                    opacity: 0.16 + ((i % 3) * 0.06),
+                    transform: `rotate(${(i * 23) % 70 - 35}deg)`,
+                    lineHeight: 1,
+                  }}
+                >
+                  {glyph}
+                </span>
+              );
+            })}
+          </div>
+        )}
         <div
           className="absolute"
           style={{
@@ -150,11 +192,31 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
                     <div style={{ fontSize: 36, fontWeight: 900, lineHeight: 1.1, textAlign: "center" }}>{d.day}</div>
                   </div>
                   <div className="flex-1 flex flex-col justify-center">
-                    <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 4, color: "hsl(var(--t-1))" }}>
-                      {d.time || "—"}
+                    <div className="flex items-center" style={{ gap: 12, marginBottom: 8 }}>
+                      <div style={{ fontSize: 22, fontWeight: 700, color: "hsl(var(--t-1))" }}>
+                        {d.type === "offline" ? "—" : d.time || "—"}
+                      </div>
+                      <div
+                        className="flex items-center"
+                        style={{
+                          gap: 8,
+                          padding: "6px 12px",
+                          borderRadius: 999,
+                          background: d.type === "offline" ? "hsl(var(--t-muted) / 0.18)" : "hsl(var(--t-1) / 0.18)",
+                          border: d.type === "offline" ? "1px solid hsl(var(--t-muted) / 0.35)" : "1px solid hsl(var(--t-border) / 0.45)",
+                          color: d.type === "offline" ? "hsl(var(--t-muted))" : "hsl(var(--t-1))",
+                          fontSize: 16,
+                          fontWeight: 800,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.08em",
+                        }}
+                      >
+                        {typeMeta[d.type].icon}
+                        {typeMeta[d.type].label}
+                      </div>
                     </div>
                     <div style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.15, color: "hsl(var(--t-text))" }}>
-                      {d.title || "Free"}
+                      {d.type === "offline" ? d.title || "Offline" : d.title || "Free"}
                     </div>
                     {d.note && (
                       <div style={{ fontSize: 18, marginTop: 4, color: "hsl(var(--t-muted))" }}>
