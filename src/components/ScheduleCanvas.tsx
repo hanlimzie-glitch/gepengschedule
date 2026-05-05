@@ -80,7 +80,7 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
         }}
       >
         <div className={`absolute inset-0 ornament-${ornament}`} style={{ opacity: 0.95 }} />
-        {ornament !== "none" && (
+        {ornament !== "none" && ornament !== "hearts" && ornament !== "sakura" && (
           <div className="absolute inset-0" style={{ pointerEvents: "none", color: "hsl(var(--t-1))" }}>
             {Array.from({ length: 36 }).map((_, i) => {
               const glyph = ornamentGlyphs[ornament][i % ornamentGlyphs[ornament].length];
