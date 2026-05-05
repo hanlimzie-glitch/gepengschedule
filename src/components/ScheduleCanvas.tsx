@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { Sparkles, Star, Heart, Moon, Flower2 } from "lucide-react";
+import { Sparkles, Star, Heart, Moon, Flower2, Skull, Cpu, Leaf } from "lucide-react";
 
 export type DayItem = {
   day: string;
