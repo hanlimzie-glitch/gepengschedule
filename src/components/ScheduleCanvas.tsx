@@ -23,6 +23,7 @@ export type ScheduleProps = {
   theme: ThemeKey;
   ratio: "16:9" | "4:3";
   ornament: OrnamentKey;
+  artBy?: string;
 };
 
 const themeIcon: Record<ThemeKey, JSX.Element> = {
