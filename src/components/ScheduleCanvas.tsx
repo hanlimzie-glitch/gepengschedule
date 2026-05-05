@@ -56,7 +56,7 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           height: h,
           background: "var(--gradient-theme)",
           color: "hsl(var(--t-text))",
-          fontFamily: "'Poppins', 'Inter', sans-serif",
+          fontFamily: themeFont[theme],
         }}
       >
         <div className={`absolute inset-0 ornament-${ornament}`} style={{ opacity: 0.7 }} />
