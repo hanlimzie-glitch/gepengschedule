@@ -8,8 +8,9 @@ export type DayItem = {
   note: string;
 };
 
-export type ThemeKey = "pink" | "purple" | "blue" | "cute";
-export type OrnamentKey = "dots" | "grid" | "diagonal" | "waves" | "hearts" | "none";
+export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint";
+export type OrnamentKey =
+  | "dots" | "grid" | "diagonal" | "stars" | "hearts" | "sakura" | "crosses" | "circuit" | "none";
 
 export type ScheduleProps = {
   title: string;
@@ -24,10 +25,21 @@ export type ScheduleProps = {
 };
 
 const themeIcon: Record<ThemeKey, JSX.Element> = {
-  pink: <Heart className="w-6 h-6" fill="currentColor" />,
-  purple: <Sparkles className="w-6 h-6" />,
-  blue: <Star className="w-6 h-6" fill="currentColor" />,
-  cute: <Flower2 className="w-6 h-6" fill="currentColor" />,
+  cute: <Heart className="w-6 h-6" fill="currentColor" />,
+  aesthetic: <Sparkles className="w-6 h-6" />,
+  gothic: <Skull className="w-6 h-6" />,
+  sakura: <Flower2 className="w-6 h-6" fill="currentColor" />,
+  cyber: <Cpu className="w-6 h-6" />,
+  mint: <Leaf className="w-6 h-6" fill="currentColor" />,
+};
+
+const themeFont: Record<ThemeKey, string> = {
+  cute: "'Quicksand', 'Poppins', sans-serif",
+  aesthetic: "'Playfair Display', 'Poppins', serif",
+  gothic: "'Cormorant Garamond', 'Playfair Display', serif",
+  sakura: "'Sawarabi Mincho', 'Playfair Display', serif",
+  cyber: "'Orbitron', 'Poppins', sans-serif",
+  mint: "'Quicksand', 'Poppins', sans-serif",
 };
 
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
