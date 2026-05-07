@@ -8,11 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { ScheduleCanvas, type DayItem, type ThemeKey, type OrnamentKey } from "./ScheduleCanvas";
+import { ScheduleCanvas, type DayItem, type ThemeKey, type OrnamentKey, type LayoutKey } from "./ScheduleCanvas";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-const DAYS_ID = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+const DAYS_ID = ["Senin 5", "Selasa 6", "Rabu 7", "Kamis 8", "Jumat 9", "Sabtu 10", "Minggu 11"];
 
 const initialDays: DayItem[] = DAYS_ID.map((d) => ({
   day: d, time: "19:00 WIB", title: "Just Chatting", note: "", type: "solo",
