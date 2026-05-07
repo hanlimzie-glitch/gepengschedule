@@ -55,6 +55,7 @@ export const ScheduleEditor = () => {
   const [charFit, setCharFit] = useState<"cover" | "contain">("cover");
   const [theme, setTheme] = useState<ThemeKey>("cute");
   const [ornament, setOrnament] = useState<OrnamentKey>("hearts");
+  const [layout, setLayout] = useState<LayoutKey>("bubbles");
   const [ratio, setRatio] = useState<"16:9" | "4:3">("16:9");
   const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -68,6 +69,7 @@ export const ScheduleEditor = () => {
     setTheme(k);
     const t = themes.find((x) => x.key === k);
     if (t) setOrnament(t.defaultOrnament);
+    if (k === "cute" || k === "sakura") setLayout("bubbles");
   };
 
   const updateDay = <K extends keyof DayItem>(i: number, key: K, val: DayItem[K]) => {
