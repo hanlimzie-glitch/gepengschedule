@@ -8,11 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { ScheduleCanvas, type DayItem, type ThemeKey, type OrnamentKey } from "./ScheduleCanvas";
+import { ScheduleCanvas, type DayItem, type ThemeKey, type OrnamentKey, type LayoutKey } from "./ScheduleCanvas";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-const DAYS_ID = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+const DAYS_ID = ["Senin 5", "Selasa 6", "Rabu 7", "Kamis 8", "Jumat 9", "Sabtu 10", "Minggu 11"];
 
 const initialDays: DayItem[] = DAYS_ID.map((d) => ({
   day: d, time: "19:00 WIB", title: "Just Chatting", note: "", type: "solo",
@@ -55,6 +55,7 @@ export const ScheduleEditor = () => {
   const [charFit, setCharFit] = useState<"cover" | "contain">("cover");
   const [theme, setTheme] = useState<ThemeKey>("cute");
   const [ornament, setOrnament] = useState<OrnamentKey>("hearts");
+  const [layout, setLayout] = useState<LayoutKey>("bubbles");
   const [ratio, setRatio] = useState<"16:9" | "4:3">("16:9");
   const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -68,6 +69,7 @@ export const ScheduleEditor = () => {
     setTheme(k);
     const t = themes.find((x) => x.key === k);
     if (t) setOrnament(t.defaultOrnament);
+    if (k === "cute" || k === "sakura") setLayout("bubbles");
   };
 
   const updateDay = <K extends keyof DayItem>(i: number, key: K, val: DayItem[K]) => {
@@ -199,6 +201,28 @@ export const ScheduleEditor = () => {
                 >
                   <div className="h-10 rounded-lg mb-2" style={{ background: t.swatch }} />
                   <div className="text-sm font-semibold">{t.label}</div>
+                </button>
+              ))}
+            </div>
+          </Section>
+
+          <Section title="Layout">
+            <div className="grid grid-cols-2 gap-3">
+              {([
+                { key: "bubbles", label: "Cute Bubbles", desc: "Polaroid + chat rows" },
+                { key: "grid", label: "Grid Modern", desc: "2-col card grid" },
+              ] as { key: LayoutKey; label: string; desc: string }[]).map((l) => (
+                <button
+                  key={l.key}
+                  type="button"
+                  onClick={() => setLayout(l.key)}
+                  className={cn(
+                    "rounded-xl p-3 border-2 text-left transition-all hover:scale-[1.02]",
+                    layout === l.key ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border"
+                  )}
+                >
+                  <div className="text-sm font-bold">{l.label}</div>
+                  <div className="text-xs text-muted-foreground">{l.desc}</div>
                 </button>
               ))}
             </div>
@@ -340,6 +364,7 @@ export const ScheduleEditor = () => {
                   theme={theme}
                   ratio={ratio}
                   ornament={ornament}
+                  layout={layout}
                   artBy={artBy}
                 />
               </div>
