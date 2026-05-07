@@ -64,8 +64,20 @@ const ornamentGlyphs: Record<OrnamentKey, string[]> = {
   none: [],
 };
 
+const DAY_ABBR: Record<string, string> = {
+  senin: "MON", selasa: "TUE", rabu: "WED", kamis: "THU", jumat: "FRI", sabtu: "SAT", minggu: "SUN",
+  monday: "MON", tuesday: "TUE", wednesday: "WED", thursday: "THU", friday: "FRI", saturday: "SAT", sunday: "SUN",
+};
+const parseDay = (raw: string) => {
+  const m = raw.trim().match(/^(\S+)\s*(\d+)?/);
+  const word = (m?.[1] || raw).toLowerCase();
+  const abbr = DAY_ABBR[word] || (m?.[1] || raw).slice(0, 3).toUpperCase();
+  const num = m?.[2] || "";
+  return { abbr, num };
+};
+
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
-  ({ title, subtitle, dateRange, days, characterUrl, charFit, theme, ratio, ornament, artBy }, ref) => {
+  ({ title, subtitle, dateRange, days, characterUrl, charFit, theme, ratio, ornament, artBy, layout = "grid" }, ref) => {
     const w = 1920;
     const h = ratio === "16:9" ? 1080 : 1440;
 
@@ -122,6 +134,191 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           }}
         />
 
+        {layout === "bubbles" ? (
+          <div className="relative h-full flex" style={{ padding: 56, gap: 48 }}>
+            {/* LEFT: polaroid character frame */}
+            <div className="relative flex-shrink-0" style={{ width: ratio === "16:9" ? 720 : 820 }}>
+              <div
+                className="relative"
+                style={{
+                  height: "100%",
+                  background: "hsl(var(--t-card))",
+                  borderRadius: 36,
+                  padding: 24,
+                  boxShadow: "var(--shadow-glow)",
+                  border: "3px solid hsl(var(--t-border) / 0.55)",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute", top: -18, left: "50%", transform: "translateX(-50%) rotate(-3deg)",
+                    width: 160, height: 36, background: "hsl(var(--t-1) / 0.55)",
+                    border: "1px dashed hsl(var(--t-bg-to) / 0.6)", borderRadius: 4, zIndex: 5,
+                  }}
+                />
+                <div
+                  className="relative flex-1 overflow-hidden"
+                  style={{
+                    borderRadius: 24,
+                    background: "hsl(var(--t-bg-from))",
+                    border: "2px solid hsl(var(--t-border) / 0.4)",
+                  }}
+                >
+                  {characterUrl ? (
+                    <img
+                      src={characterUrl}
+                      alt="VTuber character"
+                      crossOrigin="anonymous"
+                      style={{
+                        width: "100%", height: "100%",
+                        objectFit: charFit, objectPosition: "center", display: "block",
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center"
+                         style={{ fontSize: 28, color: "hsl(var(--t-muted))" }}>
+                      Upload your character ✨
+                    </div>
+                  )}
+                  <div
+                    style={{
+                      position: "absolute", top: 28, left: 28, right: 28,
+                      color: "white",
+                      textShadow: "0 2px 12px hsl(0 0% 0% / 0.55)",
+                    }}
+                  >
+                    <div style={{ fontSize: 64, fontWeight: 800, lineHeight: 1 }}>
+                      {title || "Schedule"}
+                    </div>
+                    <div style={{ fontSize: 24, fontWeight: 500, marginTop: 10, opacity: 0.95 }}>
+                      {dateRange}
+                    </div>
+                    {subtitle && (
+                      <div style={{ fontSize: 20, fontWeight: 400, marginTop: 4, opacity: 0.9 }}>
+                        {subtitle}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div
+                  style={{
+                    marginTop: 16, padding: "14px 20px", borderRadius: 16,
+                    background: "hsl(var(--t-bg-from) / 0.7)",
+                    border: "1px solid hsl(var(--t-border) / 0.4)",
+                    display: "flex", alignItems: "center", gap: 12,
+                  }}
+                >
+                  <Heart className="w-5 h-5" fill="currentColor" style={{ color: "hsl(var(--t-1))" }} />
+                  <div style={{ fontSize: 18, color: "hsl(var(--t-text))", fontWeight: 600 }}>
+                    {artBy && artBy.trim() ? artBy : "Stay tuned ♡"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT: chat bubbles */}
+            <div className="flex-1 flex flex-col" style={{ gap: ratio === "16:9" ? 14 : 18, minHeight: 0 }}>
+              {days.map((d, i) => {
+                const { abbr, num } = parseDay(d.day);
+                const isOffline = d.type === "offline";
+                const altRow = i % 2 === 1;
+                return (
+                  <div
+                    key={i}
+                    className="relative flex items-center"
+                    style={{
+                      flex: 1,
+                      gap: 20,
+                      padding: "14px 24px",
+                      borderRadius: 999,
+                      background: altRow
+                        ? "hsl(var(--t-2) / 0.45)"
+                        : "hsl(var(--t-1) / 0.32)",
+                      border: "2px solid hsl(var(--t-border) / 0.45)",
+                      boxShadow: "var(--shadow-card)",
+                    }}
+                  >
+                    <span style={{
+                      position: "absolute", left: 18, top: 6, fontSize: 14,
+                      color: "hsl(var(--t-1))", letterSpacing: 4, opacity: 0.75,
+                    }}>x x x</span>
+                    <div
+                      className="flex flex-col items-center justify-center flex-shrink-0"
+                      style={{
+                        width: 100, alignSelf: "stretch", margin: "4px 0",
+                        borderRadius: 18,
+                        background: "hsl(var(--t-card) / 0.9)",
+                        border: "2px solid hsl(var(--t-border) / 0.6)",
+                        color: "hsl(var(--t-text))",
+                      }}
+                    >
+                      <div style={{ fontSize: 14, color: "hsl(var(--t-1))", fontWeight: 700, letterSpacing: 2 }}>
+                        {num || "•"}
+                      </div>
+                      <div style={{ fontSize: 30, fontWeight: 900, lineHeight: 1, letterSpacing: 2 }}>
+                        {abbr}
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      {isOffline ? (
+                        <div className="flex items-center" style={{ gap: 14 }}>
+                          <span style={{
+                            fontSize: 22, fontWeight: 800, color: "hsl(var(--t-muted))",
+                            textTransform: "uppercase", letterSpacing: 4,
+                          }}>
+                            No Notifications
+                          </span>
+                          <span style={{
+                            fontSize: 14, fontWeight: 800, padding: "4px 12px", borderRadius: 999,
+                            background: "hsl(var(--t-card) / 0.9)", color: "hsl(var(--t-muted))",
+                            letterSpacing: 2,
+                          }}>OFFLINE</span>
+                        </div>
+                      ) : (
+                        <>
+                          <div style={{
+                            fontSize: 26, fontWeight: 800, color: "hsl(var(--t-text))",
+                            lineHeight: 1.1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                          }}>
+                            {d.title || "Free"}
+                          </div>
+                          {d.note && (
+                            <div style={{
+                              fontSize: 16, color: "hsl(var(--t-muted))", marginTop: 2,
+                              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                            }}>
+                              {d.note}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                    <div className="flex items-center flex-shrink-0" style={{ gap: 10 }}>
+                      {isOffline ? (
+                        <Moon className="w-7 h-7" style={{ color: "hsl(var(--t-1))" }} fill="currentColor" />
+                      ) : (
+                        <>
+                          {d.type === "collab" && <UsersRound className="w-6 h-6" style={{ color: "hsl(var(--t-1))" }} />}
+                          <span style={{
+                            fontSize: 22, fontWeight: 800, padding: "8px 22px", borderRadius: 999,
+                            background: "hsl(var(--t-1) / 0.55)", color: "white",
+                            border: "2px solid hsl(var(--t-border) / 0.6)",
+                            textShadow: "0 1px 4px hsl(0 0% 0% / 0.25)",
+                          }}>
+                            {d.time || "—"}
+                          </span>
+                        </>
+                      )}
+                      <Cloud className="w-5 h-5" style={{ color: "hsl(var(--t-1) / 0.7)" }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
         <div className="relative h-full flex flex-col" style={{ padding: 64 }}>
           <header className="flex items-end justify-between" style={{ marginBottom: 40 }}>
             <div>
@@ -293,6 +490,7 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
             )}
           </footer>
         </div>
+        )}
       </div>
     );
   }
