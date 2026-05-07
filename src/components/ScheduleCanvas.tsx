@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff } from "lucide-react";
+import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Cloud } from "lucide-react";
 
 export type DayItem = {
   day: string;
@@ -10,6 +10,7 @@ export type DayItem = {
 };
 
 export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint";
+export type LayoutKey = "grid" | "bubbles";
 export type OrnamentKey =
   | "dots" | "grid" | "diagonal" | "stars" | "hearts" | "sakura" | "crosses" | "circuit" | "none";
 
@@ -24,6 +25,7 @@ export type ScheduleProps = {
   ratio: "16:9" | "4:3";
   ornament: OrnamentKey;
   artBy?: string;
+  layout?: LayoutKey;
 };
 
 const themeIcon: Record<ThemeKey, JSX.Element> = {
