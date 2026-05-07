@@ -206,6 +206,28 @@ export const ScheduleEditor = () => {
             </div>
           </Section>
 
+          <Section title="Layout">
+            <div className="grid grid-cols-2 gap-3">
+              {([
+                { key: "bubbles", label: "Cute Bubbles", desc: "Polaroid + chat rows" },
+                { key: "grid", label: "Grid Modern", desc: "2-col card grid" },
+              ] as { key: LayoutKey; label: string; desc: string }[]).map((l) => (
+                <button
+                  key={l.key}
+                  type="button"
+                  onClick={() => setLayout(l.key)}
+                  className={cn(
+                    "rounded-xl p-3 border-2 text-left transition-all hover:scale-[1.02]",
+                    layout === l.key ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border"
+                  )}
+                >
+                  <div className="text-sm font-bold">{l.label}</div>
+                  <div className="text-xs text-muted-foreground">{l.desc}</div>
+                </button>
+              ))}
+            </div>
+          </Section>
+
           <Section title="Ornament">
             <div className="grid grid-cols-3 gap-2">
               {ornamentOptions.map((o) => (
