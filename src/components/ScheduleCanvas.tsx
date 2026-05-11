@@ -212,11 +212,6 @@ const RoyalLayout = ({
   title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle,
 }: any) => {
   const range = parseRange(dateRange) || { d1: "01", m1: "WEEK", d2: "07", m2: "OF" };
-  // Flatten slots
-  const rows: { day: string; slot: Slot; isSecond: boolean }[] = [];
-  days.forEach((d: DayItem) => {
-    d.slots.forEach((s, i) => rows.push({ day: d.day, slot: s, isSecond: i > 0 }));
-  });
 
   return (
     <div className="relative h-full w-full" style={{
@@ -411,8 +406,6 @@ const DiamondBadge = ({ num, label }: { num: string; label: string }) => (
    BUBBLE LAYOUT (existing, with multi-slot support)
    ============================================================ */
 const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, charFit, artBy }: any) => {
-  const rows: { day: string; slot: Slot; isSecond: boolean }[] = [];
-  days.forEach((d: DayItem) => d.slots.forEach((s, i) => rows.push({ day: d.day, slot: s, isSecond: i > 0 })));
 
   return (
     <div className="relative h-full flex" style={{ padding: 56, gap: 48 }}>
@@ -459,57 +452,66 @@ const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, c
       </div>
 
       <div className="flex-1 flex flex-col" style={{ gap: 10, minHeight: 0 }}>
-        {rows.slice(0, 9).map((r, i) => {
-          const { abbr, num } = parseDay(r.day);
-          const isOffline = r.slot.type === "offline";
+        {days.slice(0, 7).map((d: DayItem, i: number) => {
+          const { abbr, num } = parseDay(d.day);
+          const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platform: "none" } as Slot];
           const altRow = i % 2 === 1;
           return (
-            <div key={i} className="relative flex items-center" style={{
-              flex: 1, gap: 20, padding: "10px 24px", borderRadius: 999,
+            <div key={i} className="relative flex items-stretch" style={{
+              flex: 1, gap: 16, padding: "10px 16px 10px 10px", borderRadius: 28,
               background: altRow ? "hsl(var(--t-2) / 0.45)" : "hsl(var(--t-1) / 0.32)",
               border: "2px solid hsl(var(--t-border) / 0.45)", boxShadow: "var(--shadow-card)",
             }}>
               <div className="flex flex-col items-center justify-center flex-shrink-0" style={{
-                width: 100, alignSelf: "stretch", margin: "4px 0", borderRadius: 18,
-                background: r.isSecond ? "hsl(var(--t-2) / 0.6)" : "hsl(var(--t-card) / 0.9)",
+                width: 100, borderRadius: 18,
+                background: "hsl(var(--t-card) / 0.9)",
                 border: "2px solid hsl(var(--t-border) / 0.6)", color: "hsl(var(--t-text))",
               }}>
-                <div style={{ fontSize: 14, color: "hsl(var(--t-1))", fontWeight: 700, letterSpacing: 2 }}>
-                  {r.isSecond ? "+2nd" : (num || "•")}
-                </div>
-                <div style={{ fontSize: r.isSecond ? 18 : 30, fontWeight: 900, lineHeight: 1, letterSpacing: 2 }}>
-                  {r.isSecond ? "" : abbr}
-                </div>
+                <div style={{ fontSize: 14, color: "hsl(var(--t-1))", fontWeight: 700, letterSpacing: 2 }}>{num || "•"}</div>
+                <div style={{ fontSize: 30, fontWeight: 900, lineHeight: 1, letterSpacing: 2 }}>{abbr}</div>
               </div>
-              <div className="flex-1 min-w-0">
-                {isOffline ? (
-                  <span style={{ fontSize: 22, fontWeight: 800, color: "hsl(var(--t-muted))", textTransform: "uppercase", letterSpacing: 4 }}>
-                    Offline
-                  </span>
-                ) : (
-                  <>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "hsl(var(--t-text))", lineHeight: 1.1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {r.slot.title || "Free"}
-                    </div>
-                    {r.slot.note && (
-                      <div style={{ fontSize: 15, color: "hsl(var(--t-muted))", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {r.slot.note}
+              <div className="flex-1 min-w-0 flex flex-col" style={{ gap: 6, justifyContent: "center" }}>
+                {slots.map((s, si) => {
+                  const isOffline = s.type === "offline";
+                  return (
+                    <div key={si} className="flex items-center" style={{
+                      gap: 14,
+                      paddingTop: si > 0 ? 6 : 0,
+                      borderTop: si > 0 ? "1px dashed hsl(var(--t-border) / 0.55)" : undefined,
+                    }}>
+                      <div className="flex-1 min-w-0">
+                        {isOffline ? (
+                          <span style={{ fontSize: slots.length > 1 ? 18 : 22, fontWeight: 800, color: "hsl(var(--t-muted))", textTransform: "uppercase", letterSpacing: 4 }}>
+                            Offline
+                          </span>
+                        ) : (
+                          <>
+                            <div style={{ fontSize: slots.length > 1 ? 20 : 24, fontWeight: 800, color: "hsl(var(--t-text))", lineHeight: 1.1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {s.title || "Free"}
+                            </div>
+                            {s.note && slots.length === 1 && (
+                              <div style={{ fontSize: 15, color: "hsl(var(--t-muted))", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                {s.note}
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
-                    )}
-                  </>
-                )}
-              </div>
-              <div className="flex items-center flex-shrink-0" style={{ gap: 8 }}>
-                <PlatformBadge p={r.slot.platform} compact />
-                {isOffline ? (
-                  <Moon className="w-7 h-7" style={{ color: "hsl(var(--t-1))" }} fill="currentColor" />
-                ) : (
-                  <span style={{
-                    fontSize: 20, fontWeight: 800, padding: "6px 18px", borderRadius: 999,
-                    background: "hsl(var(--t-1) / 0.55)", color: "white",
-                    border: "2px solid hsl(var(--t-border) / 0.6)",
-                  }}>{r.slot.time || "—"}</span>
-                )}
+                      <div className="flex items-center flex-shrink-0" style={{ gap: 8 }}>
+                        <PlatformBadge p={s.platform} />
+                        {isOffline ? (
+                          <Moon className="w-7 h-7" style={{ color: "hsl(var(--t-1))" }} fill="currentColor" />
+                        ) : (
+                          <span style={{
+                            fontSize: slots.length > 1 ? 17 : 20, fontWeight: 800, padding: "6px 16px", borderRadius: 999,
+                            background: "hsl(var(--t-1) / 0.55)", color: "white",
+                            border: "2px solid hsl(var(--t-border) / 0.6)", whiteSpace: "nowrap",
+                          }}>{s.time || "—"}</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );
@@ -577,7 +579,7 @@ const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, cha
                     }}>
                       {typeMeta[s.type].icon}{typeMeta[s.type].label}
                     </div>
-                    <PlatformBadge p={s.platform} compact />
+                    <PlatformBadge p={s.platform} />
                   </div>
                   <div style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.15, color: "hsl(var(--t-text))" }}>
                     {s.type === "offline" ? s.title || "Offline" : s.title || "Free"}
