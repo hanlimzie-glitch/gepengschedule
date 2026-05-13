@@ -1,6 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { toPng } from "html-to-image";
-import { Upload, Download, Sparkles, ImageIcon, UserRound, UsersRound, CloudOff, Plus, Minus } from "lucide-react";
+import { Upload, Download, Sparkles, ImageIcon, UserRound, UsersRound, CloudOff, Plus, Minus, Calendar as CalendarIcon, Twitch, Youtube, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,12 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
+import type { DateRange } from "react-day-picker";
 import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentKey, type LayoutKey, type PlatformKey } from "./ScheduleCanvas";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -15,7 +21,7 @@ import { cn } from "@/lib/utils";
 const DAYS_ID = ["Senin 5", "Selasa 6", "Rabu 7", "Kamis 8", "Jumat 9", "Sabtu 10", "Minggu 11"];
 
 const makeSlot = (over: Partial<Slot> = {}): Slot => ({
-  time: "19:00 WIB", title: "Just Chatting", note: "", type: "solo", platform: "none", ...over,
+  time: "19:00 WIB", title: "Just Chatting", note: "", type: "solo", platforms: [], ...over,
 });
 
 const initialDays: DayItem[] = DAYS_ID.map((d) => ({ day: d, slots: [makeSlot()] }));
@@ -36,12 +42,20 @@ const scheduleTypes: { key: Slot["type"]; label: string; icon: JSX.Element }[] =
   { key: "offline", label: "Offline", icon: <CloudOff className="w-4 h-4" /> },
 ];
 
-const platformOptions: { key: PlatformKey; label: string }[] = [
-  { key: "none", label: "Tidak ada" },
-  { key: "twitch", label: "Twitch" },
-  { key: "youtube", label: "YouTube" },
-  { key: "tiktok", label: "TikTok" },
+const platformOptions: { key: PlatformKey; label: string; icon: JSX.Element }[] = [
+  { key: "twitch", label: "Twitch", icon: <Twitch className="w-3.5 h-3.5" /> },
+  { key: "youtube", label: "YouTube", icon: <Youtube className="w-3.5 h-3.5" /> },
+  { key: "tiktok", label: "TikTok", icon: <Music2 className="w-3.5 h-3.5" /> },
 ];
+
+const formatRange = (from?: Date, to?: Date) => {
+  if (!from) return "";
+  if (!to || from.getTime() === to.getTime()) return format(from, "d MMMM yyyy", { locale: idLocale });
+  const sameMonth = from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear();
+  return sameMonth
+    ? `${format(from, "d", { locale: idLocale })} - ${format(to, "d MMMM yyyy", { locale: idLocale })}`
+    : `${format(from, "d MMM", { locale: idLocale })} - ${format(to, "d MMM yyyy", { locale: idLocale })}`;
+};
 
 const ornamentOptions: { key: OrnamentKey; label: string }[] = [
   { key: "dots", label: "Dots" }, { key: "grid", label: "Grid" }, { key: "diagonal", label: "Diagonal" },
@@ -51,8 +65,12 @@ const ornamentOptions: { key: OrnamentKey; label: string }[] = [
 
 export const ScheduleEditor = () => {
   const [title, setTitle] = useState("Huan Weekly Schedule");
-  const [subtitle, setSubtitle] = useState("Powered by Lovable ♡");
+  const [subtitle, setSubtitle] = useState("powered by Huan");
   const [dateRange, setDateRange] = useState("5 - 11 Mei 2026");
+  const [dateRangeObj, setDateRangeObj] = useState<DateRange | undefined>({
+    from: new Date(2026, 4, 5),
+    to: new Date(2026, 4, 11),
+  });
   const [artBy, setArtBy] = useState("Art by @yourname");
   const [youtubeHandle, setYoutubeHandle] = useState("@your youtube channel");
   const [twitchHandle, setTwitchHandle] = useState("@your twitch channel");
@@ -71,11 +89,32 @@ export const ScheduleEditor = () => {
   const previewWrapRef = useRef<HTMLDivElement>(null);
 
   const pickTheme = (k: ThemeKey) => {
+    if (layout === "royal" && k !== "royalred") {
+      toast.info("Layout Royal hanya mendukung tema Royal Red");
+      return;
+    }
     setTheme(k);
     const t = themes.find((x) => x.key === k);
     if (t) setOrnament(t.defaultOrnament);
     if (k === "cute" || k === "sakura") setLayout("bubbles");
     if (k === "royalred") setLayout("royal");
+  };
+
+  const handleDateRange = (r: DateRange | undefined) => {
+    setDateRangeObj(r);
+    if (r?.from) setDateRange(formatRange(r.from, r.to));
+  };
+
+  const togglePlatform = (di: number, si: number, p: PlatformKey) => {
+    setDays((prev) => prev.map((d, i) =>
+      i !== di ? d : {
+        ...d,
+        slots: d.slots.map((s, j) => j !== si ? s : {
+          ...s,
+          platforms: s.platforms.includes(p) ? s.platforms.filter((x) => x !== p) : [...s.platforms, p],
+        }),
+      }
+    ));
   };
 
   const updateSlot = <K extends keyof Slot>(di: number, si: number, key: K, val: Slot[K]) => {
@@ -151,7 +190,19 @@ export const ScheduleEditor = () => {
             <div className="space-y-3">
               <Field label="Judul utama"><Input value={title} onChange={(e) => setTitle(e.target.value)} /></Field>
               <Field label="Subtitle (opsional)"><Input value={subtitle} onChange={(e) => setSubtitle(e.target.value)} /></Field>
-              <Field label="Tanggal / Periode"><Input value={dateRange} onChange={(e) => setDateRange(e.target.value)} placeholder="5 - 11 Mei 2026" /></Field>
+              <Field label="Tanggal / Periode">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !dateRangeObj?.from && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateRangeObj?.from ? formatRange(dateRangeObj.from, dateRangeObj.to) : "Pilih tanggal"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="range" selected={dateRangeObj} onSelect={handleDateRange} numberOfMonths={2} initialFocus className={cn("p-3 pointer-events-auto")} locale={idLocale} />
+                  </PopoverContent>
+                </Popover>
+              </Field>
               <Field label="Art credit (di bawah karakter)"><Input value={artBy} onChange={(e) => setArtBy(e.target.value)} placeholder="Art by @yourname" /></Field>
               <Field label="YouTube handle (Royal layout)"><Input value={youtubeHandle} onChange={(e) => setYoutubeHandle(e.target.value)} placeholder="@your youtube channel" /></Field>
               <Field label="Twitch handle (Royal layout)"><Input value={twitchHandle} onChange={(e) => setTwitchHandle(e.target.value)} placeholder="@your twitch channel" /></Field>
@@ -160,15 +211,20 @@ export const ScheduleEditor = () => {
 
           <Section title="Tema">
             <div className="grid grid-cols-2 gap-3">
-              {themes.map((t) => (
-                <button type="button" key={t.key} onClick={() => pickTheme(t.key)}
-                  className={cn("rounded-xl p-3 border-2 text-left transition-all hover:scale-[1.02]",
-                    theme === t.key ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border")}
-                  style={{ background: "hsl(var(--card))" }}>
-                  <div className="h-10 rounded-lg mb-2" style={{ background: t.swatch }} />
-                  <div className="text-sm font-semibold">{t.label}</div>
-                </button>
-              ))}
+              {themes.map((t) => {
+                const locked = layout === "royal" && t.key !== "royalred";
+                return (
+                  <button type="button" key={t.key} onClick={() => pickTheme(t.key)} disabled={locked}
+                    title={locked ? "Layout Royal hanya mendukung Royal Red" : undefined}
+                    className={cn("rounded-xl p-3 border-2 text-left transition-all hover:scale-[1.02]",
+                      theme === t.key ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border",
+                      locked && "opacity-40 cursor-not-allowed hover:scale-100")}
+                    style={{ background: "hsl(var(--card))" }}>
+                    <div className="h-10 rounded-lg mb-2" style={{ background: t.swatch }} />
+                    <div className="text-sm font-semibold">{t.label}</div>
+                  </button>
+                );
+              })}
             </div>
           </Section>
 
@@ -251,23 +307,26 @@ export const ScheduleEditor = () => {
                       {d.slots.length > 1 && (
                         <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Slot {si + 1}</div>
                       )}
-                      <div className="grid grid-cols-2 gap-2">
-                        <Select value={s.type} onValueChange={(v) => updateSlot(i, si, "type", v as Slot["type"])}>
-                          <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            {scheduleTypes.map((type) => (
-                              <SelectItem key={type.key} value={type.key}>
-                                <span className="inline-flex items-center gap-2">{type.icon}{type.label}</span>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Select value={s.platform} onValueChange={(v) => updateSlot(i, si, "platform", v as PlatformKey)}>
-                          <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            {platformOptions.map((p) => <SelectItem key={p.key} value={p.key}>{p.label}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
+                      <Select value={s.type} onValueChange={(v) => updateSlot(i, si, "type", v as Slot["type"])}>
+                        <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {scheduleTypes.map((type) => (
+                            <SelectItem key={type.key} value={type.key}>
+                              <span className="inline-flex items-center gap-2">{type.icon}{type.label}</span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <div className="flex flex-wrap gap-3 px-1 py-1">
+                        {platformOptions.map((p) => {
+                          const checked = s.platforms.includes(p.key);
+                          return (
+                            <label key={p.key} className="flex items-center gap-1.5 text-xs cursor-pointer select-none">
+                              <Checkbox checked={checked} onCheckedChange={() => togglePlatform(i, si, p.key)} />
+                              <span className="inline-flex items-center gap-1">{p.icon}{p.label}</span>
+                            </label>
+                          );
+                        })}
                       </div>
                       <Input value={s.time} onChange={(e) => updateSlot(i, si, "time", e.target.value)} placeholder="19:00 WIB" className="h-8" />
                       <Input value={s.title} onChange={(e) => updateSlot(i, si, "title", e.target.value)} placeholder="Aktivitas" className="h-8" />

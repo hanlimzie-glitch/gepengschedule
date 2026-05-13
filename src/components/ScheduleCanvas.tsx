@@ -1,14 +1,14 @@
 import { forwardRef } from "react";
 import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Cloud, Twitch, Youtube, Crown } from "lucide-react";
 
-export type PlatformKey = "none" | "twitch" | "youtube" | "tiktok";
+export type PlatformKey = "twitch" | "youtube" | "tiktok";
 
 export type Slot = {
   time: string;
   title: string;
   note: string;
   type: "solo" | "collab" | "offline";
-  platform: PlatformKey;
+  platforms: PlatformKey[];
 };
 
 export type DayItem = {
@@ -94,8 +94,7 @@ const TikTokIcon = ({ size = 14 }: { size?: number }) => (
 );
 
 const PlatformBadge = ({ p, compact }: { p: PlatformKey; compact?: boolean }) => {
-  if (p === "none") return null;
-  const cfg: Record<Exclude<PlatformKey, "none">, { bg: string; fg: string; label: string; icon: JSX.Element }> = {
+  const cfg: Record<PlatformKey, { bg: string; fg: string; label: string; icon: JSX.Element }> = {
     twitch: { bg: "#9146FF", fg: "#fff", label: "Twitch", icon: <Twitch size={compact ? 14 : 16} /> },
     youtube: { bg: "#FF0033", fg: "#fff", label: "YouTube", icon: <Youtube size={compact ? 14 : 16} /> },
     tiktok: { bg: "#000", fg: "#fff", label: "TikTok", icon: <TikTokIcon size={compact ? 12 : 14} /> },
@@ -113,13 +112,25 @@ const PlatformBadge = ({ p, compact }: { p: PlatformKey; compact?: boolean }) =>
   );
 };
 
+const PlatformBadges = ({ list, compact }: { list: PlatformKey[]; compact?: boolean }) => {
+  if (!list || list.length === 0) return null;
+  return (
+    <span style={{ display: "inline-flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+      {list.map((p) => <PlatformBadge key={p} p={p} compact={compact} />)}
+    </span>
+  );
+};
+
 // Normalize legacy day items (with flat fields) into slot-based shape
 const normalize = (d: any): DayItem => {
-  if (d.slots) return d as DayItem;
-  return {
-    day: d.day,
-    slots: [{ time: d.time || "", title: d.title || "", note: d.note || "", type: d.type || "solo", platform: d.platform || "none" }],
+  const normSlot = (s: any): Slot => {
+    let platforms: PlatformKey[] = [];
+    if (Array.isArray(s.platforms)) platforms = s.platforms.filter((p: any) => p && p !== "none");
+    else if (s.platform && s.platform !== "none") platforms = [s.platform];
+    return { time: s.time || "", title: s.title || "", note: s.note || "", type: s.type || "solo", platforms };
   };
+  if (d.slots) return { day: d.day, slots: d.slots.map(normSlot) };
+  return { day: d.day, slots: [normSlot(d)] };
 };
 
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
@@ -321,7 +332,7 @@ const RoyalLayout = ({
         <div className="flex-1 flex flex-col" style={{ gap: 10, justifyContent: "space-around" }}>
           {days.slice(0, 7).map((d: DayItem, i: number) => {
             const { abbr } = parseDay(d.day);
-            const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platform: "none" } as Slot];
+            const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platforms: [] } as Slot];
             const allOffline = slots.every((s) => s.type === "offline");
             const rowH = slots.length > 1 ? 96 : 70;
             const tagText = slots.length > 1
@@ -371,7 +382,7 @@ const RoyalLayout = ({
                             )}
                           </div>
                           <div style={{ minWidth: 110, display: "flex", justifyContent: "flex-start" }}>
-                            <PlatformBadge p={s.platform} />
+                            <PlatformBadges list={s.platforms} />
                           </div>
                         </div>
                       );
@@ -432,7 +443,12 @@ const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, c
                 Upload your character ✨
               </div>
             )}
-            <div style={{ position: "absolute", top: 28, left: 28, right: 28, color: "white", textShadow: "0 2px 12px hsl(0 0% 0% / 0.55)" }}>
+            <div style={{
+              position: "absolute", top: 0, left: 0, right: 0, height: 240,
+              background: "linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.15) 70%, transparent)",
+              pointerEvents: "none",
+            }} />
+            <div style={{ position: "absolute", top: 28, left: 28, right: 28, color: "white", textShadow: "0 2px 14px rgba(0,0,0,0.75), 0 0 4px rgba(0,0,0,0.6)" }}>
               <div style={{ fontSize: 64, fontWeight: 800, lineHeight: 1 }}>{title || "Schedule"}</div>
               <div style={{ fontSize: 24, fontWeight: 500, marginTop: 10, opacity: 0.95 }}>{dateRange}</div>
               {subtitle && <div style={{ fontSize: 20, fontWeight: 400, marginTop: 4, opacity: 0.9 }}>{subtitle}</div>}
@@ -454,7 +470,7 @@ const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, c
       <div className="flex-1 flex flex-col" style={{ gap: 10, minHeight: 0 }}>
         {days.slice(0, 7).map((d: DayItem, i: number) => {
           const { abbr, num } = parseDay(d.day);
-          const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platform: "none" } as Slot];
+          const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platforms: [] } as Slot];
           const altRow = i % 2 === 1;
           return (
             <div key={i} className="relative flex items-stretch" style={{
@@ -498,7 +514,7 @@ const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, c
                         )}
                       </div>
                       <div className="flex items-center flex-shrink-0" style={{ gap: 8 }}>
-                        <PlatformBadge p={s.platform} />
+                        <PlatformBadges list={s.platforms} />
                         {isOffline ? (
                           <Moon className="w-7 h-7" style={{ color: "hsl(var(--t-1))" }} fill="currentColor" />
                         ) : (
@@ -528,6 +544,12 @@ const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, cha
   <div className="relative h-full flex flex-col" style={{ padding: 64 }}>
     <header className="flex items-end justify-between" style={{ marginBottom: 40 }}>
       <div>
+      <div style={{
+        background: "hsl(var(--t-card) / 0.6)",
+        padding: "20px 32px", borderRadius: 20,
+        border: "1px solid hsl(var(--t-border) / 0.4)",
+        backdropFilter: "blur(6px)",
+      }}>
         <div className="flex items-center" style={{ gap: 12, marginBottom: 12, fontSize: 24, color: "hsl(var(--t-1))" }}>
           {themeIcon[theme as ThemeKey]}
           <span style={{ textTransform: "uppercase", letterSpacing: "0.4em", fontWeight: 600 }}>Weekly Schedule</span>
@@ -537,6 +559,7 @@ const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, cha
           {title || "VTuber Schedule"}
         </h1>
         {subtitle && <p style={{ marginTop: 16, fontSize: 30, fontWeight: 300, color: "hsl(var(--t-muted))" }}>{subtitle}</p>}
+      </div>
       </div>
       <div style={{ textAlign: "right", padding: "16px 32px", borderRadius: 16, background: "hsl(var(--t-card) / 0.7)", border: "2px solid hsl(var(--t-border) / 0.6)" }}>
         <div style={{ fontSize: 20, textTransform: "uppercase", letterSpacing: "0.2em", color: "hsl(var(--t-1))" }}>Date</div>
@@ -579,7 +602,7 @@ const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, cha
                     }}>
                       {typeMeta[s.type].icon}{typeMeta[s.type].label}
                     </div>
-                    <PlatformBadge p={s.platform} />
+                    <PlatformBadges list={s.platforms} />
                   </div>
                   <div style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.15, color: "hsl(var(--t-text))" }}>
                     {s.type === "offline" ? s.title || "Offline" : s.title || "Free"}
