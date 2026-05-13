@@ -190,7 +190,19 @@ export const ScheduleEditor = () => {
             <div className="space-y-3">
               <Field label="Judul utama"><Input value={title} onChange={(e) => setTitle(e.target.value)} /></Field>
               <Field label="Subtitle (opsional)"><Input value={subtitle} onChange={(e) => setSubtitle(e.target.value)} /></Field>
-              <Field label="Tanggal / Periode"><Input value={dateRange} onChange={(e) => setDateRange(e.target.value)} placeholder="5 - 11 Mei 2026" /></Field>
+              <Field label="Tanggal / Periode">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !dateRangeObj?.from && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateRangeObj?.from ? formatRange(dateRangeObj.from, dateRangeObj.to) : "Pilih tanggal"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="range" selected={dateRangeObj} onSelect={handleDateRange} numberOfMonths={2} initialFocus className={cn("p-3 pointer-events-auto")} locale={idLocale} />
+                  </PopoverContent>
+                </Popover>
+              </Field>
               <Field label="Art credit (di bawah karakter)"><Input value={artBy} onChange={(e) => setArtBy(e.target.value)} placeholder="Art by @yourname" /></Field>
               <Field label="YouTube handle (Royal layout)"><Input value={youtubeHandle} onChange={(e) => setYoutubeHandle(e.target.value)} placeholder="@your youtube channel" /></Field>
               <Field label="Twitch handle (Royal layout)"><Input value={twitchHandle} onChange={(e) => setTwitchHandle(e.target.value)} placeholder="@your twitch channel" /></Field>
