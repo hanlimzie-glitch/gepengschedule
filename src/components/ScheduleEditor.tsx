@@ -1,6 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { toPng } from "html-to-image";
-import { Upload, Download, Sparkles, ImageIcon, UserRound, UsersRound, CloudOff, Plus, Minus } from "lucide-react";
+import { Upload, Download, Sparkles, ImageIcon, UserRound, UsersRound, CloudOff, Plus, Minus, Calendar as CalendarIcon, Twitch, Youtube, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,12 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
+import type { DateRange } from "react-day-picker";
 import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentKey, type LayoutKey, type PlatformKey } from "./ScheduleCanvas";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -15,7 +21,7 @@ import { cn } from "@/lib/utils";
 const DAYS_ID = ["Senin 5", "Selasa 6", "Rabu 7", "Kamis 8", "Jumat 9", "Sabtu 10", "Minggu 11"];
 
 const makeSlot = (over: Partial<Slot> = {}): Slot => ({
-  time: "19:00 WIB", title: "Just Chatting", note: "", type: "solo", platform: "none", ...over,
+  time: "19:00 WIB", title: "Just Chatting", note: "", type: "solo", platforms: [], ...over,
 });
 
 const initialDays: DayItem[] = DAYS_ID.map((d) => ({ day: d, slots: [makeSlot()] }));
@@ -36,12 +42,20 @@ const scheduleTypes: { key: Slot["type"]; label: string; icon: JSX.Element }[] =
   { key: "offline", label: "Offline", icon: <CloudOff className="w-4 h-4" /> },
 ];
 
-const platformOptions: { key: PlatformKey; label: string }[] = [
-  { key: "none", label: "Tidak ada" },
-  { key: "twitch", label: "Twitch" },
-  { key: "youtube", label: "YouTube" },
-  { key: "tiktok", label: "TikTok" },
+const platformOptions: { key: PlatformKey; label: string; icon: JSX.Element }[] = [
+  { key: "twitch", label: "Twitch", icon: <Twitch className="w-3.5 h-3.5" /> },
+  { key: "youtube", label: "YouTube", icon: <Youtube className="w-3.5 h-3.5" /> },
+  { key: "tiktok", label: "TikTok", icon: <Music2 className="w-3.5 h-3.5" /> },
 ];
+
+const formatRange = (from?: Date, to?: Date) => {
+  if (!from) return "";
+  if (!to || from.getTime() === to.getTime()) return format(from, "d MMMM yyyy", { locale: idLocale });
+  const sameMonth = from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear();
+  return sameMonth
+    ? `${format(from, "d", { locale: idLocale })} - ${format(to, "d MMMM yyyy", { locale: idLocale })}`
+    : `${format(from, "d MMM", { locale: idLocale })} - ${format(to, "d MMM yyyy", { locale: idLocale })}`;
+};
 
 const ornamentOptions: { key: OrnamentKey; label: string }[] = [
   { key: "dots", label: "Dots" }, { key: "grid", label: "Grid" }, { key: "diagonal", label: "Diagonal" },
