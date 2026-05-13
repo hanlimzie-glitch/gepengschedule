@@ -1,14 +1,14 @@
 import { forwardRef } from "react";
 import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Cloud, Twitch, Youtube, Crown } from "lucide-react";
 
-export type PlatformKey = "none" | "twitch" | "youtube" | "tiktok";
+export type PlatformKey = "twitch" | "youtube" | "tiktok";
 
 export type Slot = {
   time: string;
   title: string;
   note: string;
   type: "solo" | "collab" | "offline";
-  platform: PlatformKey;
+  platforms: PlatformKey[];
 };
 
 export type DayItem = {
@@ -94,8 +94,7 @@ const TikTokIcon = ({ size = 14 }: { size?: number }) => (
 );
 
 const PlatformBadge = ({ p, compact }: { p: PlatformKey; compact?: boolean }) => {
-  if (p === "none") return null;
-  const cfg: Record<Exclude<PlatformKey, "none">, { bg: string; fg: string; label: string; icon: JSX.Element }> = {
+  const cfg: Record<PlatformKey, { bg: string; fg: string; label: string; icon: JSX.Element }> = {
     twitch: { bg: "#9146FF", fg: "#fff", label: "Twitch", icon: <Twitch size={compact ? 14 : 16} /> },
     youtube: { bg: "#FF0033", fg: "#fff", label: "YouTube", icon: <Youtube size={compact ? 14 : 16} /> },
     tiktok: { bg: "#000", fg: "#fff", label: "TikTok", icon: <TikTokIcon size={compact ? 12 : 14} /> },
@@ -113,13 +112,25 @@ const PlatformBadge = ({ p, compact }: { p: PlatformKey; compact?: boolean }) =>
   );
 };
 
+const PlatformBadges = ({ list, compact }: { list: PlatformKey[]; compact?: boolean }) => {
+  if (!list || list.length === 0) return null;
+  return (
+    <span style={{ display: "inline-flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+      {list.map((p) => <PlatformBadge key={p} p={p} compact={compact} />)}
+    </span>
+  );
+};
+
 // Normalize legacy day items (with flat fields) into slot-based shape
 const normalize = (d: any): DayItem => {
-  if (d.slots) return d as DayItem;
-  return {
-    day: d.day,
-    slots: [{ time: d.time || "", title: d.title || "", note: d.note || "", type: d.type || "solo", platform: d.platform || "none" }],
+  const normSlot = (s: any): Slot => {
+    let platforms: PlatformKey[] = [];
+    if (Array.isArray(s.platforms)) platforms = s.platforms.filter((p: any) => p && p !== "none");
+    else if (s.platform && s.platform !== "none") platforms = [s.platform];
+    return { time: s.time || "", title: s.title || "", note: s.note || "", type: s.type || "solo", platforms };
   };
+  if (d.slots) return { day: d.day, slots: d.slots.map(normSlot) };
+  return { day: d.day, slots: [normSlot(d)] };
 };
 
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
