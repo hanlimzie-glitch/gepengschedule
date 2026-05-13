@@ -443,7 +443,12 @@ const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, c
                 Upload your character ✨
               </div>
             )}
-            <div style={{ position: "absolute", top: 28, left: 28, right: 28, color: "white", textShadow: "0 2px 12px hsl(0 0% 0% / 0.55)" }}>
+            <div style={{
+              position: "absolute", top: 0, left: 0, right: 0, height: 240,
+              background: "linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.15) 70%, transparent)",
+              pointerEvents: "none",
+            }} />
+            <div style={{ position: "absolute", top: 28, left: 28, right: 28, color: "white", textShadow: "0 2px 14px rgba(0,0,0,0.75), 0 0 4px rgba(0,0,0,0.6)" }}>
               <div style={{ fontSize: 64, fontWeight: 800, lineHeight: 1 }}>{title || "Schedule"}</div>
               <div style={{ fontSize: 24, fontWeight: 500, marginTop: 10, opacity: 0.95 }}>{dateRange}</div>
               {subtitle && <div style={{ fontSize: 20, fontWeight: 400, marginTop: 4, opacity: 0.9 }}>{subtitle}</div>}
@@ -539,6 +544,12 @@ const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, cha
   <div className="relative h-full flex flex-col" style={{ padding: 64 }}>
     <header className="flex items-end justify-between" style={{ marginBottom: 40 }}>
       <div>
+      <div style={{
+        background: "hsl(var(--t-card) / 0.6)",
+        padding: "20px 32px", borderRadius: 20,
+        border: "1px solid hsl(var(--t-border) / 0.4)",
+        backdropFilter: "blur(6px)",
+      }}>
         <div className="flex items-center" style={{ gap: 12, marginBottom: 12, fontSize: 24, color: "hsl(var(--t-1))" }}>
           {themeIcon[theme as ThemeKey]}
           <span style={{ textTransform: "uppercase", letterSpacing: "0.4em", fontWeight: 600 }}>Weekly Schedule</span>
@@ -548,6 +559,7 @@ const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, cha
           {title || "VTuber Schedule"}
         </h1>
         {subtitle && <p style={{ marginTop: 16, fontSize: 30, fontWeight: 300, color: "hsl(var(--t-muted))" }}>{subtitle}</p>}
+      </div>
       </div>
       <div style={{ textAlign: "right", padding: "16px 32px", borderRadius: 16, background: "hsl(var(--t-card) / 0.7)", border: "2px solid hsl(var(--t-border) / 0.6)" }}>
         <div style={{ fontSize: 20, textTransform: "uppercase", letterSpacing: "0.2em", color: "hsl(var(--t-1))" }}>Date</div>
