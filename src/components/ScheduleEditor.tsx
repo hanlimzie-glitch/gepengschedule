@@ -307,23 +307,26 @@ export const ScheduleEditor = () => {
                       {d.slots.length > 1 && (
                         <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Slot {si + 1}</div>
                       )}
-                      <div className="grid grid-cols-2 gap-2">
-                        <Select value={s.type} onValueChange={(v) => updateSlot(i, si, "type", v as Slot["type"])}>
-                          <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            {scheduleTypes.map((type) => (
-                              <SelectItem key={type.key} value={type.key}>
-                                <span className="inline-flex items-center gap-2">{type.icon}{type.label}</span>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Select value={s.platform} onValueChange={(v) => updateSlot(i, si, "platform", v as PlatformKey)}>
-                          <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            {platformOptions.map((p) => <SelectItem key={p.key} value={p.key}>{p.label}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
+                      <Select value={s.type} onValueChange={(v) => updateSlot(i, si, "type", v as Slot["type"])}>
+                        <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {scheduleTypes.map((type) => (
+                            <SelectItem key={type.key} value={type.key}>
+                              <span className="inline-flex items-center gap-2">{type.icon}{type.label}</span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <div className="flex flex-wrap gap-3 px-1 py-1">
+                        {platformOptions.map((p) => {
+                          const checked = s.platforms.includes(p.key);
+                          return (
+                            <label key={p.key} className="flex items-center gap-1.5 text-xs cursor-pointer select-none">
+                              <Checkbox checked={checked} onCheckedChange={() => togglePlatform(i, si, p.key)} />
+                              <span className="inline-flex items-center gap-1">{p.icon}{p.label}</span>
+                            </label>
+                          );
+                        })}
                       </div>
                       <Input value={s.time} onChange={(e) => updateSlot(i, si, "time", e.target.value)} placeholder="19:00 WIB" className="h-8" />
                       <Input value={s.title} onChange={(e) => updateSlot(i, si, "title", e.target.value)} placeholder="Aktivitas" className="h-8" />
