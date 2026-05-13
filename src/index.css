@@ -173,7 +173,11 @@
   background-size: 52px 52px;
 }
 .ornament-diagonal {
-  background-image: repeating-linear-gradient(45deg, hsl(var(--t-1) / 0.28) 0 4px, transparent 4px 28px);
+  background-image: repeating-linear-gradient(
+    45deg,
+    hsl(var(--t-1) / 0.22) 0 2px,
+    transparent 2px 24px
+  );
 }
 .ornament-stars {
   background-image:
@@ -203,9 +207,9 @@
 }
 .ornament-crosses {
   background-image:
-    linear-gradient(hsl(var(--t-1) / 0.5) 0 100%, transparent 0),
-    linear-gradient(90deg, hsl(var(--t-1) / 0.42) 0 100%, transparent 0);
-  background-size: 5px 34px, 34px 5px;
+    linear-gradient(hsl(var(--t-text) / 0.18) 0 100%, transparent 0),
+    linear-gradient(90deg, hsl(var(--t-text) / 0.18) 0 100%, transparent 0);
+  background-size: 4px 40px, 40px 4px;
   background-position: center;
 }
 .ornament-circuit {
