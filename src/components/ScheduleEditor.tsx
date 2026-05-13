@@ -65,8 +65,12 @@ const ornamentOptions: { key: OrnamentKey; label: string }[] = [
 
 export const ScheduleEditor = () => {
   const [title, setTitle] = useState("Huan Weekly Schedule");
-  const [subtitle, setSubtitle] = useState("Powered by Lovable ♡");
+  const [subtitle, setSubtitle] = useState("powered by Huan");
   const [dateRange, setDateRange] = useState("5 - 11 Mei 2026");
+  const [dateRangeObj, setDateRangeObj] = useState<DateRange | undefined>({
+    from: new Date(2026, 4, 5),
+    to: new Date(2026, 4, 11),
+  });
   const [artBy, setArtBy] = useState("Art by @yourname");
   const [youtubeHandle, setYoutubeHandle] = useState("@your youtube channel");
   const [twitchHandle, setTwitchHandle] = useState("@your twitch channel");
@@ -85,11 +89,32 @@ export const ScheduleEditor = () => {
   const previewWrapRef = useRef<HTMLDivElement>(null);
 
   const pickTheme = (k: ThemeKey) => {
+    if (layout === "royal" && k !== "royalred") {
+      toast.info("Layout Royal hanya mendukung tema Royal Red");
+      return;
+    }
     setTheme(k);
     const t = themes.find((x) => x.key === k);
     if (t) setOrnament(t.defaultOrnament);
     if (k === "cute" || k === "sakura") setLayout("bubbles");
     if (k === "royalred") setLayout("royal");
+  };
+
+  const handleDateRange = (r: DateRange | undefined) => {
+    setDateRangeObj(r);
+    if (r?.from) setDateRange(formatRange(r.from, r.to));
+  };
+
+  const togglePlatform = (di: number, si: number, p: PlatformKey) => {
+    setDays((prev) => prev.map((d, i) =>
+      i !== di ? d : {
+        ...d,
+        slots: d.slots.map((s, j) => j !== si ? s : {
+          ...s,
+          platforms: s.platforms.includes(p) ? s.platforms.filter((x) => x !== p) : [...s.platforms, p],
+        }),
+      }
+    ));
   };
 
   const updateSlot = <K extends keyof Slot>(di: number, si: number, key: K, val: Slot[K]) => {
