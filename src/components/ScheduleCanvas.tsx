@@ -332,7 +332,7 @@ const RoyalLayout = ({
         <div className="flex-1 flex flex-col" style={{ gap: 10, justifyContent: "space-around" }}>
           {days.slice(0, 7).map((d: DayItem, i: number) => {
             const { abbr } = parseDay(d.day);
-            const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platform: "none" } as Slot];
+            const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platforms: [] } as Slot];
             const allOffline = slots.every((s) => s.type === "offline");
             const rowH = slots.length > 1 ? 96 : 70;
             const tagText = slots.length > 1
@@ -382,7 +382,7 @@ const RoyalLayout = ({
                             )}
                           </div>
                           <div style={{ minWidth: 110, display: "flex", justifyContent: "flex-start" }}>
-                            <PlatformBadge p={s.platform} />
+                            <PlatformBadges list={s.platforms} />
                           </div>
                         </div>
                       );
@@ -465,7 +465,7 @@ const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, c
       <div className="flex-1 flex flex-col" style={{ gap: 10, minHeight: 0 }}>
         {days.slice(0, 7).map((d: DayItem, i: number) => {
           const { abbr, num } = parseDay(d.day);
-          const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platform: "none" } as Slot];
+          const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platforms: [] } as Slot];
           const altRow = i % 2 === 1;
           return (
             <div key={i} className="relative flex items-stretch" style={{
@@ -509,7 +509,7 @@ const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, c
                         )}
                       </div>
                       <div className="flex items-center flex-shrink-0" style={{ gap: 8 }}>
-                        <PlatformBadge p={s.platform} />
+                        <PlatformBadges list={s.platforms} />
                         {isOffline ? (
                           <Moon className="w-7 h-7" style={{ color: "hsl(var(--t-1))" }} fill="currentColor" />
                         ) : (
@@ -590,7 +590,7 @@ const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, cha
                     }}>
                       {typeMeta[s.type].icon}{typeMeta[s.type].label}
                     </div>
-                    <PlatformBadge p={s.platform} />
+                    <PlatformBadges list={s.platforms} />
                   </div>
                   <div style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.15, color: "hsl(var(--t-text))" }}>
                     {s.type === "offline" ? s.title || "Offline" : s.title || "Free"}
