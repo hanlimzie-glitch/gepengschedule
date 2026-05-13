@@ -211,15 +211,20 @@ export const ScheduleEditor = () => {
 
           <Section title="Tema">
             <div className="grid grid-cols-2 gap-3">
-              {themes.map((t) => (
-                <button type="button" key={t.key} onClick={() => pickTheme(t.key)}
-                  className={cn("rounded-xl p-3 border-2 text-left transition-all hover:scale-[1.02]",
-                    theme === t.key ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border")}
-                  style={{ background: "hsl(var(--card))" }}>
-                  <div className="h-10 rounded-lg mb-2" style={{ background: t.swatch }} />
-                  <div className="text-sm font-semibold">{t.label}</div>
-                </button>
-              ))}
+              {themes.map((t) => {
+                const locked = layout === "royal" && t.key !== "royalred";
+                return (
+                  <button type="button" key={t.key} onClick={() => pickTheme(t.key)} disabled={locked}
+                    title={locked ? "Layout Royal hanya mendukung Royal Red" : undefined}
+                    className={cn("rounded-xl p-3 border-2 text-left transition-all hover:scale-[1.02]",
+                      theme === t.key ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border",
+                      locked && "opacity-40 cursor-not-allowed hover:scale-100")}
+                    style={{ background: "hsl(var(--card))" }}>
+                    <div className="h-10 rounded-lg mb-2" style={{ background: t.swatch }} />
+                    <div className="text-sm font-semibold">{t.label}</div>
+                  </button>
+                );
+              })}
             </div>
           </Section>
 
