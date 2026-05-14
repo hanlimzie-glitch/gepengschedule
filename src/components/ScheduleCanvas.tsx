@@ -187,6 +187,7 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
             title={title} subtitle={subtitle} dateRange={dateRange}
             days={days} characterUrl={characterUrl} charFit={charFit}
             artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
+            theme={theme}
           />
         ) : layout === "bubbles" ? (
           <BubbleLayout
@@ -219,20 +220,35 @@ const parseRange = (s: string): { d1: string; m1: string; d2: string; m2: string
   };
 };
 
+type RoyalPalette = {
+  dark: string; light: string; ribbon: string; tag: string; accent: string;
+  textOnDark: string; textOnLight: string; borderDeep: string;
+};
+
+const ROYAL_PALETTES: Record<ThemeKey, RoyalPalette> = {
+  royalred:  { dark: "#6b1622", light: "#e6c168", ribbon: "#1a1a1a", tag: "#f5e9c8", accent: "#c9a060", textOnDark: "#fff", textOnLight: "#3a0a14", borderDeep: "#9b1c2c" },
+  cute:      { dark: "#c2185b", light: "#ffd9b3", ribbon: "#2a0a1a", tag: "#fff0f5", accent: "#ff8fb1", textOnDark: "#fff", textOnLight: "#5a0e2e", borderDeep: "#e91e63" },
+  aesthetic: { dark: "#5b21b6", light: "#7dd3fc", ribbon: "#1a0a2e", tag: "#ede9fe", accent: "#a78bfa", textOnDark: "#fff", textOnLight: "#2e1065", borderDeep: "#7c3aed" },
+  gothic:    { dark: "#0a0a0a", light: "#dc2626", ribbon: "#000000", tag: "#1f1f1f", accent: "#dc2626", textOnDark: "#fff", textOnLight: "#fff",     borderDeep: "#7f1d1d" },
+  sakura:    { dark: "#9d174d", light: "#fce7f3", ribbon: "#3a0a1f", tag: "#fff0f5", accent: "#f472b6", textOnDark: "#fff", textOnLight: "#831843", borderDeep: "#be185d" },
+  cyber:     { dark: "#0891b2", light: "#ec4899", ribbon: "#0a1a2e", tag: "#cffafe", accent: "#22d3ee", textOnDark: "#fff", textOnLight: "#831843", borderDeep: "#0e7490" },
+  mint:      { dark: "#0f766e", light: "#a7f3d0", ribbon: "#0a1f1a", tag: "#ecfdf5", accent: "#34d399", textOnDark: "#fff", textOnLight: "#064e3b", borderDeep: "#115e59" },
+};
+
 const RoyalLayout = ({
-  title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle,
+  title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, theme,
 }: any) => {
   const range = parseRange(dateRange) || { d1: "01", m1: "WEEK", d2: "07", m2: "OF" };
+  const p: RoyalPalette = ROYAL_PALETTES[(theme as ThemeKey)] || ROYAL_PALETTES.royalred;
 
   return (
     <div className="relative h-full w-full" style={{
-      background: "linear-gradient(90deg, #6b1622 0%, #6b1622 46%, #d4a24a 46%, #e6c168 100%)",
+      background: `linear-gradient(90deg, ${p.dark} 0%, ${p.dark} 46%, ${p.light} 46%, ${p.light} 100%)`,
       fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
     }}>
       {/* LEFT character panel */}
       <div className="absolute" style={{ left: 0, top: 0, bottom: 0, width: "44%", overflow: "hidden" }}>
-        <div className="absolute" style={{ inset: 0, background: "radial-gradient(circle at 30% 40%, rgba(255,200,200,0.15), transparent 60%)" }} />
-        {/* Sparkle decorations */}
+        <div className="absolute" style={{ inset: 0, background: "radial-gradient(circle at 30% 40%, rgba(255,255,255,0.15), transparent 60%)" }} />
         {[
           { top: 80, left: 60, size: 60, rot: 0 },
           { top: 200, right: 120, size: 70, rot: 15 },
@@ -243,7 +259,6 @@ const RoyalLayout = ({
             textShadow: "0 0 20px rgba(255,255,255,0.5)",
           }}>✦</div>
         ))}
-        {/* Character */}
         {characterUrl ? (
           <img src={characterUrl} alt="character" crossOrigin="anonymous"
             style={{ width: "100%", height: "100%", objectFit: charFit, objectPosition: "center" }} />
@@ -252,57 +267,54 @@ const RoyalLayout = ({
             Upload your character ✨
           </div>
         )}
-        {/* "— YOUR NAME" top-right */}
         <div className="absolute" style={{
           top: 50, right: 60, color: "rgba(255,255,255,0.85)",
           fontSize: 22, letterSpacing: "0.3em", fontFamily: "'Inter', sans-serif",
         }}>
           — {(artBy || "YOUR NAME").replace(/^Art by\s*/i, "").toUpperCase()}
         </div>
-        {/* Polaroid stickers (decorative) */}
         <div className="absolute" style={{
           bottom: 100, left: 30, width: 110, height: 130, background: "#fff",
           padding: 8, transform: "rotate(-8deg)", boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
         }}>
-          <div style={{ width: "100%", height: "85%", background: "linear-gradient(135deg,#c9a060,#6b1622)" }} />
+          <div style={{ width: "100%", height: "85%", background: `linear-gradient(135deg,${p.accent},${p.dark})` }} />
         </div>
         <div className="absolute" style={{
           bottom: 60, left: 130, width: 90, height: 110, background: "#fff",
           padding: 6, transform: "rotate(6deg)", boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
         }}>
-          <div style={{ width: "100%", height: "82%", background: "linear-gradient(135deg,#e6c168,#9b3540)" }} />
+          <div style={{ width: "100%", height: "82%", background: `linear-gradient(135deg,${p.light},${p.borderDeep})` }} />
         </div>
-        {/* Decorative red borders */}
-        <div className="absolute" style={{ top: 0, bottom: 0, right: 0, width: 8, background: "#9b1c2c" }} />
+        <div className="absolute" style={{ top: 0, bottom: 0, right: 0, width: 8, background: p.borderDeep }} />
       </div>
 
-      {/* CENTER divider with diamond date badges */}
+      {/* CENTER divider */}
       <div className="absolute" style={{
         left: "calc(44% - 50px)", top: 0, bottom: 0, width: 100,
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-        background: "linear-gradient(180deg, #1a1a1a 0%, #2a1a1a 50%, #1a1a1a 100%)",
-        borderLeft: "3px solid #9b1c2c", borderRight: "3px solid #9b1c2c",
+        background: `linear-gradient(180deg, ${p.ribbon} 0%, ${p.dark} 50%, ${p.ribbon} 100%)`,
+        borderLeft: `3px solid ${p.borderDeep}`, borderRight: `3px solid ${p.borderDeep}`,
       }}>
         <div style={{ color: "#fff", fontSize: 14, letterSpacing: "0.3em", marginBottom: 14, fontFamily: "'Inter', sans-serif" }}>WEEK OF</div>
-        <DiamondBadge num={range.d1} label={range.m1} />
+        <DiamondBadge num={range.d1} label={range.m1} tag={p.tag} accent={p.accent} text={p.textOnLight} />
         <div style={{ color: "#fff", fontSize: 14, letterSpacing: "0.3em", margin: "20px 0", fontFamily: "'Inter', sans-serif" }}>TO</div>
-        <DiamondBadge num={range.d2} label={range.m2} />
+        <DiamondBadge num={range.d2} label={range.m2} tag={p.tag} accent={p.accent} text={p.textOnLight} />
       </div>
 
       {/* RIGHT panel */}
       <div className="absolute" style={{ left: "calc(44% + 50px)", right: 0, top: 0, bottom: 0, padding: "40px 50px 40px 30px", display: "flex", flexDirection: "column" }}>
-        {/* Title row */}
         <div className="flex items-start justify-between" style={{ marginBottom: 30 }}>
-          <div style={{ color: "#3a0a14", lineHeight: 1 }}>
+          <div style={{ color: p.textOnLight, lineHeight: 1 }}>
             <div style={{ fontSize: 32, fontWeight: 700, fontStyle: "italic", letterSpacing: "0.05em" }}>Weekly</div>
             <div style={{
               fontSize: 88, fontWeight: 900, fontStyle: "italic", marginTop: -8,
               fontFamily: "'Allura', 'Pinyon Script', 'Cormorant Garamond', cursive",
-              color: "#7a0e1a",
+              color: p.dark,
               textShadow: "2px 2px 0 #fff",
             }}>
-              {title || "Stream"} <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: 48, fontWeight: 600, color: "#3a0a14" }}>Schedule</span>
+              {title || "Stream"} <span style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: 48, fontWeight: 600, color: p.textOnLight }}>Schedule</span>
             </div>
+            {subtitle && <div style={{ marginTop: 8, fontSize: 18, fontWeight: 500, color: p.textOnLight, opacity: 0.8, fontFamily: "'Inter', sans-serif", letterSpacing: "0.15em" }}>{subtitle}</div>}
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {youtubeHandle && (
@@ -312,7 +324,7 @@ const RoyalLayout = ({
                 boxShadow: "0 2px 8px rgba(0,0,0,0.15)", fontFamily: "'Inter', sans-serif",
               }}>
                 <Youtube size={20} color="#FF0033" />
-                <span style={{ fontSize: 16, fontWeight: 600, color: "#3a0a14" }}>{youtubeHandle}</span>
+                <span style={{ fontSize: 16, fontWeight: 600, color: p.textOnLight }}>{youtubeHandle}</span>
               </div>
             )}
             {twitchHandle && (
@@ -322,13 +334,12 @@ const RoyalLayout = ({
                 boxShadow: "0 2px 8px rgba(0,0,0,0.15)", fontFamily: "'Inter', sans-serif",
               }}>
                 <Twitch size={20} color="#9146FF" />
-                <span style={{ fontSize: 16, fontWeight: 600, color: "#3a0a14" }}>{twitchHandle}</span>
+                <span style={{ fontSize: 16, fontWeight: 600, color: p.textOnLight }}>{twitchHandle}</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Schedule rows — one row per DAY, two stacked sub-rows if a day has 2 slots */}
         <div className="flex-1 flex flex-col" style={{ gap: 10, justifyContent: "space-around" }}>
           {days.slice(0, 7).map((d: DayItem, i: number) => {
             const { abbr } = parseDay(d.day);
@@ -341,7 +352,7 @@ const RoyalLayout = ({
             return (
               <div key={i} className="relative" style={{ display: "flex", alignItems: "center", height: rowH }}>
                 <div style={{
-                  background: "#f5e9c8", color: "#3a0a14", padding: "10px 16px", borderRadius: 6,
+                  background: p.tag, color: p.textOnLight, padding: "10px 16px", borderRadius: 6,
                   display: "flex", alignItems: "center", gap: 10, fontFamily: "'Inter', sans-serif",
                   fontSize: 14, fontWeight: 700, marginRight: -8, position: "relative", zIndex: 2,
                   boxShadow: "0 2px 6px rgba(0,0,0,0.2)", whiteSpace: "nowrap",
@@ -349,14 +360,14 @@ const RoyalLayout = ({
                 <div style={{
                   flex: 1,
                   background: allOffline
-                    ? "linear-gradient(90deg, #5a0d18 0%, #8b1c2c 50%, #5a0d18 100%)"
-                    : "linear-gradient(90deg, #1a1a1a 0%, #2d2020 50%, #1a1a1a 100%)",
+                    ? `linear-gradient(90deg, ${p.borderDeep} 0%, ${p.dark} 50%, ${p.borderDeep} 100%)`
+                    : `linear-gradient(90deg, ${p.ribbon} 0%, ${p.dark} 50%, ${p.ribbon} 100%)`,
                   color: "#fff", padding: "10px 50px",
                   clipPath: "polygon(20px 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 20px 100%, 0 50%)",
                   display: "flex", alignItems: "center", justifyContent: "space-between",
-                  border: "2px solid #c9a060", position: "relative", height: rowH, gap: 12,
+                  border: `2px solid ${p.accent}`, position: "relative", height: rowH, gap: 12,
                 }}>
-                  <span style={{ color: "#c9a060", fontSize: 24, lineHeight: 1, flexShrink: 0 }}>✻</span>
+                  <span style={{ color: p.accent, fontSize: 24, lineHeight: 1, flexShrink: 0 }}>✻</span>
                   <div style={{ flex: 1, fontFamily: "'Inter', sans-serif", display: "flex", flexDirection: "column", justifyContent: "center", gap: slots.length > 1 ? 4 : 0 }}>
                     {slots.map((s, si) => {
                       const off = s.type === "offline";
@@ -364,10 +375,10 @@ const RoyalLayout = ({
                         <div key={si} style={{
                           display: "flex", alignItems: "center", gap: 12, justifyContent: "center",
                           paddingTop: si > 0 ? 4 : 0,
-                          borderTop: si > 0 ? "1px solid rgba(201,160,96,0.45)" : undefined,
+                          borderTop: si > 0 ? `1px solid ${p.accent}73` : undefined,
                         }}>
                           {slots.length > 1 && (
-                            <span style={{ color: "#c9a060", fontSize: 13, fontWeight: 700, letterSpacing: "0.1em", minWidth: 100, textAlign: "right" }}>
+                            <span style={{ color: p.accent, fontSize: 13, fontWeight: 700, letterSpacing: "0.1em", minWidth: 100, textAlign: "right" }}>
                               {off ? "OFFLINE" : (s.time || "—")}
                             </span>
                           )}
@@ -388,7 +399,7 @@ const RoyalLayout = ({
                       );
                     })}
                   </div>
-                  <span style={{ color: "#c9a060", fontSize: 24, lineHeight: 1, flexShrink: 0 }}>✻</span>
+                  <span style={{ color: p.accent, fontSize: 24, lineHeight: 1, flexShrink: 0 }}>✻</span>
                 </div>
               </div>
             );
@@ -399,19 +410,20 @@ const RoyalLayout = ({
   );
 };
 
-const DiamondBadge = ({ num, label }: { num: string; label: string }) => (
+const DiamondBadge = ({ num, label, tag, accent, text }: { num: string; label: string; tag?: string; accent?: string; text?: string }) => (
   <div style={{
     width: 70, height: 70, transform: "rotate(45deg)",
-    background: "#f5e9c8", border: "2px solid #c9a060",
+    background: tag || "#f5e9c8", border: `2px solid ${accent || "#c9a060"}`,
     display: "flex", alignItems: "center", justifyContent: "center",
     boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
   }}>
-    <div style={{ transform: "rotate(-45deg)", textAlign: "center", color: "#3a0a14", fontFamily: "'Inter', sans-serif" }}>
+    <div style={{ transform: "rotate(-45deg)", textAlign: "center", color: text || "#3a0a14", fontFamily: "'Inter', sans-serif" }}>
       <div style={{ fontSize: 22, fontWeight: 900, lineHeight: 1 }}>{num}</div>
       <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.15em", marginTop: 2 }}>{label}</div>
     </div>
   </div>
 );
+
 
 /* ============================================================
    BUBBLE LAYOUT (existing, with multi-slot support)

@@ -89,15 +89,9 @@ export const ScheduleEditor = () => {
   const previewWrapRef = useRef<HTMLDivElement>(null);
 
   const pickTheme = (k: ThemeKey) => {
-    if (layout === "royal" && k !== "royalred") {
-      toast.info("Layout Royal hanya mendukung tema Royal Red");
-      return;
-    }
     setTheme(k);
     const t = themes.find((x) => x.key === k);
     if (t) setOrnament(t.defaultOrnament);
-    if (k === "cute" || k === "sakura") setLayout("bubbles");
-    if (k === "royalred") setLayout("royal");
   };
 
   const handleDateRange = (r: DateRange | undefined) => {
@@ -209,25 +203,6 @@ export const ScheduleEditor = () => {
             </div>
           </Section>
 
-          <Section title="Tema">
-            <div className="grid grid-cols-2 gap-3">
-              {themes.map((t) => {
-                const locked = layout === "royal" && t.key !== "royalred";
-                return (
-                  <button type="button" key={t.key} onClick={() => pickTheme(t.key)} disabled={locked}
-                    title={locked ? "Layout Royal hanya mendukung Royal Red" : undefined}
-                    className={cn("rounded-xl p-3 border-2 text-left transition-all hover:scale-[1.02]",
-                      theme === t.key ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border",
-                      locked && "opacity-40 cursor-not-allowed hover:scale-100")}
-                    style={{ background: "hsl(var(--card))" }}>
-                    <div className="h-10 rounded-lg mb-2" style={{ background: t.swatch }} />
-                    <div className="text-sm font-semibold">{t.label}</div>
-                  </button>
-                );
-              })}
-            </div>
-          </Section>
-
           <Section title="Layout">
             <div className="grid grid-cols-3 gap-2">
               {([
@@ -235,14 +210,25 @@ export const ScheduleEditor = () => {
                 { key: "grid", label: "Grid", desc: "2-col cards" },
                 { key: "royal", label: "Royal", desc: "Red/gold banner" },
               ] as { key: LayoutKey; label: string; desc: string }[]).map((l) => (
-                <button key={l.key} type="button" onClick={() => {
-                  setLayout(l.key);
-                  if (l.key === "royal") { setTheme("royalred"); setOrnament("none"); }
-                }}
+                <button key={l.key} type="button" onClick={() => setLayout(l.key)}
                   className={cn("rounded-xl p-3 border-2 text-left transition-all hover:scale-[1.02]",
                     layout === l.key ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border")}>
                   <div className="text-sm font-bold">{l.label}</div>
                   <div className="text-[11px] text-muted-foreground">{l.desc}</div>
+                </button>
+              ))}
+            </div>
+          </Section>
+
+          <Section title="Color">
+            <div className="grid grid-cols-2 gap-3">
+              {themes.map((t) => (
+                <button type="button" key={t.key} onClick={() => pickTheme(t.key)}
+                  className={cn("rounded-xl p-3 border-2 text-left transition-all hover:scale-[1.02]",
+                    theme === t.key ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border")}
+                  style={{ background: "hsl(var(--card))" }}>
+                  <div className="h-10 rounded-lg mb-2" style={{ background: t.swatch }} />
+                  <div className="text-sm font-semibold">{t.label}</div>
                 </button>
               ))}
             </div>
