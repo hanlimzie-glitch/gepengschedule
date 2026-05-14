@@ -110,7 +110,11 @@ export const ScheduleEditor = () => {
 
   const handleDateRange = (r: DateRange | undefined) => {
     setDateRangeObj(r);
-    if (r?.from) setDateRange(formatRange(r.from, r.to));
+    if (r?.from) {
+      setDateRange(formatRange(r.from, r.to));
+      const labels = buildDayLabels(r.from);
+      setDays((prev) => prev.map((d, i) => ({ ...d, day: labels[i] ?? d.day })));
+    }
   };
 
   const togglePlatform = (di: number, si: number, p: PlatformKey) => {
