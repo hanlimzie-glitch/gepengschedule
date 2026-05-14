@@ -187,6 +187,7 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
             title={title} subtitle={subtitle} dateRange={dateRange}
             days={days} characterUrl={characterUrl} charFit={charFit}
             artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
+            theme={theme}
           />
         ) : layout === "bubbles" ? (
           <BubbleLayout
