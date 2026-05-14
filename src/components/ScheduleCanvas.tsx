@@ -76,8 +76,8 @@ const ornamentGlyphs: Record<OrnamentKey, string[]> = {
 };
 
 const DAY_ABBR: Record<string, string> = {
-  senin: "MON", selasa: "TUE", rabu: "WED", kamis: "THU", jumat: "FRI", sabtu: "SAT", minggu: "SUN",
-  monday: "MON", tuesday: "TUE", wednesday: "WED", thursday: "THU", friday: "FRI", saturday: "SAT", sunday: "SUN",
+  minggu: "SUN", senin: "MON", selasa: "TUE", rabu: "WED", kamis: "THU", jumat: "FRI", sabtu: "SAT",
+  sunday: "SUN", monday: "MON", tuesday: "TUE", wednesday: "WED", thursday: "THU", friday: "FRI", saturday: "SAT",
 };
 const parseDay = (raw: string) => {
   const m = raw.trim().match(/^(\S+)\s*(\d+)?/);
