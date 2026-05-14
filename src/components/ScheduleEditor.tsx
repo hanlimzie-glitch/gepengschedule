@@ -18,7 +18,7 @@ import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentKe
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-const DAYS_ID = ["Senin 5", "Selasa 6", "Rabu 7", "Kamis 8", "Jumat 9", "Sabtu 10", "Minggu 11"];
+const DAYS_ID = ["Minggu ", "Senin 5", "Selasa 6", "Rabu 7", "Kamis 8", "Jumat 9", "Sabtu 10"];
 
 const makeSlot = (over: Partial<Slot> = {}): Slot => ({
   time: "19:00 WIB", title: "Just Chatting", note: "", type: "solo", platforms: [], ...over,
