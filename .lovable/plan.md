@@ -1,91 +1,50 @@
-## Perubahan
+## Perubahan UI Editor & Royal Layout
 
-### 1. Input tanggal → kalender (date range picker)
-File: `src/components/ScheduleEditor.tsx`
-- Ganti `Field "Tanggal / Periode"` Input teks menjadi `Popover + Calendar` (shadcn) mode `range`.
-- State internal `dateFrom`, `dateTo` (Date). Saat berubah, format ke string `"5 - 11 Mei 2026"` (lokal `id`) lalu set ke `dateRange` (string tetap dipertahankan supaya `RoyalLayout.parseRange` & canvas tidak berubah).
-- Pakai `format` dari `date-fns` + locale `id`. Default = minggu berjalan (Senin–Minggu).
-- Tampilkan trigger Button dengan ikon CalendarIcon dan teks tanggal terformat.
+### 1. Reorder panel sidebar (`ScheduleEditor.tsx`)
+- Pindahkan section **Layout** ke atas section **Tema**.
+- Rename judul section `"Tema"` → `"Color"`.
+- Hapus logika auto-switch yang mengunci Royal ke `royalred` saja:
+  - `pickTheme`: hapus blok `if (layout === "royal" && k !== "royalred")`.
+  - Tombol layout Royal: hapus `setTheme("royalred")` dan `setOrnament("none")` paksa.
+  - Hapus state `locked` & `disabled` pada tombol tema saat layout Royal.
 
-### 2. Subtitle default → "powered by Huan"
-File: `src/components/ScheduleEditor.tsx`
-- `useState("Powered by Lovable ♡")` → `useState("powered by Huan")`.
+### 2. Royal layout multi-tema (`ScheduleCanvas.tsx` → `RoyalLayout`)
+Saat ini `RoyalLayout` hardcoded warna `#6b1622` / `#e6c168` / `#f5e9c8` / `#1a1a1a` dst. Akan dibuat **dinamis** berdasarkan tema aktif dengan mengambil 2 warna paling kontras dari gradient tema.
 
-### 3. Royal layout dikunci ke tema Royal Red
-- `pickTheme(k)`: kalau `layout === "royal"` dan user mencoba pilih tema lain → tetap paksa `theme = "royalred"` (atau auto-switch layout ke `bubbles`). Pilihan: **paksa tetap royalred + tampilkan toast info** "Layout Royal hanya mendukung tema Royal Red".
-- Di tombol theme picker: bila `layout === "royal"`, beri state `disabled` & opacity rendah untuk tema selain `royalred`.
+**Pendekatan teori warna:**
+Setiap tema sudah punya `--t-1` (warna utama / aksen) dan `--t-2` (warna sekunder) di `index.css`. Kedua nilai ini biasanya sudah merupakan dua titik gradient. Untuk Royal:
+- **Warna A (dominan / panel kiri & ribbon gelap)** = warna paling gelap antara `--t-1`, `--t-2`, `--t-bg-from`, `--t-bg-to` (lightness terendah).
+- **Warna B (aksen / panel kanan & gold tag)** = warna paling terang & paling beda hue dari A (delta hue terbesar dengan lightness tertinggi).
+- **Warna C (text on A)** = otomatis `#fff` jika A gelap, `#111` jika terang.
+- **Warna D (text on B)** = sebaliknya.
 
-### 4. Platform → checkbox multi-pilih
-File: `src/components/ScheduleCanvas.tsx` & `ScheduleEditor.tsx`
-- Ubah type `Slot.platform` dari `PlatformKey` (single string) → `platforms: PlatformKey[]` (array, tanpa "none"; array kosong = tidak ada).
-- `PlatformKey` = `"twitch" | "youtube" | "tiktok"` (hapus `"none"`).
-- `normalize()` di canvas: handle data lama (`platform: "none" | string`) → konversi ke `platforms: []` atau `[platform]`.
-- Editor: ganti Select platform dengan 3 `Checkbox` (shadcn) horizontal: Twitch / YouTube / TikTok. Toggle tambah/hapus dari array.
-- Render: di Royal/Bubbles/Grid, ganti `<PlatformBadge p={s.platform}/>` jadi loop `s.platforms.map(p => <PlatformBadge p={p}/>)` di dalam wrapper flex gap kecil.
+Implementasi: tambahkan helper kecil `pickRoyalPalette(theme)` yang me-return `{ dark, light, ribbon, tag, accent, textOnDark, textOnLight }` — dengan tabel preset per ThemeKey (lebih reliable daripada parsing CSS var saat render). Contoh:
+- `royalred` → `{ dark:"#6b1622", light:"#e6c168", ribbon:"#1a1a1a", tag:"#f5e9c8", accent:"#c9a060" }` (existing)
+- `cute` → dark `#c2185b` (pink deep), light `#ffd9b3` (peach soft) — dua titik gradient cute.
+- `aesthetic` → `#5b21b6` ↔ `#7dd3fc`.
+- `gothic` → `#0a0a0a` ↔ `#dc2626`.
+- `sakura` → `#9d174d` ↔ `#fce7f3`.
+- `cyber` → `#0891b2` ↔ `#ec4899`.
+- `mint` → `#0f766e` ↔ `#a7f3d0`.
 
-### 5. Fix ornamen glitch & tabrakan warna
+Lalu `RoyalLayout` menerima `theme` prop dan menggantikan semua nilai hex hardcoded:
+- gradient background utama (`linear-gradient(90deg, dark 0% 46%, light 46% 100%)`)
+- panel kiri border merah → `dark` shade lebih tua
+- diamond badge `tag` background
+- ribbon stream `ribbon` (versi sangat gelap dari `dark`)
+- tag pill kiri `tag` background dengan teks `dark`
+- aksen `✻` & border ribbon → `accent`
+- judul "Schedule" warna teks → `dark`
+- offline ribbon variant → gradient dari `dark`
 
-**a. Ornament `diagonal` glitch**
-File: `src/index.css`
-- `.ornament-diagonal` saat ini pakai `repeating-linear-gradient` 4px solid → terlihat patah/moiré di canvas 1920px. Perbaiki jadi garis lebih halus & spacing konsisten:
-  ```css
-  .ornament-diagonal {
-    background-image: repeating-linear-gradient(
-      45deg,
-      hsl(var(--t-1) / 0.22) 0 2px,
-      transparent 2px 24px
-    );
-  }
-  ```
+### 3. Pass `theme` ke RoyalLayout
+Di `ScheduleCanvas` line 186-190, tambahkan `theme={theme}` ke `<RoyalLayout />`.
 
-**b. Ornament `crosses` warna tabrakan**
-- Saat ini garis vertikal & horizontal pakai warna sama (`--t-1` keduanya hampir sama opacity) sehingga tabrakan dengan `--t-card` di tema terang. Perbaiki:
-  ```css
-  .ornament-crosses {
-    background-image:
-      linear-gradient(hsl(var(--t-text) / 0.18) 0 100%, transparent 0),
-      linear-gradient(90deg, hsl(var(--t-text) / 0.18) 0 100%, transparent 0);
-    background-size: 4px 40px, 40px 4px;
-    background-position: center;
-  }
-  ```
-  Gunakan `--t-text` (selalu kontras dengan background tema) bukan `--t-1`.
+---
 
-### 6. Fix warna judul tabrakan dengan background
+### File yang diubah
+- `src/components/ScheduleEditor.tsx` — reorder section, rename label, hapus penguncian tema↔layout.
+- `src/components/ScheduleCanvas.tsx` — tambah `pickRoyalPalette`, refactor `RoyalLayout` agar menerima `theme` & pakai palette dinamis.
 
-**a. Bubbles + tema Sakura**: judul putih di atas background pink terang sulit dibaca.
-File: `src/components/ScheduleCanvas.tsx` (BubbleLayout)
-- Heading di dalam panel karakter (`fontSize: 64`) saat ini `color: "white"` dengan textShadow gelap. Karakter image biasanya menutupi area tapi kalau kosong / transparan, judul ilang. Tambahkan overlay gradient gelap di belakang teks judul:
-  ```jsx
-  <div style={{
-    position: "absolute", top: 0, left: 0, right: 0, height: 220,
-    background: "linear-gradient(180deg, rgba(0,0,0,0.45), transparent)",
-    borderTopLeftRadius: 24, borderTopRightRadius: 24,
-  }} />
-  ```
-  Letakkan sebelum teks judul agar selalu kontras.
-
-**b. Grid + tema Royal Red**: header `<h1>` pakai `color: hsl(var(--t-text))` = burgundy gelap di atas gradient burgundy → tabrakan.
-- Ganti warna heading di GridLayout jadi adaptif: gunakan `color: "hsl(var(--t-card))"` (cream/light) untuk tema dengan background gelap. Atau lebih sederhana: tambahkan `text-shadow` putih + box bg semi pada wrapper header bila theme = `royalred`/`gothic`/`aesthetic`/`cyber`.
-- Solusi konkret: bungkus title block dengan padding & semi-translucent backdrop:
-  ```jsx
-  <div style={{
-    background: "hsl(var(--t-card) / 0.55)",
-    padding: "12px 24px", borderRadius: 16, display: "inline-block",
-    backdropFilter: "blur(4px)",
-  }}>
-    {/* heading */}
-  </div>
-  ```
-  Berlaku untuk semua tema → konsisten & menjamin kontras.
-
-## File yang diubah
-
-- `src/components/ScheduleEditor.tsx` — date range picker, subtitle default, royal lock, platform checkbox.
-- `src/components/ScheduleCanvas.tsx` — `Slot.platforms[]`, normalize data lama, render multi-badge, fix kontras judul Bubbles+Grid.
-- `src/index.css` — perbaiki `.ornament-diagonal` & `.ornament-crosses`.
-
-## Di luar scope
-- Tidak menambah platform baru.
-- Tidak mengubah struktur export PNG.
-- Tidak mengubah layout Royal secara visual (hanya badge platform jadi multi).
+### Tidak diubah
+- Struktur data, ornament, layout Bubbles & Grid, ekspor PNG.
