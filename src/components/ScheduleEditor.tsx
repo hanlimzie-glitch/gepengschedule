@@ -18,13 +18,27 @@ import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentKe
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-const DAYS_ID = ["Minggu ", "Senin 5", "Selasa 6", "Rabu 7", "Kamis 8", "Jumat 9", "Sabtu 10"];
+const DAY_NAMES_ID = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+
+const buildDayLabels = (from?: Date): string[] => {
+  if (!from) return DAY_NAMES_ID.map((n) => n);
+  // Find Monday of the week containing `from`
+  const start = new Date(from);
+  const dow = start.getDay(); // 0=Sun..6=Sat
+  const diffToMonday = dow === 0 ? -6 : 1 - dow;
+  start.setDate(start.getDate() + diffToMonday);
+  return DAY_NAMES_ID.map((n, i) => {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    return `${n} ${d.getDate()}`;
+  });
+};
 
 const makeSlot = (over: Partial<Slot> = {}): Slot => ({
   time: "19:00 WIB", title: "Just Chatting", note: "", type: "solo", platforms: [], ...over,
 });
 
-const initialDays: DayItem[] = DAYS_ID.map((d) => ({ day: d, slots: [makeSlot()] }));
+const initialDays: DayItem[] = buildDayLabels(new Date(2026, 4, 5)).map((d) => ({ day: d, slots: [makeSlot()] }));
 
 const themes: { key: ThemeKey; label: string; swatch: string; defaultOrnament: OrnamentKey }[] = [
   { key: "cute", label: "Cute", swatch: "linear-gradient(135deg,hsl(330 100% 78%),hsl(25 100% 82%))", defaultOrnament: "hearts" },
@@ -96,7 +110,11 @@ export const ScheduleEditor = () => {
 
   const handleDateRange = (r: DateRange | undefined) => {
     setDateRangeObj(r);
-    if (r?.from) setDateRange(formatRange(r.from, r.to));
+    if (r?.from) {
+      setDateRange(formatRange(r.from, r.to));
+      const labels = buildDayLabels(r.from);
+      setDays((prev) => prev.map((d, i) => ({ ...d, day: labels[i] ?? d.day })));
+    }
   };
 
   const togglePlatform = (di: number, si: number, p: PlatformKey) => {
