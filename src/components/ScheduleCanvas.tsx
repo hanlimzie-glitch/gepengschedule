@@ -191,6 +191,13 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
             artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
             theme={theme}
           />
+        ) : layout === "celestial" ? (
+          <CelestialLayout
+            title={title} subtitle={subtitle} dateRange={dateRange}
+            days={days} characterUrl={characterUrl} charFit={charFit}
+            artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
+            theme={theme}
+          />
         ) : layout === "bubbles" ? (
           <BubbleLayout
             title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio}
