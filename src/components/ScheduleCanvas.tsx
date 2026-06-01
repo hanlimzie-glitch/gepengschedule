@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Cloud, Twitch, Youtube, Crown } from "lucide-react";
+import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Cloud, Twitch, Youtube, Crown, Wand2, Feather, Star } from "lucide-react";
 
 export type PlatformKey = "twitch" | "youtube" | "tiktok";
 
@@ -16,8 +16,8 @@ export type DayItem = {
   slots: Slot[];
 };
 
-export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint" | "royalred";
-export type LayoutKey = "grid" | "bubbles" | "royal";
+export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint" | "royalred" | "magic";
+export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial";
 export type OrnamentKey =
   | "dots" | "grid" | "diagonal" | "stars" | "hearts" | "sakura" | "crosses" | "circuit" | "none";
 
@@ -45,6 +45,7 @@ const themeIcon: Record<ThemeKey, JSX.Element> = {
   cyber: <Cpu className="w-6 h-6" />,
   mint: <Leaf className="w-6 h-6" fill="currentColor" />,
   royalred: <Crown className="w-6 h-6" fill="currentColor" />,
+  magic: <Wand2 className="w-6 h-6" />,
 };
 
 const themeFont: Record<ThemeKey, string> = {
@@ -55,6 +56,7 @@ const themeFont: Record<ThemeKey, string> = {
   cyber: "'Orbitron', 'Poppins', sans-serif",
   mint: "'Quicksand', 'Poppins', sans-serif",
   royalred: "'Cormorant Garamond', 'Playfair Display', serif",
+  magic: "'Cormorant Garamond', 'Playfair Display', serif",
 };
 
 const typeMeta: Record<Slot["type"], { label: string; icon: JSX.Element }> = {
@@ -233,6 +235,7 @@ const ROYAL_PALETTES: Record<ThemeKey, RoyalPalette> = {
   sakura:    { dark: "#9d174d", light: "#fce7f3", ribbon: "#3a0a1f", tag: "#fff0f5", accent: "#f472b6", textOnDark: "#fff", textOnLight: "#831843", borderDeep: "#be185d" },
   cyber:     { dark: "#0891b2", light: "#ec4899", ribbon: "#0a1a2e", tag: "#cffafe", accent: "#22d3ee", textOnDark: "#fff", textOnLight: "#831843", borderDeep: "#0e7490" },
   mint:      { dark: "#0f766e", light: "#a7f3d0", ribbon: "#0a1f1a", tag: "#ecfdf5", accent: "#34d399", textOnDark: "#fff", textOnLight: "#064e3b", borderDeep: "#115e59" },
+  magic:     { dark: "#3a1d6e", light: "#f3d27a", ribbon: "#1a0f3a", tag: "#fef3c7", accent: "#c9a4ff", textOnDark: "#fff", textOnLight: "#2a1158", borderDeep: "#4c1d95" },
 };
 
 const RoyalLayout = ({
