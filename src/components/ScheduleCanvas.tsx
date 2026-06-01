@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Cloud, Twitch, Youtube, Crown } from "lucide-react";
+import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Cloud, Twitch, Youtube, Crown, Wand2, Feather, Star } from "lucide-react";
 
 export type PlatformKey = "twitch" | "youtube" | "tiktok";
 
@@ -16,8 +16,8 @@ export type DayItem = {
   slots: Slot[];
 };
 
-export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint" | "royalred";
-export type LayoutKey = "grid" | "bubbles" | "royal";
+export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint" | "royalred" | "magic";
+export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial";
 export type OrnamentKey =
   | "dots" | "grid" | "diagonal" | "stars" | "hearts" | "sakura" | "crosses" | "circuit" | "none";
 
@@ -45,6 +45,7 @@ const themeIcon: Record<ThemeKey, JSX.Element> = {
   cyber: <Cpu className="w-6 h-6" />,
   mint: <Leaf className="w-6 h-6" fill="currentColor" />,
   royalred: <Crown className="w-6 h-6" fill="currentColor" />,
+  magic: <Wand2 className="w-6 h-6" />,
 };
 
 const themeFont: Record<ThemeKey, string> = {
@@ -55,6 +56,7 @@ const themeFont: Record<ThemeKey, string> = {
   cyber: "'Orbitron', 'Poppins', sans-serif",
   mint: "'Quicksand', 'Poppins', sans-serif",
   royalred: "'Cormorant Garamond', 'Playfair Display', serif",
+  magic: "'Cormorant Garamond', 'Playfair Display', serif",
 };
 
 const typeMeta: Record<Slot["type"], { label: string; icon: JSX.Element }> = {
@@ -189,6 +191,13 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
             artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
             theme={theme}
           />
+        ) : layout === "celestial" ? (
+          <CelestialLayout
+            title={title} subtitle={subtitle} dateRange={dateRange}
+            days={days} characterUrl={characterUrl} charFit={charFit}
+            artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
+            theme={theme}
+          />
         ) : layout === "bubbles" ? (
           <BubbleLayout
             title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio}
@@ -233,6 +242,7 @@ const ROYAL_PALETTES: Record<ThemeKey, RoyalPalette> = {
   sakura:    { dark: "#9d174d", light: "#fce7f3", ribbon: "#3a0a1f", tag: "#fff0f5", accent: "#f472b6", textOnDark: "#fff", textOnLight: "#831843", borderDeep: "#be185d" },
   cyber:     { dark: "#0891b2", light: "#ec4899", ribbon: "#0a1a2e", tag: "#cffafe", accent: "#22d3ee", textOnDark: "#fff", textOnLight: "#831843", borderDeep: "#0e7490" },
   mint:      { dark: "#0f766e", light: "#a7f3d0", ribbon: "#0a1f1a", tag: "#ecfdf5", accent: "#34d399", textOnDark: "#fff", textOnLight: "#064e3b", borderDeep: "#115e59" },
+  magic:     { dark: "#3a1d6e", light: "#f3d27a", ribbon: "#1a0f3a", tag: "#fef3c7", accent: "#c9a4ff", textOnDark: "#fff", textOnLight: "#2a1158", borderDeep: "#4c1d95" },
 };
 
 const RoyalLayout = ({
@@ -653,3 +663,211 @@ const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, cha
     </footer>
   </div>
 );
+
+/* ============================================================
+   CELESTIAL LAYOUT — purple/gold magic, oval character + bubble rows
+   ============================================================ */
+const CELESTIAL_PALETTES: Record<string, { from: string; to: string; bubble: string; bubbleBorder: string; gold: string; goldSoft: string; deep: string; text: string }> = {
+  magic:     { from: "#7a4ad9", to: "#f3c97a", bubble: "#1a0f3a", bubbleBorder: "#c9a4ff", gold: "#f5d97a", goldSoft: "#fef3c7", deep: "#2a1158", text: "#2a1158" },
+  cute:      { from: "#ffb3d1", to: "#ffd9b3", bubble: "#3a0a1f", bubbleBorder: "#ff8fb1", gold: "#ff8fb1", goldSoft: "#fff0f5", deep: "#7a1e3f", text: "#5a0e2e" },
+  aesthetic: { from: "#7c3aed", to: "#7dd3fc", bubble: "#1a0a2e", bubbleBorder: "#a78bfa", gold: "#a78bfa", goldSoft: "#ede9fe", deep: "#2e1065", text: "#2e1065" },
+  gothic:    { from: "#1a0000", to: "#dc2626", bubble: "#0a0a0a", bubbleBorder: "#dc2626", gold: "#dc2626", goldSoft: "#fee2e2", deep: "#7f1d1d", text: "#fff" },
+  sakura:    { from: "#f9a8d4", to: "#fce7f3", bubble: "#3a0a1f", bubbleBorder: "#f472b6", gold: "#f472b6", goldSoft: "#fff0f5", deep: "#831843", text: "#831843" },
+  cyber:     { from: "#0891b2", to: "#ec4899", bubble: "#0a1a2e", bubbleBorder: "#22d3ee", gold: "#22d3ee", goldSoft: "#cffafe", deep: "#0e7490", text: "#0a1a2e" },
+  mint:      { from: "#34d399", to: "#a7f3d0", bubble: "#0a1f1a", bubbleBorder: "#34d399", gold: "#fbbf24", goldSoft: "#fef3c7", deep: "#064e3b", text: "#064e3b" },
+  royalred:  { from: "#7a1e2c", to: "#e6c168", bubble: "#1a0a14", bubbleBorder: "#e6c168", gold: "#e6c168", goldSoft: "#f5e9c8", deep: "#3a0a14", text: "#3a0a14" },
+};
+
+const DayCircle = ({ abbr, num, color, border }: { abbr: string; num: string; color: string; border: string }) => (
+  <div className="relative flex-shrink-0" style={{ width: 100, height: 100 }}>
+    <svg width="100" height="100" viewBox="0 0 100 100" style={{ position: "absolute", inset: 0 }}>
+      <circle cx="50" cy="50" r="46" fill="none" stroke={border} strokeWidth="1" opacity="0.7" />
+      <circle cx="50" cy="50" r="48" fill="none" stroke={border} strokeWidth="0.5" opacity="0.3" />
+      <circle cx="8" cy="50" r="2" fill={border} />
+      <circle cx="92" cy="50" r="2" fill={border} />
+    </svg>
+    <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ color, fontFamily: "'Cormorant Garamond', serif" }}>
+      <div style={{ fontSize: 16, fontStyle: "italic", lineHeight: 1, letterSpacing: "0.05em", opacity: 0.9 }}>{abbr.toLowerCase()}</div>
+      <div style={{ fontSize: 38, fontWeight: 700, lineHeight: 1, marginTop: 2 }}>{num || "—"}<span style={{ fontSize: 22 }}>.</span></div>
+    </div>
+  </div>
+);
+
+const Constellation = ({ style }: { style: React.CSSProperties }) => (
+  <svg viewBox="0 0 200 200" style={{ position: "absolute", pointerEvents: "none", ...style }}>
+    <g stroke="rgba(255,255,255,0.4)" strokeWidth="0.6" fill="none">
+      <path d="M20 30 L60 50 L90 25 L130 60 L170 40" />
+      <path d="M40 120 L80 100 L110 140 L150 110 L180 150" />
+    </g>
+    <g fill="rgba(255,255,255,0.85)">
+      {[[20,30],[60,50],[90,25],[130,60],[170,40],[40,120],[80,100],[110,140],[150,110],[180,150]].map(([x,y],i) => (
+        <circle key={i} cx={x} cy={y} r={i % 3 === 0 ? 2 : 1.4} />
+      ))}
+    </g>
+  </svg>
+);
+
+const CelestialLayout = ({
+  title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, theme,
+}: any) => {
+  const p = CELESTIAL_PALETTES[theme as string] || CELESTIAL_PALETTES.magic;
+  const decoIcons = [Feather, Sparkles, Moon, Star, Wand2, Feather, Sparkles];
+
+  return (
+    <div className="relative h-full w-full" style={{
+      background: `linear-gradient(135deg, ${p.from} 0%, ${p.from} 40%, ${p.to} 100%)`,
+      fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+      padding: "50px 60px",
+    }}>
+      {/* corner constellations */}
+      <Constellation style={{ top: 20, right: 40, width: 360, height: 360, opacity: 0.55 }} />
+      <Constellation style={{ bottom: 20, left: 20, width: 320, height: 320, opacity: 0.45, transform: "scaleY(-1)" }} />
+      {/* warm sun glow top-right */}
+      <div className="absolute" style={{
+        top: -120, right: -80, width: 520, height: 520, borderRadius: "9999px",
+        background: `radial-gradient(circle, ${p.to} 0%, transparent 65%)`, opacity: 0.7, filter: "blur(20px)",
+      }} />
+      {/* decorative leaf corners */}
+      <div className="absolute" style={{ top: 30, left: 30, color: p.deep, fontSize: 64, opacity: 0.55, lineHeight: 1 }}>❦</div>
+      <div className="absolute" style={{ top: 40, right: 60, color: p.deep, fontSize: 56, opacity: 0.5, lineHeight: 1 }}>❧</div>
+
+      {/* Title */}
+      <div className="relative text-center" style={{ marginBottom: 30, color: p.text }}>
+        <div style={{ fontSize: 76, fontWeight: 700, lineHeight: 1.05, letterSpacing: "0.01em" }}>
+          {title || "Celestial Stream Schedule"}
+        </div>
+        {subtitle && (
+          <div style={{ fontSize: 22, marginTop: 8, fontFamily: "'Inter', sans-serif", letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.75 }}>
+            {subtitle}
+          </div>
+        )}
+      </div>
+
+      {/* Body */}
+      <div className="relative flex" style={{ gap: 40, height: "calc(100% - 180px)" }}>
+        {/* LEFT: schedule bubbles */}
+        <div className="flex-1 flex flex-col" style={{ gap: 14, justifyContent: "space-between" }}>
+          {days.slice(0, 7).map((d: DayItem, i: number) => {
+            const { abbr, num } = parseDay(d.day);
+            const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platforms: [] } as Slot];
+            const slot = slots[0];
+            const isOffline = slot.type === "offline" || slots.every((s) => s.type === "offline");
+            const DecoLeft = decoIcons[i % decoIcons.length];
+            const DecoRight = decoIcons[(i + 3) % decoIcons.length];
+
+            return (
+              <div key={i} className="flex items-center" style={{ gap: 14, marginLeft: i % 2 === 1 ? 60 : 0 }}>
+                <DayCircle abbr={abbr} num={num} color={p.text} border={p.deep} />
+                <div className="relative flex-1" style={{
+                  background: p.bubble,
+                  borderRadius: 999,
+                  border: `1.5px solid ${p.bubbleBorder}`,
+                  padding: "14px 32px",
+                  display: "flex", alignItems: "center", gap: 16,
+                  boxShadow: `0 4px 20px rgba(0,0,0,0.25), inset 0 0 30px ${p.bubbleBorder}22`,
+                  minHeight: 70,
+                }}>
+                  {/* deco left icon */}
+                  <DecoLeft size={22} style={{ color: p.gold, flexShrink: 0 }} />
+                  {/* constellation dots inside bubble */}
+                  <svg width="60" height="20" style={{ flexShrink: 0, opacity: 0.6 }}>
+                    <g fill={p.bubbleBorder}><circle cx="5" cy="10" r="1.2" /><circle cx="20" cy="6" r="1.2" /><circle cx="35" cy="14" r="1.2" /><circle cx="50" cy="8" r="1.2" /></g>
+                    <g stroke={p.bubbleBorder} strokeWidth="0.4" fill="none"><path d="M5 10 L20 6 L35 14 L50 8" /></g>
+                  </svg>
+                  <div className="flex-1 min-w-0">
+                    <div style={{
+                      fontSize: 26, fontWeight: 600, color: p.gold,
+                      fontFamily: "'Cormorant Garamond', serif", lineHeight: 1.1,
+                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                    }}>
+                      {isOffline ? "Stream Offline" : (slot.title || "Stream content here...")}
+                    </div>
+                    {(slot.note || isOffline) && (
+                      <div style={{ fontSize: 14, color: "#d8c8ff", fontFamily: "'Inter', sans-serif", marginTop: 2, opacity: 0.8 }}>
+                        - {isOffline ? "outside counting the stars" : (slot.note || "subtitle text here")}
+                      </div>
+                    )}
+                  </div>
+                  {/* right side: time pills or zZz */}
+                  {isOffline ? (
+                    <div style={{ color: p.bubbleBorder, fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: 22, opacity: 0.8, flexShrink: 0 }}>
+                      zZzz...
+                    </div>
+                  ) : (
+                    <div className="flex items-center" style={{ gap: 6, flexShrink: 0 }}>
+                      {slots.slice(0, 3).map((s, si) => (
+                        <span key={si} style={{
+                          background: si === 1 ? p.gold : "transparent",
+                          color: si === 1 ? p.bubble : "#fff",
+                          border: si === 1 ? "none" : `1px solid ${p.bubbleBorder}88`,
+                          padding: "4px 10px", borderRadius: 4,
+                          fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: "0.05em",
+                          whiteSpace: "nowrap",
+                        }}>{s.time || "—"}</span>
+                      ))}
+                    </div>
+                  )}
+                  <DecoRight size={20} style={{ color: p.gold, flexShrink: 0, opacity: 0.8 }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* RIGHT: character oval + schedule signature */}
+        <div className="relative flex-shrink-0 flex flex-col" style={{ width: 520 }}>
+          <div className="relative" style={{
+            flex: 1,
+            borderRadius: "50% / 42%",
+            overflow: "hidden",
+            border: `2px solid ${p.bubbleBorder}`,
+            boxShadow: `0 0 60px ${p.bubbleBorder}66, inset 0 0 40px rgba(255,255,255,0.15)`,
+            background: `radial-gradient(circle at 50% 30%, rgba(255,255,255,0.35), transparent 60%), ${p.bubble}`,
+          }}>
+            {characterUrl ? (
+              <img src={characterUrl} alt="character" crossOrigin="anonymous"
+                style={{ width: "100%", height: "100%", objectFit: charFit, objectPosition: "center" }} />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center" style={{ color: "rgba(255,255,255,0.7)", fontSize: 24, fontFamily: "'Cormorant Garamond', serif" }}>
+                Upload your character ✦
+              </div>
+            )}
+          </div>
+
+          {/* Schedule big text */}
+          <div className="relative" style={{ marginTop: 20, lineHeight: 0.9 }}>
+            <div style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: 76, fontWeight: 700, letterSpacing: "0.1em",
+              background: `linear-gradient(180deg, ${p.goldSoft} 0%, ${p.gold} 100%)`,
+              WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
+              textShadow: `0 2px 0 ${p.deep}44`,
+            }}>SCHE</div>
+            <div className="flex items-end justify-between" style={{ marginTop: -10 }}>
+              <div style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: 76, fontWeight: 700, letterSpacing: "0.1em",
+                background: `linear-gradient(180deg, ${p.bubbleBorder} 0%, ${p.deep} 100%)`,
+                WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
+              }}>DULE</div>
+              <div style={{ textAlign: "right", color: p.text, fontFamily: "'Cormorant Garamond', serif" }}>
+                <div style={{ fontSize: 18, fontStyle: "italic", opacity: 0.8 }}>week of {dateRange}</div>
+                {artBy && (
+                  <div style={{ fontSize: 14, marginTop: 4, fontFamily: "'Inter', sans-serif", opacity: 0.7 }}>
+                    {artBy}
+                  </div>
+                )}
+              </div>
+            </div>
+            {(twitchHandle || youtubeHandle) && (
+              <div className="flex items-center justify-end" style={{ gap: 14, marginTop: 10, color: p.text, fontFamily: "'Inter', sans-serif", fontSize: 13 }}>
+                {twitchHandle && <span className="flex items-center" style={{ gap: 6 }}><Twitch size={14} />{twitchHandle}</span>}
+                {youtubeHandle && <span className="flex items-center" style={{ gap: 6 }}><Youtube size={14} />{youtubeHandle}</span>}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

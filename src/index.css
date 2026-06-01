@@ -144,6 +144,23 @@
   --shadow-card: 0 8px 30px -10px hsl(var(--t-1) / 0.3);
 }
 
+.theme-magic {
+  --t-1: 270 75% 70%;
+  --t-2: 45 90% 72%;
+  --t-bg-from: 270 55% 55%;
+  --t-bg-to: 35 75% 72%;
+  --t-card: 260 55% 12%;
+  --t-text: 270 35% 22%;
+  --t-muted: 270 20% 55%;
+  --t-border: 45 80% 65%;
+  --t-glow: 270 90% 70%;
+  --t-font: 'Cormorant Garamond', 'Playfair Display', serif;
+  --gradient-theme: linear-gradient(135deg, hsl(270 60% 50%) 0%, hsl(280 55% 60%) 35%, hsl(35 75% 68%) 100%);
+  --gradient-accent: linear-gradient(135deg, hsl(var(--t-1)), hsl(var(--t-2)));
+  --shadow-glow: 0 0 60px hsl(var(--t-glow) / 0.5);
+  --shadow-card: 0 8px 30px -10px hsl(260 60% 15% / 0.5);
+}
+
 .theme-royalred {
   --t-1: 350 70% 35%;
   --t-2: 40 70% 55%;

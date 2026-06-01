@@ -48,6 +48,7 @@ const themes: { key: ThemeKey; label: string; swatch: string; defaultOrnament: O
   { key: "cyber", label: "Cyber", swatch: "linear-gradient(135deg,hsl(180 100% 55%),hsl(320 100% 60%))", defaultOrnament: "circuit" },
   { key: "mint", label: "Mint", swatch: "linear-gradient(135deg,hsl(160 70% 55%),hsl(190 80% 70%))", defaultOrnament: "dots" },
   { key: "royalred", label: "Royal Red", swatch: "linear-gradient(90deg,#6b1622 50%,#e6c168 50%)", defaultOrnament: "none" },
+  { key: "magic", label: "Magic", swatch: "linear-gradient(135deg,hsl(270 60% 55%),hsl(35 80% 70%))", defaultOrnament: "stars" },
 ];
 
 const scheduleTypes: { key: Slot["type"]; label: string; icon: JSX.Element }[] = [
@@ -106,6 +107,7 @@ export const ScheduleEditor = () => {
     setTheme(k);
     const t = themes.find((x) => x.key === k);
     if (t) setOrnament(t.defaultOrnament);
+    if (k === "magic") setLayout("celestial");
   };
 
   const handleDateRange = (r: DateRange | undefined) => {
@@ -156,11 +158,19 @@ export const ScheduleEditor = () => {
     const wrap = previewWrapRef.current;
     if (!wrap) return;
     let raf = 0;
-    const update = () => { raf = 0; setScale(Math.min(1, wrap.clientWidth / 1920)); };
+    const canvasH = ratio === "16:9" ? 1080 : 1440;
+    const update = () => {
+      raf = 0;
+      const sx = wrap.clientWidth / 1920;
+      const sy = (window.innerHeight - 200) / canvasH;
+      setScale(Math.max(0.1, Math.min(1, sx, sy)));
+    };
     const ro = new ResizeObserver(() => { if (raf) return; raf = requestAnimationFrame(update); });
-    ro.observe(wrap); update();
-    return () => { ro.disconnect(); if (raf) cancelAnimationFrame(raf); };
-  }, []);
+    ro.observe(wrap);
+    window.addEventListener("resize", update);
+    update();
+    return () => { ro.disconnect(); window.removeEventListener("resize", update); if (raf) cancelAnimationFrame(raf); };
+  }, [ratio]);
 
   const downloadPng = async () => {
     if (!canvasRef.current) return;
@@ -196,7 +206,7 @@ export const ScheduleEditor = () => {
         </div>
       </header>
 
-      <div className="max-w-[1800px] mx-auto grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-6">
+      <div className="max-w-[1800px] mx-auto grid grid-cols-1 xl:grid-cols-[380px_1fr] gap-6">
         <aside className="space-y-5 animate-fade-in">
           <Section title="Judul">
             <div className="space-y-3">
@@ -222,11 +232,12 @@ export const ScheduleEditor = () => {
           </Section>
 
           <Section title="Layout">
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {([
                 { key: "bubbles", label: "Bubbles", desc: "Polaroid + chat" },
                 { key: "grid", label: "Grid", desc: "2-col cards" },
                 { key: "royal", label: "Royal", desc: "Red/gold banner" },
+                { key: "celestial", label: "Celestial", desc: "Magic oval + bubble" },
               ] as { key: LayoutKey; label: string; desc: string }[]).map((l) => (
                 <button key={l.key} type="button" onClick={() => setLayout(l.key)}
                   className={cn("rounded-xl p-3 border-2 text-left transition-all hover:scale-[1.02]",
