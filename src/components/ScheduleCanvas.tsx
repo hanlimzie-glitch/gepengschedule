@@ -74,6 +74,7 @@ const ornamentGlyphs: Record<OrnamentKey, string[]> = {
   sakura: ["✿", "❀", "✽", "✿"],
   crosses: ["✚", "✦", "†", "✚"],
   circuit: ["⌁", "◇", "⟐", "⌬"],
+  magic: ["✦", "☾", "✧", "⋆"],
   none: [],
 };
 
