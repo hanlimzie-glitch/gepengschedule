@@ -19,7 +19,7 @@ export type DayItem = {
 export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint" | "royalred" | "magic";
 export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial";
 export type OrnamentKey =
-  | "dots" | "grid" | "diagonal" | "stars" | "hearts" | "sakura" | "crosses" | "circuit" | "none";
+  | "dots" | "grid" | "diagonal" | "stars" | "hearts" | "sakura" | "crosses" | "circuit" | "magic" | "none";
 
 export type ScheduleProps = {
   title: string;
