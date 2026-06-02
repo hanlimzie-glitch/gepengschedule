@@ -747,65 +747,81 @@ const CelestialLayout = ({
       {/* Body */}
       <div className="relative flex" style={{ gap: 40, height: "calc(100% - 180px)" }}>
         {/* LEFT: schedule bubbles */}
-        <div className="flex-1 flex flex-col" style={{ gap: 14, justifyContent: "space-between" }}>
+        <div className="flex-1 flex flex-col" style={{ gap: 12, justifyContent: "space-between" }}>
           {days.slice(0, 7).map((d: DayItem, i: number) => {
             const { abbr, num } = parseDay(d.day);
             const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platforms: [] } as Slot];
-            const slot = slots[0];
-            const isOffline = slot.type === "offline" || slots.every((s) => s.type === "offline");
+            const allOffline = slots.every((s) => s.type === "offline");
+            const multi = slots.length > 1;
             const DecoLeft = decoIcons[i % decoIcons.length];
             const DecoRight = decoIcons[(i + 3) % decoIcons.length];
 
             return (
-              <div key={i} className="flex items-center" style={{ gap: 14, marginLeft: i % 2 === 1 ? 60 : 0 }}>
+              <div key={i} className="flex items-center" style={{ gap: 14, marginLeft: i % 2 === 1 ? 50 : 0 }}>
                 <DayCircle abbr={abbr} num={num} color={p.text} border={p.deep} />
                 <div className="relative flex-1" style={{
                   background: p.bubble,
-                  borderRadius: 999,
+                  borderRadius: multi ? 32 : 999,
                   border: `1.5px solid ${p.bubbleBorder}`,
-                  padding: "14px 32px",
-                  display: "flex", alignItems: "center", gap: 16,
+                  padding: multi ? "14px 28px" : "14px 28px",
+                  display: "flex", alignItems: "center", gap: 14,
                   boxShadow: `0 4px 20px rgba(0,0,0,0.25), inset 0 0 30px ${p.bubbleBorder}22`,
                   minHeight: 70,
                 }}>
-                  {/* deco left icon */}
                   <DecoLeft size={22} style={{ color: p.gold, flexShrink: 0 }} />
-                  {/* constellation dots inside bubble */}
-                  <svg width="60" height="20" style={{ flexShrink: 0, opacity: 0.6 }}>
-                    <g fill={p.bubbleBorder}><circle cx="5" cy="10" r="1.2" /><circle cx="20" cy="6" r="1.2" /><circle cx="35" cy="14" r="1.2" /><circle cx="50" cy="8" r="1.2" /></g>
-                    <g stroke={p.bubbleBorder} strokeWidth="0.4" fill="none"><path d="M5 10 L20 6 L35 14 L50 8" /></g>
+                  <svg width="50" height="20" style={{ flexShrink: 0, opacity: 0.6 }}>
+                    <g fill={p.bubbleBorder}><circle cx="5" cy="10" r="1.2" /><circle cx="20" cy="6" r="1.2" /><circle cx="35" cy="14" r="1.2" /></g>
+                    <g stroke={p.bubbleBorder} strokeWidth="0.4" fill="none"><path d="M5 10 L20 6 L35 14" /></g>
                   </svg>
-                  <div className="flex-1 min-w-0">
-                    <div style={{
-                      fontSize: 26, fontWeight: 600, color: p.gold,
-                      fontFamily: "'Cormorant Garamond', serif", lineHeight: 1.1,
-                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                    }}>
-                      {isOffline ? "Stream Offline" : (slot.title || "Stream content here...")}
-                    </div>
-                    {(slot.note || isOffline) && (
-                      <div style={{ fontSize: 14, color: "#d8c8ff", fontFamily: "'Inter', sans-serif", marginTop: 2, opacity: 0.8 }}>
-                        - {isOffline ? "outside counting the stars" : (slot.note || "subtitle text here")}
+                  <div className="flex-1 min-w-0 flex flex-col" style={{ gap: multi ? 8 : 0 }}>
+                    {allOffline ? (
+                      <div>
+                        <div style={{ fontSize: 26, fontWeight: 600, color: p.gold, lineHeight: 1.1, fontFamily: "'Cormorant Garamond', serif" }}>Stream Offline</div>
+                        <div style={{ fontSize: 14, color: "#d8c8ff", fontFamily: "'Inter', sans-serif", opacity: 0.8, marginTop: 2 }}>
+                          - {slots[0].note || "outside counting the stars"}
+                        </div>
                       </div>
+                    ) : (
+                      slots.map((s, si) => (
+                        <div key={si} style={{
+                          paddingTop: si > 0 ? 8 : 0,
+                          borderTop: si > 0 ? `1px dashed ${p.bubbleBorder}55` : undefined,
+                        }}>
+                          <div className="flex items-center" style={{ gap: 10, flexWrap: "wrap" }}>
+                            <div style={{
+                              fontSize: multi ? 20 : 24, fontWeight: 600, color: p.gold,
+                              fontFamily: "'Cormorant Garamond', serif", lineHeight: 1.15,
+                              flex: "1 1 auto", minWidth: 0,
+                              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                            }}>
+                              {s.type === "offline" ? "Stream Offline" : (s.title || "Stream content here...")}
+                            </div>
+                            {s.time && s.type !== "offline" && (
+                              <span style={{
+                                background: p.gold, color: p.bubble,
+                                padding: "3px 9px", borderRadius: 4,
+                                fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: "0.05em",
+                                whiteSpace: "nowrap", flexShrink: 0,
+                              }}>{s.time}</span>
+                            )}
+                          </div>
+                          <div className="flex items-center" style={{ gap: 8, marginTop: 3, flexWrap: "wrap" }}>
+                            {s.note && (
+                              <span style={{ fontSize: 13, color: "#d8c8ff", fontFamily: "'Inter', sans-serif", opacity: 0.8 }}>
+                                - {s.note}
+                              </span>
+                            )}
+                            {s.platforms && s.platforms.length > 0 && (
+                              <PlatformBadges list={s.platforms} compact />
+                            )}
+                          </div>
+                        </div>
+                      ))
                     )}
                   </div>
-                  {/* right side: time pills or zZz */}
-                  {isOffline ? (
+                  {allOffline && (
                     <div style={{ color: p.bubbleBorder, fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: 22, opacity: 0.8, flexShrink: 0 }}>
                       zZzz...
-                    </div>
-                  ) : (
-                    <div className="flex items-center" style={{ gap: 6, flexShrink: 0 }}>
-                      {slots.slice(0, 3).map((s, si) => (
-                        <span key={si} style={{
-                          background: si === 1 ? p.gold : "transparent",
-                          color: si === 1 ? p.bubble : "#fff",
-                          border: si === 1 ? "none" : `1px solid ${p.bubbleBorder}88`,
-                          padding: "4px 10px", borderRadius: 4,
-                          fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: "0.05em",
-                          whiteSpace: "nowrap",
-                        }}>{s.time || "—"}</span>
-                      ))}
                     </div>
                   )}
                   <DecoRight size={20} style={{ color: p.gold, flexShrink: 0, opacity: 0.8 }} />
@@ -817,26 +833,53 @@ const CelestialLayout = ({
 
         {/* RIGHT: character oval + schedule signature */}
         <div className="relative flex-shrink-0 flex flex-col" style={{ width: 520 }}>
-          <div className="relative" style={{
-            flex: 1,
-            borderRadius: "50% / 42%",
-            overflow: "hidden",
-            border: `2px solid ${p.bubbleBorder}`,
-            boxShadow: `0 0 60px ${p.bubbleBorder}66, inset 0 0 40px rgba(255,255,255,0.15)`,
-            background: `radial-gradient(circle at 50% 30%, rgba(255,255,255,0.35), transparent 60%), ${p.bubble}`,
-          }}>
-            {characterUrl ? (
-              <img src={characterUrl} alt="character" crossOrigin="anonymous"
-                style={{ width: "100%", height: "100%", objectFit: charFit, objectPosition: "center" }} />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center" style={{ color: "rgba(255,255,255,0.7)", fontSize: 24, fontFamily: "'Cormorant Garamond', serif" }}>
-                Upload your character ✦
-              </div>
-            )}
+          {/* outer frame wrapper */}
+          <div className="relative" style={{ flex: 1, padding: 16 }}>
+            {/* outer thin frame */}
+            <div className="absolute pointer-events-none" style={{
+              inset: 0,
+              borderRadius: "50% / 42%",
+              border: `1px solid ${p.bubbleBorder}88`,
+              boxShadow: `0 0 30px ${p.bubbleBorder}33`,
+            }} />
+            {/* decorations on the outer frame: 4 stars + 1 moon */}
+            <div className="absolute pointer-events-none" style={{ top: -10, left: "48%", color: p.gold }}>
+              <Moon size={28} fill={p.gold} />
+            </div>
+            <div className="absolute pointer-events-none" style={{ top: "18%", right: -6, color: p.gold }}>
+              <Star size={22} fill={p.gold} />
+            </div>
+            <div className="absolute pointer-events-none" style={{ bottom: "18%", right: -6, color: p.gold }}>
+              <Star size={18} fill={p.gold} />
+            </div>
+            <div className="absolute pointer-events-none" style={{ bottom: -6, left: "46%", color: p.gold }}>
+              <Star size={22} fill={p.gold} />
+            </div>
+            <div className="absolute pointer-events-none" style={{ top: "20%", left: -6, color: p.gold }}>
+              <Star size={20} fill={p.gold} />
+            </div>
+
+            {/* inner oval */}
+            <div className="relative h-full w-full" style={{
+              borderRadius: "50% / 42%",
+              overflow: "hidden",
+              border: `2px solid ${p.bubbleBorder}`,
+              boxShadow: `0 0 60px ${p.bubbleBorder}66, inset 0 0 40px rgba(255,255,255,0.15)`,
+              background: `radial-gradient(circle at 50% 30%, rgba(255,255,255,0.35), transparent 60%), ${p.bubble}`,
+            }}>
+              {characterUrl ? (
+                <img src={characterUrl} alt="character" crossOrigin="anonymous"
+                  style={{ width: "100%", height: "100%", objectFit: charFit, objectPosition: "center" }} />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center" style={{ color: "rgba(255,255,255,0.7)", fontSize: 24, fontFamily: "'Cormorant Garamond', serif" }}>
+                  Upload your character ✦
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Schedule big text */}
-          <div className="relative" style={{ marginTop: 20, lineHeight: 0.9 }}>
+          <div className="relative" style={{ marginTop: 16, lineHeight: 0.9, zIndex: 5 }}>
             <div style={{
               fontFamily: "'Cormorant Garamond', serif",
               fontSize: 76, fontWeight: 700, letterSpacing: "0.1em",
@@ -848,8 +891,9 @@ const CelestialLayout = ({
               <div style={{
                 fontFamily: "'Cormorant Garamond', serif",
                 fontSize: 76, fontWeight: 700, letterSpacing: "0.1em",
-                background: `linear-gradient(180deg, ${p.bubbleBorder} 0%, ${p.deep} 100%)`,
+                background: `linear-gradient(180deg, ${p.goldSoft} 0%, ${p.gold} 100%)`,
                 WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
+                textShadow: `0 2px 0 ${p.deep}44`,
               }}>DULE</div>
               <div style={{ textAlign: "right", color: p.text, fontFamily: "'Cormorant Garamond', serif" }}>
                 <div style={{ fontSize: 18, fontStyle: "italic", opacity: 0.8 }}>week of {dateRange}</div>
