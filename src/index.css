@@ -236,6 +236,15 @@
     radial-gradient(hsl(var(--t-1) / 0.75) 4px, transparent 5px);
   background-size: 64px 64px, 64px 64px, 128px 128px;
 }
+.ornament-magic {
+  background-image:
+    radial-gradient(6px 6px at 18% 25%, hsl(var(--t-1) / 0.85), transparent 60%),
+    radial-gradient(3px 3px at 45% 60%, hsl(var(--t-2) / 0.85), transparent 60%),
+    radial-gradient(5px 5px at 75% 30%, hsl(var(--t-1) / 0.7), transparent 60%),
+    radial-gradient(4px 4px at 30% 85%, hsl(var(--t-2) / 0.8), transparent 60%),
+    radial-gradient(2px 2px at 90% 75%, hsl(var(--t-1) / 0.9), transparent 60%);
+  background-size: 260px 260px;
+}
 .ornament-none { background-image: none; }
 
 @layer utilities {
