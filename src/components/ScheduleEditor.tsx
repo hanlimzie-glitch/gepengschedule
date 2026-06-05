@@ -113,6 +113,11 @@ export const ScheduleEditor = () => {
     if (k === "magic") setLayout("celestial");
   };
 
+  const pickLayout = (k: LayoutKey) => {
+    setLayout(k);
+    if (k === "animal") setOrnament("paws");
+  };
+
   const handleDateRange = (r: DateRange | undefined) => {
     setDateRangeObj(r);
     if (r?.from) {
