@@ -262,6 +262,15 @@
     radial-gradient(2px 2px at 90% 75%, hsl(var(--t-1) / 0.9), transparent 60%);
   background-size: 260px 260px;
 }
+.ornament-paws {
+  background-color: hsl(var(--t-1) / 0.45);
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><g fill='black'><g transform='translate(30 40) rotate(-15)'><ellipse cx='12' cy='16' rx='5' ry='4'/><ellipse cx='5' cy='10' rx='2.2' ry='2.8'/><ellipse cx='19' cy='10' rx='2.2' ry='2.8'/><ellipse cx='9' cy='5.5' rx='1.8' ry='2.3'/><ellipse cx='15' cy='5.5' rx='1.8' ry='2.3'/></g><g transform='translate(80 85) rotate(20) scale(0.8)'><ellipse cx='12' cy='16' rx='5' ry='4'/><ellipse cx='5' cy='10' rx='2.2' ry='2.8'/><ellipse cx='19' cy='10' rx='2.2' ry='2.8'/><ellipse cx='9' cy='5.5' rx='1.8' ry='2.3'/><ellipse cx='15' cy='5.5' rx='1.8' ry='2.3'/></g></g></svg>");
+          mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><g fill='black'><g transform='translate(30 40) rotate(-15)'><ellipse cx='12' cy='16' rx='5' ry='4'/><ellipse cx='5' cy='10' rx='2.2' ry='2.8'/><ellipse cx='19' cy='10' rx='2.2' ry='2.8'/><ellipse cx='9' cy='5.5' rx='1.8' ry='2.3'/><ellipse cx='15' cy='5.5' rx='1.8' ry='2.3'/></g><g transform='translate(80 85) rotate(20) scale(0.8)'><ellipse cx='12' cy='16' rx='5' ry='4'/><ellipse cx='5' cy='10' rx='2.2' ry='2.8'/><ellipse cx='19' cy='10' rx='2.2' ry='2.8'/><ellipse cx='9' cy='5.5' rx='1.8' ry='2.3'/><ellipse cx='15' cy='5.5' rx='1.8' ry='2.3'/></g></g></svg>");
+  -webkit-mask-repeat: repeat;
+          mask-repeat: repeat;
+  -webkit-mask-size: 120px 120px;
+          mask-size: 120px 120px;
+}
 .ornament-none { background-image: none; }
 
 @layer utilities {
