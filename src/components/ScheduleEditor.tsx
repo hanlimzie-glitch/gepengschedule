@@ -49,6 +49,7 @@ const themes: { key: ThemeKey; label: string; swatch: string; defaultOrnament: O
   { key: "mint", label: "Mint", swatch: "linear-gradient(135deg,hsl(160 70% 55%),hsl(190 80% 70%))", defaultOrnament: "dots" },
   { key: "royalred", label: "Royal Red", swatch: "linear-gradient(90deg,#6b1622 50%,#e6c168 50%)", defaultOrnament: "none" },
   { key: "magic", label: "Magic", swatch: "linear-gradient(135deg,hsl(270 60% 55%),hsl(35 80% 70%))", defaultOrnament: "stars" },
+  { key: "mono", label: "Mono", swatch: "linear-gradient(90deg,#0a0a0a 50%,#f5f5f5 50%)", defaultOrnament: "dots" },
 ];
 
 const scheduleTypes: { key: Slot["type"]; label: string; icon: JSX.Element }[] = [
