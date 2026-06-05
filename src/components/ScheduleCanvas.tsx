@@ -16,10 +16,10 @@ export type DayItem = {
   slots: Slot[];
 };
 
-export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint" | "royalred" | "magic";
-export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial";
+export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint" | "royalred" | "magic" | "mono";
+export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial" | "animal";
 export type OrnamentKey =
-  | "dots" | "grid" | "diagonal" | "stars" | "hearts" | "sakura" | "crosses" | "circuit" | "magic" | "none";
+  | "dots" | "grid" | "diagonal" | "stars" | "hearts" | "sakura" | "crosses" | "circuit" | "magic" | "paws" | "none";
 
 export type ScheduleProps = {
   title: string;
@@ -46,6 +46,7 @@ const themeIcon: Record<ThemeKey, JSX.Element> = {
   mint: <Leaf className="w-6 h-6" fill="currentColor" />,
   royalred: <Crown className="w-6 h-6" fill="currentColor" />,
   magic: <Wand2 className="w-6 h-6" />,
+  mono: <Circle className="w-6 h-6" fill="currentColor" />,
 };
 
 const themeFont: Record<ThemeKey, string> = {
@@ -57,6 +58,7 @@ const themeFont: Record<ThemeKey, string> = {
   mint: "'Quicksand', 'Poppins', sans-serif",
   royalred: "'Cormorant Garamond', 'Playfair Display', serif",
   magic: "'Cormorant Garamond', 'Playfair Display', serif",
+  mono: "'Inter', 'Poppins', sans-serif",
 };
 
 const typeMeta: Record<Slot["type"], { label: string; icon: JSX.Element }> = {
