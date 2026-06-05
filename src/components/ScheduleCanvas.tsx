@@ -77,6 +77,7 @@ const ornamentGlyphs: Record<OrnamentKey, string[]> = {
   crosses: ["✚", "✦", "†", "✚"],
   circuit: ["⌁", "◇", "⟐", "⌬"],
   magic: ["✦", "☾", "✧", "⋆"],
+  paws: ["🐾", "🐾", "🐾", "🐾"],
   none: [],
 };
 
