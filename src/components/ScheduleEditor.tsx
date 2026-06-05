@@ -246,8 +246,9 @@ export const ScheduleEditor = () => {
                 { key: "grid", label: "Grid", desc: "2-col cards" },
                 { key: "royal", label: "Royal", desc: "Red/gold banner" },
                 { key: "celestial", label: "Celestial", desc: "Magic oval + bubble" },
+                { key: "animal", label: "Cute Animal", desc: "Pastel + paws" },
               ] as { key: LayoutKey; label: string; desc: string }[]).map((l) => (
-                <button key={l.key} type="button" onClick={() => setLayout(l.key)}
+                <button key={l.key} type="button" onClick={() => pickLayout(l.key)}
                   className={cn("rounded-xl p-3 border-2 text-left transition-all hover:scale-[1.02]",
                     layout === l.key ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border")}>
                   <div className="text-sm font-bold">{l.label}</div>
