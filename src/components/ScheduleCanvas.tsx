@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Cloud, Twitch, Youtube, Crown, Wand2, Feather, Star } from "lucide-react";
+import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Cloud, Twitch, Youtube, Crown, Wand2, Feather, Star, PawPrint, Circle } from "lucide-react";
 
 export type PlatformKey = "twitch" | "youtube" | "tiktok";
 
@@ -16,10 +16,10 @@ export type DayItem = {
   slots: Slot[];
 };
 
-export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint" | "royalred" | "magic";
-export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial";
+export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint" | "royalred" | "magic" | "mono";
+export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial" | "animal";
 export type OrnamentKey =
-  | "dots" | "grid" | "diagonal" | "stars" | "hearts" | "sakura" | "crosses" | "circuit" | "magic" | "none";
+  | "dots" | "grid" | "diagonal" | "stars" | "hearts" | "sakura" | "crosses" | "circuit" | "magic" | "paws" | "none";
 
 export type ScheduleProps = {
   title: string;
@@ -46,6 +46,7 @@ const themeIcon: Record<ThemeKey, JSX.Element> = {
   mint: <Leaf className="w-6 h-6" fill="currentColor" />,
   royalred: <Crown className="w-6 h-6" fill="currentColor" />,
   magic: <Wand2 className="w-6 h-6" />,
+  mono: <Circle className="w-6 h-6" fill="currentColor" />,
 };
 
 const themeFont: Record<ThemeKey, string> = {
@@ -57,6 +58,7 @@ const themeFont: Record<ThemeKey, string> = {
   mint: "'Quicksand', 'Poppins', sans-serif",
   royalred: "'Cormorant Garamond', 'Playfair Display', serif",
   magic: "'Cormorant Garamond', 'Playfair Display', serif",
+  mono: "'Inter', 'Poppins', sans-serif",
 };
 
 const typeMeta: Record<Slot["type"], { label: string; icon: JSX.Element }> = {
@@ -75,6 +77,7 @@ const ornamentGlyphs: Record<OrnamentKey, string[]> = {
   crosses: ["✚", "✦", "†", "✚"],
   circuit: ["⌁", "◇", "⟐", "⌬"],
   magic: ["✦", "☾", "✧", "⋆"],
+  paws: ["🐾", "🐾", "🐾", "🐾"],
   none: [],
 };
 
@@ -199,6 +202,12 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
             artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
             theme={theme}
           />
+        ) : layout === "animal" ? (
+          <AnimalLayout
+            title={title} subtitle={subtitle} dateRange={dateRange}
+            days={days} characterUrl={characterUrl} charFit={charFit}
+            artBy={artBy} theme={theme}
+          />
         ) : layout === "bubbles" ? (
           <BubbleLayout
             title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio}
@@ -244,6 +253,7 @@ const ROYAL_PALETTES: Record<ThemeKey, RoyalPalette> = {
   cyber:     { dark: "#0891b2", light: "#ec4899", ribbon: "#0a1a2e", tag: "#cffafe", accent: "#22d3ee", textOnDark: "#fff", textOnLight: "#831843", borderDeep: "#0e7490" },
   mint:      { dark: "#0f766e", light: "#a7f3d0", ribbon: "#0a1f1a", tag: "#ecfdf5", accent: "#34d399", textOnDark: "#fff", textOnLight: "#064e3b", borderDeep: "#115e59" },
   magic:     { dark: "#3a1d6e", light: "#f3d27a", ribbon: "#1a0f3a", tag: "#fef3c7", accent: "#c9a4ff", textOnDark: "#fff", textOnLight: "#2a1158", borderDeep: "#4c1d95" },
+  mono:      { dark: "#0a0a0a", light: "#f5f5f5", ribbon: "#1a1a1a", tag: "#ffffff", accent: "#666666", textOnDark: "#fff", textOnLight: "#0a0a0a", borderDeep: "#2a2a2a" },
 };
 
 const RoyalLayout = ({
@@ -911,6 +921,242 @@ const CelestialLayout = ({
               </div>
             )}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ============================================================
+   ANIMAL LAYOUT — cute pastel with animal head day badges
+   ============================================================ */
+type AnimalPalette = { bgFrom: string; bgTo: string; lace: string; pillBg: string; pillBorder: string; text: string; muted: string; accent: string; ribbon: string; ribbonText: string };
+
+const ANIMAL_PALETTES: Record<string, AnimalPalette> = {
+  cute:      { bgFrom: "#fff4e6", bgTo: "#ffe4ec", lace: "#f4c8a8", pillBg: "#ffffff", pillBorder: "#f4d4b8", text: "#7a4a2a", muted: "#b08868", accent: "#f4a896", ribbon: "#a8c89a", ribbonText: "#ffffff" },
+  sakura:    { bgFrom: "#fff0f5", bgTo: "#ffe4ec", lace: "#f7c7d4", pillBg: "#ffffff", pillBorder: "#f7c7d4", text: "#8a3a5c", muted: "#b56a8a", accent: "#f4a8c0", ribbon: "#f7c7d4", ribbonText: "#8a3a5c" },
+  mint:      { bgFrom: "#e8f5ec", bgTo: "#f0fae8", lace: "#b8d8b8", pillBg: "#ffffff", pillBorder: "#c8e0c8", text: "#2a5a3a", muted: "#6a8a7a", accent: "#9bc9a8", ribbon: "#a8c89a", ribbonText: "#ffffff" },
+  aesthetic: { bgFrom: "#f0eaff", bgTo: "#e6f0ff", lace: "#c8b8e8", pillBg: "#ffffff", pillBorder: "#d4c8e8", text: "#4a3a7a", muted: "#7a6a9a", accent: "#a890d8", ribbon: "#c8b8e8", ribbonText: "#ffffff" },
+  cyber:     { bgFrom: "#e8faff", bgTo: "#ffe8f5", lace: "#b8e8e8", pillBg: "#ffffff", pillBorder: "#c8e8f0", text: "#1a4a5a", muted: "#5a7a8a", accent: "#88d0e0", ribbon: "#88d0e0", ribbonText: "#ffffff" },
+  gothic:    { bgFrom: "#2a2028", bgTo: "#1a1018", lace: "#4a3a48", pillBg: "#3a2a38", pillBorder: "#5a4a58", text: "#f0e8e8", muted: "#a89898", accent: "#c0506a", ribbon: "#7a2a3a", ribbonText: "#ffffff" },
+  royalred:  { bgFrom: "#fff8e8", bgTo: "#ffe8d8", lace: "#e6c168", pillBg: "#ffffff", pillBorder: "#e6c168", text: "#6b1622", muted: "#a06868", accent: "#c9a060", ribbon: "#6b1622", ribbonText: "#fff" },
+  magic:     { bgFrom: "#f3eaff", bgTo: "#fff0d8", lace: "#c9a4ff", pillBg: "#ffffff", pillBorder: "#c9a4ff", text: "#3a1d6e", muted: "#7a6a9a", accent: "#c9a4ff", ribbon: "#3a1d6e", ribbonText: "#f3d27a" },
+  mono:      { bgFrom: "#fafafa", bgTo: "#f0f0f0", lace: "#cccccc", pillBg: "#ffffff", pillBorder: "#d8d8d8", text: "#0a0a0a", muted: "#666666", accent: "#2a2a2a", ribbon: "#0a0a0a", ribbonText: "#ffffff" },
+};
+
+const ANIMALS = ["🐻", "🐶", "🐑", "🐯", "🐱", "🐰", "🐼"];
+const ANIMAL_BG = ["#b89878", "#fde4c0", "#fff4d8", "#fbc46a", "#a8a8b0", "#fbb6c8", "#ffffff"];
+
+const PawIcon = ({ size = 14, color = "#000" }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden>
+    <ellipse cx="12" cy="16" rx="5" ry="4" />
+    <ellipse cx="5" cy="10" rx="2.2" ry="2.8" />
+    <ellipse cx="19" cy="10" rx="2.2" ry="2.8" />
+    <ellipse cx="9" cy="5.5" rx="1.8" ry="2.3" />
+    <ellipse cx="15" cy="5.5" rx="1.8" ry="2.3" />
+  </svg>
+);
+
+const ScallopBorder = ({ color, side = "left" }: { color: string; side?: "left" | "right" }) => {
+  const transform = side === "right" ? "scaleX(-1)" : undefined;
+  return (
+    <svg width="60" height="100%" viewBox="0 0 60 1080" preserveAspectRatio="none"
+      style={{ position: "absolute", top: 0, bottom: 0, [side]: 0, transform } as any}>
+      <defs>
+        <pattern id={`scallop-${side}`} x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+          <circle cx="30" cy="30" r="26" fill={color} opacity="0.55" />
+          <circle cx="30" cy="30" r="18" fill="#fff" opacity="0.4" />
+        </pattern>
+      </defs>
+      <rect width="60" height="1080" fill={`url(#scallop-${side})`} />
+    </svg>
+  );
+};
+
+const AnimalLayout = ({ title, subtitle, dateRange, days, characterUrl, charFit, artBy, theme }: any) => {
+  const p = ANIMAL_PALETTES[theme as string] || ANIMAL_PALETTES.cute;
+  return (
+    <div className="relative h-full w-full overflow-hidden" style={{
+      background: `linear-gradient(135deg, ${p.bgFrom} 0%, ${p.bgTo} 100%)`,
+      fontFamily: "'Quicksand', 'Poppins', sans-serif",
+      color: p.text,
+    }}>
+      {/* polka dot background */}
+      <div className="absolute inset-0" style={{
+        backgroundImage: `radial-gradient(${p.lace}55 2px, transparent 3px)`,
+        backgroundSize: "28px 28px", opacity: 0.5,
+      }} />
+
+      {/* scallop lace borders */}
+      <ScallopBorder color={p.lace} side="left" />
+      <ScallopBorder color={p.lace} side="right" />
+
+      {/* scattered paws */}
+      {[
+        { top: 180, left: 760, rot: -20, size: 36, op: 0.35 },
+        { top: 90, right: 280, rot: 15, size: 28, op: 0.45 },
+        { bottom: 220, left: 660, rot: 10, size: 32, op: 0.4 },
+        { top: 480, right: 80, rot: -25, size: 26, op: 0.3 },
+        { bottom: 120, right: 460, rot: 0, size: 30, op: 0.4 },
+        { top: 720, left: 780, rot: 30, size: 24, op: 0.35 },
+      ].map((s, i) => (
+        <div key={i} className="absolute" style={{ ...s, transform: `rotate(${s.rot}deg)`, opacity: s.op } as any}>
+          <PawIcon size={s.size} color={p.lace} />
+        </div>
+      ))}
+
+      {/* corner ribbon top-right */}
+      <div className="absolute" style={{ top: 0, right: 80, width: 90, height: 130 }}>
+        <svg viewBox="0 0 90 130" width="90" height="130">
+          <path d="M0 0 L90 0 L90 130 L45 100 L0 130 Z" fill={p.ribbon} />
+        </svg>
+        <div className="absolute inset-0 flex items-start justify-center" style={{ paddingTop: 30 }}>
+          <PawIcon size={36} color={p.ribbonText} />
+        </div>
+      </div>
+
+      {/* MAIN body */}
+      <div className="relative h-full flex" style={{ padding: "50px 100px 50px 90px", gap: 30 }}>
+        {/* LEFT — character + title pill */}
+        <div className="relative flex flex-col" style={{ width: 720, gap: 24 }}>
+          {/* Logo pill */}
+          <div className="relative" style={{
+            background: p.pillBg, border: `2px dashed ${p.pillBorder}`, borderRadius: 999,
+            padding: "22px 40px", boxShadow: `0 6px 20px ${p.lace}55`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            position: "relative",
+          }}>
+            <div style={{ fontSize: 42, fontWeight: 700, color: p.text, fontFamily: "'Quicksand', sans-serif" }}>
+              {title || "Your Logo Here"}
+            </div>
+            <div className="absolute" style={{ top: -8, right: 30, color: p.ribbon, fontSize: 28, transform: "rotate(20deg)" }}>🍃</div>
+          </div>
+
+          {/* Schedule script */}
+          <div style={{
+            fontFamily: "'Allura', 'Pinyon Script', 'Cormorant Garamond', cursive",
+            fontSize: 88, fontWeight: 700, fontStyle: "italic", color: p.accent,
+            lineHeight: 1, marginLeft: 60, marginTop: -6,
+            textShadow: `2px 2px 0 ${p.pillBg}`,
+          }}>
+            Schedule<span style={{ color: p.text }}>.</span>
+          </div>
+          {subtitle && (
+            <div style={{ marginLeft: 70, fontSize: 18, color: p.muted, letterSpacing: "0.2em", textTransform: "uppercase", marginTop: -10 }}>
+              {subtitle} · {dateRange}
+            </div>
+          )}
+
+          {/* Character area */}
+          <div className="relative flex-1" style={{ minHeight: 0 }}>
+            {characterUrl ? (
+              <img src={characterUrl} alt="character" crossOrigin="anonymous"
+                style={{ width: "100%", height: "100%", objectFit: charFit, objectPosition: "center bottom", display: "block" }} />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center" style={{ color: p.muted, fontSize: 26 }}>
+                Upload your character 🐾
+              </div>
+            )}
+          </div>
+
+          {/* bottom artist tags */}
+          <div className="flex items-center" style={{ gap: 12 }}>
+            <div style={{
+              background: p.pillBg, border: `1.5px solid ${p.pillBorder}`, borderRadius: 8,
+              padding: "8px 16px", display: "flex", alignItems: "center", gap: 8,
+              fontSize: 16, color: p.text, minWidth: 200,
+            }}>
+              <Twitch size={16} color={p.accent} />
+              <span style={{ flex: 1 }}>&nbsp;</span>
+            </div>
+            {artBy && (
+              <div style={{
+                background: p.pillBg, border: `1.5px solid ${p.pillBorder}`, borderRadius: 8,
+                padding: "8px 16px", fontSize: 16, color: p.text,
+              }}>
+                {artBy.replace(/^Art by\s*/i, "") || "artist"}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* RIGHT — animal day pills */}
+        <div className="flex-1 flex flex-col justify-center" style={{ gap: 14 }}>
+          {days.slice(0, 7).map((d: DayItem, i: number) => {
+            const { abbr } = parseDay(d.day);
+            const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platforms: [] } as Slot];
+            const allOffline = slots.every((s) => s.type === "offline");
+            const multi = slots.length > 1;
+            const animal = ANIMALS[i % ANIMALS.length];
+            const headBg = ANIMAL_BG[i % ANIMAL_BG.length];
+
+            return (
+              <div key={i} className="relative flex items-center" style={{ gap: -10 } as any}>
+                {/* animal head circle */}
+                <div className="relative flex items-center justify-center flex-shrink-0" style={{
+                  width: 110, height: 110, borderRadius: "50%",
+                  background: headBg, boxShadow: `0 4px 12px ${p.lace}66`,
+                  zIndex: 2, marginRight: -18,
+                  border: `2px solid ${p.pillBg}`,
+                }}>
+                  <div style={{ fontSize: 64, lineHeight: 1 }}>{animal}</div>
+                  <div className="absolute" style={{
+                    bottom: 22, left: "50%", transform: "translateX(-50%)",
+                    background: p.pillBg, padding: "2px 12px", borderRadius: 999,
+                    fontSize: 16, fontWeight: 700, color: p.text, letterSpacing: "0.05em",
+                    border: `1px solid ${p.pillBorder}`, fontFamily: "'Quicksand', sans-serif",
+                  }}>{abbr.toLowerCase()}</div>
+                </div>
+
+                {/* schedule pill */}
+                <div className="relative flex-1 flex items-center" style={{
+                  background: p.pillBg, borderRadius: 999,
+                  border: `2px solid ${p.pillBorder}`,
+                  padding: multi ? "16px 28px 16px 40px" : "18px 28px 18px 40px",
+                  minHeight: 70, gap: 14, flexWrap: "wrap",
+                  boxShadow: `0 4px 12px ${p.lace}44`,
+                }}>
+                  <div className="flex-1 min-w-0 flex flex-col" style={{ gap: multi ? 6 : 0 }}>
+                    {slots.map((s, si) => {
+                      const off = s.type === "offline";
+                      return (
+                        <div key={si} className="flex items-center" style={{
+                          gap: 10, flexWrap: "wrap",
+                          paddingTop: si > 0 ? 6 : 0,
+                          borderTop: si > 0 ? `1px dashed ${p.pillBorder}` : undefined,
+                        }}>
+                          {!off && s.time && (
+                            <span style={{
+                              fontSize: 14, fontWeight: 700, color: p.accent,
+                              background: `${p.lace}44`, padding: "3px 10px", borderRadius: 999,
+                              letterSpacing: "0.05em",
+                            }}>{s.time}</span>
+                          )}
+                          <span style={{
+                            flex: 1, fontSize: multi ? 20 : 24, fontWeight: 600,
+                            color: off ? p.muted : p.text, lineHeight: 1.2,
+                            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0,
+                          }}>
+                            {off ? "no stream today" : (s.title || "type your schedule here")}
+                          </span>
+                          <PlatformBadges list={s.platforms} compact />
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {allOffline && (
+                    <div style={{
+                      background: p.ribbon, color: p.ribbonText,
+                      padding: "6px 16px", borderRadius: 999,
+                      fontSize: 16, fontWeight: 700, display: "flex", alignItems: "center", gap: 6,
+                    }}>break <Moon size={14} fill="currentColor" /></div>
+                  )}
+                  {/* leaf accent on right */}
+                  <div className="absolute" style={{ right: 14, top: "50%", transform: "translateY(-50%) rotate(20deg)", fontSize: 18, opacity: 0.55 }}>🍃</div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

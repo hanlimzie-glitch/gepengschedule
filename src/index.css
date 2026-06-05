@@ -178,6 +178,23 @@
   --shadow-card: 0 8px 30px -10px hsl(var(--t-1) / 0.4);
 }
 
+.theme-mono {
+  --t-1: 0 0% 10%;
+  --t-2: 0 0% 90%;
+  --t-bg-from: 0 0% 98%;
+  --t-bg-to: 0 0% 92%;
+  --t-card: 0 0% 100%;
+  --t-text: 0 0% 8%;
+  --t-muted: 0 0% 40%;
+  --t-border: 0 0% 75%;
+  --t-glow: 0 0% 50%;
+  --t-font: 'Inter', 'Poppins', sans-serif;
+  --gradient-theme: linear-gradient(135deg, hsl(0 0% 98%) 0%, hsl(0 0% 92%) 100%);
+  --gradient-accent: linear-gradient(135deg, hsl(0 0% 10%), hsl(0 0% 35%));
+  --shadow-glow: 0 0 50px hsl(0 0% 50% / 0.25);
+  --shadow-card: 0 8px 30px -10px hsl(0 0% 0% / 0.25);
+}
+
 /* Ornaments stay outside @layer so Tailwind never purges dynamic ornament-* classes. */
 .ornament-dots {
   background-image: radial-gradient(hsl(var(--t-1) / 0.65) 4px, transparent 5px);
@@ -244,6 +261,15 @@
     radial-gradient(4px 4px at 30% 85%, hsl(var(--t-2) / 0.8), transparent 60%),
     radial-gradient(2px 2px at 90% 75%, hsl(var(--t-1) / 0.9), transparent 60%);
   background-size: 260px 260px;
+}
+.ornament-paws {
+  background-color: hsl(var(--t-1) / 0.45);
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><g fill='black'><g transform='translate(30 40) rotate(-15)'><ellipse cx='12' cy='16' rx='5' ry='4'/><ellipse cx='5' cy='10' rx='2.2' ry='2.8'/><ellipse cx='19' cy='10' rx='2.2' ry='2.8'/><ellipse cx='9' cy='5.5' rx='1.8' ry='2.3'/><ellipse cx='15' cy='5.5' rx='1.8' ry='2.3'/></g><g transform='translate(80 85) rotate(20) scale(0.8)'><ellipse cx='12' cy='16' rx='5' ry='4'/><ellipse cx='5' cy='10' rx='2.2' ry='2.8'/><ellipse cx='19' cy='10' rx='2.2' ry='2.8'/><ellipse cx='9' cy='5.5' rx='1.8' ry='2.3'/><ellipse cx='15' cy='5.5' rx='1.8' ry='2.3'/></g></g></svg>");
+          mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><g fill='black'><g transform='translate(30 40) rotate(-15)'><ellipse cx='12' cy='16' rx='5' ry='4'/><ellipse cx='5' cy='10' rx='2.2' ry='2.8'/><ellipse cx='19' cy='10' rx='2.2' ry='2.8'/><ellipse cx='9' cy='5.5' rx='1.8' ry='2.3'/><ellipse cx='15' cy='5.5' rx='1.8' ry='2.3'/></g><g transform='translate(80 85) rotate(20) scale(0.8)'><ellipse cx='12' cy='16' rx='5' ry='4'/><ellipse cx='5' cy='10' rx='2.2' ry='2.8'/><ellipse cx='19' cy='10' rx='2.2' ry='2.8'/><ellipse cx='9' cy='5.5' rx='1.8' ry='2.3'/><ellipse cx='15' cy='5.5' rx='1.8' ry='2.3'/></g></g></svg>");
+  -webkit-mask-repeat: repeat;
+          mask-repeat: repeat;
+  -webkit-mask-size: 120px 120px;
+          mask-size: 120px 120px;
 }
 .ornament-none { background-image: none; }
 

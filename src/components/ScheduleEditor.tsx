@@ -49,6 +49,7 @@ const themes: { key: ThemeKey; label: string; swatch: string; defaultOrnament: O
   { key: "mint", label: "Mint", swatch: "linear-gradient(135deg,hsl(160 70% 55%),hsl(190 80% 70%))", defaultOrnament: "dots" },
   { key: "royalred", label: "Royal Red", swatch: "linear-gradient(90deg,#6b1622 50%,#e6c168 50%)", defaultOrnament: "none" },
   { key: "magic", label: "Magic", swatch: "linear-gradient(135deg,hsl(270 60% 55%),hsl(35 80% 70%))", defaultOrnament: "stars" },
+  { key: "mono", label: "Mono", swatch: "linear-gradient(90deg,#0a0a0a 50%,#f5f5f5 50%)", defaultOrnament: "dots" },
 ];
 
 const scheduleTypes: { key: Slot["type"]; label: string; icon: JSX.Element }[] = [
@@ -76,6 +77,7 @@ const ornamentOptions: { key: OrnamentKey; label: string }[] = [
   { key: "dots", label: "Dots" }, { key: "grid", label: "Grid" }, { key: "diagonal", label: "Diagonal" },
   { key: "stars", label: "Stars" }, { key: "hearts", label: "Hearts" }, { key: "sakura", label: "Sakura" },
   { key: "crosses", label: "Crosses" }, { key: "circuit", label: "Circuit" }, { key: "magic", label: "Magic" },
+  { key: "paws", label: "Paws" },
   { key: "none", label: "None" },
 ];
 
@@ -109,6 +111,11 @@ export const ScheduleEditor = () => {
     const t = themes.find((x) => x.key === k);
     if (t) setOrnament(t.defaultOrnament);
     if (k === "magic") setLayout("celestial");
+  };
+
+  const pickLayout = (k: LayoutKey) => {
+    setLayout(k);
+    if (k === "animal") setOrnament("paws");
   };
 
   const handleDateRange = (r: DateRange | undefined) => {
@@ -239,8 +246,9 @@ export const ScheduleEditor = () => {
                 { key: "grid", label: "Grid", desc: "2-col cards" },
                 { key: "royal", label: "Royal", desc: "Red/gold banner" },
                 { key: "celestial", label: "Celestial", desc: "Magic oval + bubble" },
+                { key: "animal", label: "Cute Animal", desc: "Pastel + paws" },
               ] as { key: LayoutKey; label: string; desc: string }[]).map((l) => (
-                <button key={l.key} type="button" onClick={() => setLayout(l.key)}
+                <button key={l.key} type="button" onClick={() => pickLayout(l.key)}
                   className={cn("rounded-xl p-3 border-2 text-left transition-all hover:scale-[1.02]",
                     layout === l.key ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border")}>
                   <div className="text-sm font-bold">{l.label}</div>
