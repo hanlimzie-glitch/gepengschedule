@@ -202,6 +202,12 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
             artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
             theme={theme}
           />
+        ) : layout === "animal" ? (
+          <AnimalLayout
+            title={title} subtitle={subtitle} dateRange={dateRange}
+            days={days} characterUrl={characterUrl} charFit={charFit}
+            artBy={artBy} theme={theme}
+          />
         ) : layout === "bubbles" ? (
           <BubbleLayout
             title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio}
