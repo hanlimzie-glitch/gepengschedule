@@ -77,6 +77,7 @@ const ornamentOptions: { key: OrnamentKey; label: string }[] = [
   { key: "dots", label: "Dots" }, { key: "grid", label: "Grid" }, { key: "diagonal", label: "Diagonal" },
   { key: "stars", label: "Stars" }, { key: "hearts", label: "Hearts" }, { key: "sakura", label: "Sakura" },
   { key: "crosses", label: "Crosses" }, { key: "circuit", label: "Circuit" }, { key: "magic", label: "Magic" },
+  { key: "paws", label: "Paws" },
   { key: "none", label: "None" },
 ];
 
