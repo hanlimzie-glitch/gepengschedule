@@ -247,6 +247,7 @@ const ROYAL_PALETTES: Record<ThemeKey, RoyalPalette> = {
   cyber:     { dark: "#0891b2", light: "#ec4899", ribbon: "#0a1a2e", tag: "#cffafe", accent: "#22d3ee", textOnDark: "#fff", textOnLight: "#831843", borderDeep: "#0e7490" },
   mint:      { dark: "#0f766e", light: "#a7f3d0", ribbon: "#0a1f1a", tag: "#ecfdf5", accent: "#34d399", textOnDark: "#fff", textOnLight: "#064e3b", borderDeep: "#115e59" },
   magic:     { dark: "#3a1d6e", light: "#f3d27a", ribbon: "#1a0f3a", tag: "#fef3c7", accent: "#c9a4ff", textOnDark: "#fff", textOnLight: "#2a1158", borderDeep: "#4c1d95" },
+  mono:      { dark: "#0a0a0a", light: "#f5f5f5", ribbon: "#1a1a1a", tag: "#ffffff", accent: "#666666", textOnDark: "#fff", textOnLight: "#0a0a0a", borderDeep: "#2a2a2a" },
 };
 
 const RoyalLayout = ({
