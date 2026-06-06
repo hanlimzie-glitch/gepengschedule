@@ -872,8 +872,7 @@ const CelestialLayout = ({
               background: `radial-gradient(circle at 50% 30%, rgba(255,255,255,0.35), transparent 60%), ${p.bubble}`,
             }}>
               {characterUrl ? (
-                <img src={characterUrl} alt="character" crossOrigin="anonymous"
-                  style={{ width: "100%", height: "100%", objectFit: charFit, objectPosition: "center" }} />
+                <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center" style={{ color: "rgba(255,255,255,0.7)", fontSize: 24, fontFamily: "'Cormorant Garamond', serif" }}>
                   Upload your character ✦
