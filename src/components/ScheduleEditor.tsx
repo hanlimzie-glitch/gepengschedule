@@ -95,6 +95,9 @@ export const ScheduleEditor = () => {
   const [days, setDays] = useState<DayItem[]>(initialDays);
   const [characterUrl, setCharacterUrl] = useState<string | null>(null);
   const [charFit, setCharFit] = useState<"cover" | "contain">("cover");
+  const [charScale, setCharScale] = useState(1);
+  const [charOffsetX, setCharOffsetX] = useState(0);
+  const [charOffsetY, setCharOffsetY] = useState(0);
   const [theme, setTheme] = useState<ThemeKey>("cute");
   const [ornament, setOrnament] = useState<OrnamentKey>("hearts");
   const [layout, setLayout] = useState<LayoutKey>("bubbles");
