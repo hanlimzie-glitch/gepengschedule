@@ -309,8 +309,38 @@ export const ScheduleEditor = () => {
               <Button variant="outline" size="sm" onClick={() => setCharFit(charFit === "cover" ? "contain" : "cover")}>
                 <ImageIcon className="w-4 h-4 mr-1" />Fit: {charFit === "cover" ? "Cover" : "Contain"}
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setCharacterUrl(null)} disabled={!characterUrl}>Hapus</Button>
+              <Button variant="outline" size="sm" onClick={() => { setCharacterUrl(null); setCharScale(1); setCharOffsetX(0); setCharOffsetY(0); }} disabled={!characterUrl}>Hapus</Button>
             </div>
+            {characterUrl && (
+              <div className="mt-4 space-y-3">
+                <div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                    <span>Zoom</span><span>{charScale.toFixed(2)}x</span>
+                  </div>
+                  <input type="range" min="0.3" max="3" step="0.05" value={charScale}
+                    onChange={(e) => setCharScale(parseFloat(e.target.value))} className="w-full accent-primary" />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                    <span>Geser ↔</span><span>{charOffsetX}%</span>
+                  </div>
+                  <input type="range" min="-100" max="100" step="1" value={charOffsetX}
+                    onChange={(e) => setCharOffsetX(parseInt(e.target.value))} className="w-full accent-primary" />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                    <span>Geser ↕</span><span>{charOffsetY}%</span>
+                  </div>
+                  <input type="range" min="-100" max="100" step="1" value={charOffsetY}
+                    onChange={(e) => setCharOffsetY(parseInt(e.target.value))} className="w-full accent-primary" />
+                </div>
+                <Button variant="ghost" size="sm" className="w-full h-7 text-xs"
+                  onClick={() => { setCharScale(1); setCharOffsetX(0); setCharOffsetY(0); }}>
+                  Reset posisi
+                </Button>
+                <p className="text-[11px] text-muted-foreground">Tip: drag langsung pada preview untuk geser, scroll pada gambar untuk zoom.</p>
+              </div>
+            )}
           </Section>
 
           <Section title="Jadwal Mingguan">
