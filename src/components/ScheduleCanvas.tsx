@@ -648,8 +648,7 @@ const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, cha
         boxShadow: "var(--shadow-glow)",
       }}>
         {characterUrl ? (
-          <img src={characterUrl} alt="VTuber character" crossOrigin="anonymous"
-            style={{ width: "100%", height: "100%", objectFit: charFit, objectPosition: "center", display: "block" }} />
+          <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
         ) : (
           <div className="w-full h-full flex items-center justify-center" style={{ fontSize: 28, color: "hsl(var(--t-muted))" }}>
             Upload your character ✨
