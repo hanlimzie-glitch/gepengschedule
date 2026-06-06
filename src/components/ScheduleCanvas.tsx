@@ -715,6 +715,7 @@ const Constellation = ({ style }: { style: React.CSSProperties }) => (
 
 const CelestialLayout = ({
   title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, theme,
+  charScale = 1, charOffsetX = 0, charOffsetY = 0,
 }: any) => {
   const p = CELESTIAL_PALETTES[theme as string] || CELESTIAL_PALETTES.magic;
   const decoIcons = [Feather, Sparkles, Moon, Star, Wand2, Feather, Sparkles];
