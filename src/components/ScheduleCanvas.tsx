@@ -568,7 +568,7 @@ const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, c
 /* ============================================================
    GRID LAYOUT (existing, with multi-slot support)
    ============================================================ */
-const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, charFit, theme, artBy }: any) => (
+const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, charFit, theme, artBy, charScale = 1, charOffsetX = 0, charOffsetY = 0 }: any) => (
   <div className="relative h-full flex flex-col" style={{ padding: 64 }}>
     <header className="flex items-end justify-between" style={{ marginBottom: 40 }}>
       <div>
