@@ -415,13 +415,38 @@ export const ScheduleEditor = () => {
               <span className="text-sm text-muted-foreground">Preview ({ratio})</span>
               <span className="text-xs text-muted-foreground">Output: {ratio === "16:9" ? "3840×2160" : "3840×2880"} (HD)</span>
             </div>
-            <div ref={previewWrapRef} className="w-full overflow-hidden rounded-xl border border-border bg-black/30"
-              style={{ height: canvasH * scale }}>
+            <div ref={previewWrapRef} className="w-full overflow-hidden rounded-xl border border-border bg-black/30 relative"
+              style={{ height: canvasH * scale, cursor: characterUrl ? "grab" : "default" }}
+              onWheel={(e) => {
+                if (!characterUrl) return;
+                e.preventDefault();
+                setCharScale((s) => Math.max(0.3, Math.min(3, s + (e.deltaY < 0 ? 0.05 : -0.05))));
+              }}
+              onPointerDown={(e) => {
+                if (!characterUrl) return;
+                const startX = e.clientX, startY = e.clientY;
+                const ox0 = charOffsetX, oy0 = charOffsetY;
+                (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+                (e.currentTarget as HTMLDivElement).style.cursor = "grabbing";
+                const move = (ev: PointerEvent) => {
+                  const dx = (ev.clientX - startX) / scale;
+                  const dy = (ev.clientY - startY) / scale;
+                  setCharOffsetX(Math.max(-100, Math.min(100, Math.round(ox0 + (dx / 1920) * 100))));
+                  setCharOffsetY(Math.max(-100, Math.min(100, Math.round(oy0 + (dy / canvasH) * 100))));
+                };
+                const up = () => {
+                  window.removeEventListener("pointermove", move);
+                  window.removeEventListener("pointerup", up);
+                };
+                window.addEventListener("pointermove", move);
+                window.addEventListener("pointerup", up);
+              }}>
               <div style={{ width: 1920, height: canvasH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
                 <ScheduleCanvas ref={canvasRef} title={title} subtitle={subtitle} dateRange={dateRange}
                   days={days} characterUrl={characterUrl} charFit={charFit} theme={theme} ratio={ratio}
                   ornament={ornament} layout={layout} artBy={artBy}
-                  youtubeHandle={youtubeHandle} twitchHandle={twitchHandle} />
+                  youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
+                  charScale={charScale} charOffsetX={charOffsetX} charOffsetY={charOffsetY} />
               </div>
             </div>
             <Button size="lg" onClick={downloadPng} disabled={busy}
