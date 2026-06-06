@@ -95,6 +95,9 @@ export const ScheduleEditor = () => {
   const [days, setDays] = useState<DayItem[]>(initialDays);
   const [characterUrl, setCharacterUrl] = useState<string | null>(null);
   const [charFit, setCharFit] = useState<"cover" | "contain">("cover");
+  const [charScale, setCharScale] = useState(1);
+  const [charOffsetX, setCharOffsetX] = useState(0);
+  const [charOffsetY, setCharOffsetY] = useState(0);
   const [theme, setTheme] = useState<ThemeKey>("cute");
   const [ornament, setOrnament] = useState<OrnamentKey>("hearts");
   const [layout, setLayout] = useState<LayoutKey>("bubbles");
@@ -306,8 +309,38 @@ export const ScheduleEditor = () => {
               <Button variant="outline" size="sm" onClick={() => setCharFit(charFit === "cover" ? "contain" : "cover")}>
                 <ImageIcon className="w-4 h-4 mr-1" />Fit: {charFit === "cover" ? "Cover" : "Contain"}
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setCharacterUrl(null)} disabled={!characterUrl}>Hapus</Button>
+              <Button variant="outline" size="sm" onClick={() => { setCharacterUrl(null); setCharScale(1); setCharOffsetX(0); setCharOffsetY(0); }} disabled={!characterUrl}>Hapus</Button>
             </div>
+            {characterUrl && (
+              <div className="mt-4 space-y-3">
+                <div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                    <span>Zoom</span><span>{charScale.toFixed(2)}x</span>
+                  </div>
+                  <input type="range" min="0.3" max="3" step="0.05" value={charScale}
+                    onChange={(e) => setCharScale(parseFloat(e.target.value))} className="w-full accent-primary" />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                    <span>Geser ↔</span><span>{charOffsetX}%</span>
+                  </div>
+                  <input type="range" min="-100" max="100" step="1" value={charOffsetX}
+                    onChange={(e) => setCharOffsetX(parseInt(e.target.value))} className="w-full accent-primary" />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                    <span>Geser ↕</span><span>{charOffsetY}%</span>
+                  </div>
+                  <input type="range" min="-100" max="100" step="1" value={charOffsetY}
+                    onChange={(e) => setCharOffsetY(parseInt(e.target.value))} className="w-full accent-primary" />
+                </div>
+                <Button variant="ghost" size="sm" className="w-full h-7 text-xs"
+                  onClick={() => { setCharScale(1); setCharOffsetX(0); setCharOffsetY(0); }}>
+                  Reset posisi
+                </Button>
+                <p className="text-[11px] text-muted-foreground">Tip: drag langsung pada preview untuk geser, scroll pada gambar untuk zoom.</p>
+              </div>
+            )}
           </Section>
 
           <Section title="Jadwal Mingguan">
@@ -382,13 +415,38 @@ export const ScheduleEditor = () => {
               <span className="text-sm text-muted-foreground">Preview ({ratio})</span>
               <span className="text-xs text-muted-foreground">Output: {ratio === "16:9" ? "3840×2160" : "3840×2880"} (HD)</span>
             </div>
-            <div ref={previewWrapRef} className="w-full overflow-hidden rounded-xl border border-border bg-black/30"
-              style={{ height: canvasH * scale }}>
+            <div ref={previewWrapRef} className="w-full overflow-hidden rounded-xl border border-border bg-black/30 relative"
+              style={{ height: canvasH * scale, cursor: characterUrl ? "grab" : "default" }}
+              onWheel={(e) => {
+                if (!characterUrl) return;
+                e.preventDefault();
+                setCharScale((s) => Math.max(0.3, Math.min(3, s + (e.deltaY < 0 ? 0.05 : -0.05))));
+              }}
+              onPointerDown={(e) => {
+                if (!characterUrl) return;
+                const startX = e.clientX, startY = e.clientY;
+                const ox0 = charOffsetX, oy0 = charOffsetY;
+                (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+                (e.currentTarget as HTMLDivElement).style.cursor = "grabbing";
+                const move = (ev: PointerEvent) => {
+                  const dx = (ev.clientX - startX) / scale;
+                  const dy = (ev.clientY - startY) / scale;
+                  setCharOffsetX(Math.max(-100, Math.min(100, Math.round(ox0 + (dx / 1920) * 100))));
+                  setCharOffsetY(Math.max(-100, Math.min(100, Math.round(oy0 + (dy / canvasH) * 100))));
+                };
+                const up = () => {
+                  window.removeEventListener("pointermove", move);
+                  window.removeEventListener("pointerup", up);
+                };
+                window.addEventListener("pointermove", move);
+                window.addEventListener("pointerup", up);
+              }}>
               <div style={{ width: 1920, height: canvasH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
                 <ScheduleCanvas ref={canvasRef} title={title} subtitle={subtitle} dateRange={dateRange}
                   days={days} characterUrl={characterUrl} charFit={charFit} theme={theme} ratio={ratio}
                   ornament={ornament} layout={layout} artBy={artBy}
-                  youtubeHandle={youtubeHandle} twitchHandle={twitchHandle} />
+                  youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
+                  charScale={charScale} charOffsetX={charOffsetX} charOffsetY={charOffsetY} />
               </div>
             </div>
             <Button size="lg" onClick={downloadPng} disabled={busy}

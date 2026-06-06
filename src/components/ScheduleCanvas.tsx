@@ -35,7 +35,25 @@ export type ScheduleProps = {
   layout?: LayoutKey;
   youtubeHandle?: string;
   twitchHandle?: string;
+  charScale?: number;
+  charOffsetX?: number;
+  charOffsetY?: number;
 };
+
+export const CharImage = ({
+  url, fit, scale = 1, ox = 0, oy = 0, pos = "center",
+}: { url: string; fit: "cover" | "contain"; scale?: number; ox?: number; oy?: number; pos?: string }) => (
+  <div style={{ width: "100%", height: "100%", overflow: "hidden", display: "block" }}>
+    <img src={url} alt="character" crossOrigin="anonymous"
+      style={{
+        width: "100%", height: "100%",
+        objectFit: fit, objectPosition: pos,
+        transform: `translate(${ox}%, ${oy}%) scale(${scale})`,
+        transformOrigin: "center center",
+        display: "block",
+      }} />
+  </div>
+);
 
 const themeIcon: Record<ThemeKey, JSX.Element> = {
   cute: <Heart className="w-6 h-6" fill="currentColor" />,
@@ -140,7 +158,7 @@ const normalize = (d: any): DayItem => {
 };
 
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
-  ({ title, subtitle, dateRange, days: rawDays, characterUrl, charFit, theme, ratio, ornament, artBy, layout = "grid", youtubeHandle, twitchHandle }, ref) => {
+  ({ title, subtitle, dateRange, days: rawDays, characterUrl, charFit, theme, ratio, ornament, artBy, layout = "grid", youtubeHandle, twitchHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0 }, ref) => {
     const w = 1920;
     const h = ratio === "16:9" ? 1080 : 1440;
     const days = rawDays.map(normalize);
@@ -188,38 +206,14 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           </>
         )}
 
-        {layout === "royal" ? (
-          <RoyalLayout
-            title={title} subtitle={subtitle} dateRange={dateRange}
-            days={days} characterUrl={characterUrl} charFit={charFit}
-            artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
-            theme={theme}
-          />
-        ) : layout === "celestial" ? (
-          <CelestialLayout
-            title={title} subtitle={subtitle} dateRange={dateRange}
-            days={days} characterUrl={characterUrl} charFit={charFit}
-            artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
-            theme={theme}
-          />
-        ) : layout === "animal" ? (
-          <AnimalLayout
-            title={title} subtitle={subtitle} dateRange={dateRange}
-            days={days} characterUrl={characterUrl} charFit={charFit}
-            artBy={artBy} theme={theme}
-          />
-        ) : layout === "bubbles" ? (
-          <BubbleLayout
-            title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio}
-            days={days} characterUrl={characterUrl} charFit={charFit} artBy={artBy}
-          />
-        ) : (
-          <GridLayout
-            title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio}
-            days={days} characterUrl={characterUrl} charFit={charFit}
-            theme={theme} artBy={artBy}
-          />
-        )}
+        {(() => {
+          const charProps = { characterUrl, charFit, charScale, charOffsetX, charOffsetY };
+          if (layout === "royal") return <RoyalLayout title={title} subtitle={subtitle} dateRange={dateRange} days={days} {...charProps} artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle} theme={theme} />;
+          if (layout === "celestial") return <CelestialLayout title={title} subtitle={subtitle} dateRange={dateRange} days={days} {...charProps} artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle} theme={theme} />;
+          if (layout === "animal") return <AnimalLayout title={title} subtitle={subtitle} dateRange={dateRange} days={days} {...charProps} artBy={artBy} theme={theme} />;
+          if (layout === "bubbles") return <BubbleLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} artBy={artBy} />;
+          return <GridLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} theme={theme} artBy={artBy} />;
+        })()}
       </div>
     );
   }
@@ -258,6 +252,7 @@ const ROYAL_PALETTES: Record<ThemeKey, RoyalPalette> = {
 
 const RoyalLayout = ({
   title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, theme,
+  charScale = 1, charOffsetX = 0, charOffsetY = 0,
 }: any) => {
   const range = parseRange(dateRange) || { d1: "01", m1: "WEEK", d2: "07", m2: "OF" };
   const p: RoyalPalette = ROYAL_PALETTES[(theme as ThemeKey)] || ROYAL_PALETTES.royalred;
@@ -281,8 +276,8 @@ const RoyalLayout = ({
           }}>✦</div>
         ))}
         {characterUrl ? (
-          <img src={characterUrl} alt="character" crossOrigin="anonymous"
-            style={{ width: "100%", height: "100%", objectFit: charFit, objectPosition: "center" }} />
+          <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
+
         ) : (
           <div className="w-full h-full flex items-center justify-center" style={{ color: "rgba(255,255,255,0.6)", fontSize: 28 }}>
             Upload your character ✨
@@ -449,7 +444,7 @@ const DiamondBadge = ({ num, label, tag, accent, text }: { num: string; label: s
 /* ============================================================
    BUBBLE LAYOUT (existing, with multi-slot support)
    ============================================================ */
-const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, charFit, artBy }: any) => {
+const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, charFit, artBy, charScale = 1, charOffsetX = 0, charOffsetY = 0 }: any) => {
 
   return (
     <div className="relative h-full flex" style={{ padding: 56, gap: 48 }}>
@@ -469,8 +464,7 @@ const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, c
             border: "2px solid hsl(var(--t-border) / 0.4)",
           }}>
             {characterUrl ? (
-              <img src={characterUrl} alt="VTuber character" crossOrigin="anonymous"
-                style={{ width: "100%", height: "100%", objectFit: charFit, objectPosition: "center", display: "block" }} />
+              <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
             ) : (
               <div className="w-full h-full flex items-center justify-center" style={{ fontSize: 28, color: "hsl(var(--t-muted))" }}>
                 Upload your character ✨
@@ -573,7 +567,7 @@ const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, c
 /* ============================================================
    GRID LAYOUT (existing, with multi-slot support)
    ============================================================ */
-const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, charFit, theme, artBy }: any) => (
+const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, charFit, theme, artBy, charScale = 1, charOffsetX = 0, charOffsetY = 0 }: any) => (
   <div className="relative h-full flex flex-col" style={{ padding: 64 }}>
     <header className="flex items-end justify-between" style={{ marginBottom: 40 }}>
       <div>
@@ -654,8 +648,7 @@ const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, cha
         boxShadow: "var(--shadow-glow)",
       }}>
         {characterUrl ? (
-          <img src={characterUrl} alt="VTuber character" crossOrigin="anonymous"
-            style={{ width: "100%", height: "100%", objectFit: charFit, objectPosition: "center", display: "block" }} />
+          <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
         ) : (
           <div className="w-full h-full flex items-center justify-center" style={{ fontSize: 28, color: "hsl(var(--t-muted))" }}>
             Upload your character ✨
@@ -720,6 +713,7 @@ const Constellation = ({ style }: { style: React.CSSProperties }) => (
 
 const CelestialLayout = ({
   title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, theme,
+  charScale = 1, charOffsetX = 0, charOffsetY = 0,
 }: any) => {
   const p = CELESTIAL_PALETTES[theme as string] || CELESTIAL_PALETTES.magic;
   const decoIcons = [Feather, Sparkles, Moon, Star, Wand2, Feather, Sparkles];
@@ -878,8 +872,7 @@ const CelestialLayout = ({
               background: `radial-gradient(circle at 50% 30%, rgba(255,255,255,0.35), transparent 60%), ${p.bubble}`,
             }}>
               {characterUrl ? (
-                <img src={characterUrl} alt="character" crossOrigin="anonymous"
-                  style={{ width: "100%", height: "100%", objectFit: charFit, objectPosition: "center" }} />
+                <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center" style={{ color: "rgba(255,255,255,0.7)", fontSize: 24, fontFamily: "'Cormorant Garamond', serif" }}>
                   Upload your character ✦
@@ -944,19 +937,6 @@ const ANIMAL_PALETTES: Record<string, AnimalPalette> = {
   mono:      { bgFrom: "#fafafa", bgTo: "#f0f0f0", lace: "#cccccc", pillBg: "#ffffff", pillBorder: "#d8d8d8", text: "#0a0a0a", muted: "#666666", accent: "#2a2a2a", ribbon: "#0a0a0a", ribbonText: "#ffffff" },
 };
 
-const ANIMALS = ["🐻", "🐶", "🐑", "🐯", "🐱", "🐰", "🐼"];
-const ANIMAL_BG = ["#b89878", "#fde4c0", "#fff4d8", "#fbc46a", "#a8a8b0", "#fbb6c8", "#ffffff"];
-
-const PawIcon = ({ size = 14, color = "#000" }: { size?: number; color?: string }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden>
-    <ellipse cx="12" cy="16" rx="5" ry="4" />
-    <ellipse cx="5" cy="10" rx="2.2" ry="2.8" />
-    <ellipse cx="19" cy="10" rx="2.2" ry="2.8" />
-    <ellipse cx="9" cy="5.5" rx="1.8" ry="2.3" />
-    <ellipse cx="15" cy="5.5" rx="1.8" ry="2.3" />
-  </svg>
-);
-
 const ScallopBorder = ({ color, side = "left" }: { color: string; side?: "left" | "right" }) => {
   const transform = side === "right" ? "scaleX(-1)" : undefined;
   return (
@@ -964,8 +944,8 @@ const ScallopBorder = ({ color, side = "left" }: { color: string; side?: "left" 
       style={{ position: "absolute", top: 0, bottom: 0, [side]: 0, transform } as any}>
       <defs>
         <pattern id={`scallop-${side}`} x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-          <circle cx="30" cy="30" r="26" fill={color} opacity="0.55" />
-          <circle cx="30" cy="30" r="18" fill="#fff" opacity="0.4" />
+          <circle cx="30" cy="30" r="22" fill={color} opacity="0.5" />
+          <circle cx="30" cy="30" r="14" fill="#ffffff" opacity="0.65" />
         </pattern>
       </defs>
       <rect width="60" height="1080" fill={`url(#scallop-${side})`} />
@@ -973,169 +953,176 @@ const ScallopBorder = ({ color, side = "left" }: { color: string; side?: "left" 
   );
 };
 
-const AnimalLayout = ({ title, subtitle, dateRange, days, characterUrl, charFit, artBy, theme }: any) => {
+// Per-row pastel colors (mon → sun)
+const ANIMAL_ROW_COLORS = [
+  { tag: "#f7a8b8", border: "#f9bcc8", chipText: "#ffffff" }, // mon pink
+  { tag: "#f5d97a", border: "#f7e4a0", chipText: "#7a5a1a" }, // tue yellow
+  { tag: "#a8d8a8", border: "#c4e4c0", chipText: "#2a5a2a" }, // wed green
+  { tag: "#a8d8e8", border: "#c4e4ee", chipText: "#1a4a5a" }, // thu cyan
+  { tag: "#a8b8e8", border: "#c4cdee", chipText: "#1a2a5a" }, // fri blue
+  { tag: "#c0a8d8", border: "#d4c4e4", chipText: "#3a1a5a" }, // sat lavender
+  { tag: "#c8c8c8", border: "#d8d8d8", chipText: "#3a3a3a" }, // sun gray
+];
+
+const BunnyBadge = ({ color, border, label, chipText }: { color: string; border: string; label: string; chipText: string }) => (
+  <div style={{ position: "relative", width: 110, height: 92, flexShrink: 0 }}>
+    <svg viewBox="0 0 110 92" width="110" height="92" style={{ position: "absolute", inset: 0 }}>
+      {/* ears */}
+      <ellipse cx="38" cy="20" rx="9" ry="18" fill="#ffffff" stroke={border} strokeWidth="2.5" />
+      <ellipse cx="38" cy="22" rx="4" ry="12" fill={color} opacity="0.45" />
+      <ellipse cx="72" cy="20" rx="9" ry="18" fill="#ffffff" stroke={border} strokeWidth="2.5" />
+      <ellipse cx="72" cy="22" rx="4" ry="12" fill={color} opacity="0.45" />
+      {/* head */}
+      <ellipse cx="55" cy="58" rx="36" ry="28" fill="#ffffff" stroke={border} strokeWidth="2.5" />
+    </svg>
+    {/* day label chip */}
+    <div style={{
+      position: "absolute", left: "50%", top: 50, transform: "translateX(-50%)",
+      background: color, color: chipText,
+      padding: "3px 14px", borderRadius: 999,
+      fontSize: 18, fontWeight: 700, letterSpacing: "0.05em",
+      fontFamily: "'Quicksand', 'Poppins', sans-serif",
+      textTransform: "lowercase", lineHeight: 1.1,
+      boxShadow: "0 1px 0 rgba(0,0,0,0.04)",
+    }}>{label}</div>
+  </div>
+);
+
+const ConnectorBars = ({ color }: { color: string }) => (
+  <svg width="22" height="40" viewBox="0 0 22 40" style={{ flexShrink: 0 }}>
+    {[8, 16, 24, 32].map((y) => (
+      <rect key={y} x="2" y={y - 1.5} width="18" height="3" rx="1.5" fill={color} opacity="0.55" />
+    ))}
+  </svg>
+);
+
+const AnimalLayout = ({ title, subtitle, dateRange, days, characterUrl, charFit, artBy, theme, charScale = 1, charOffsetX = 0, charOffsetY = 0 }: any) => {
   const p = ANIMAL_PALETTES[theme as string] || ANIMAL_PALETTES.cute;
   return (
     <div className="relative h-full w-full overflow-hidden" style={{
-      background: `linear-gradient(135deg, ${p.bgFrom} 0%, ${p.bgTo} 100%)`,
+      background: `linear-gradient(180deg, ${p.bgFrom} 0%, ${p.bgTo} 100%)`,
       fontFamily: "'Quicksand', 'Poppins', sans-serif",
       color: p.text,
     }}>
-      {/* polka dot background */}
+      {/* polka dots */}
       <div className="absolute inset-0" style={{
-        backgroundImage: `radial-gradient(${p.lace}55 2px, transparent 3px)`,
-        backgroundSize: "28px 28px", opacity: 0.5,
+        backgroundImage: `radial-gradient(${p.lace}66 2px, transparent 3px)`,
+        backgroundSize: "26px 26px", opacity: 0.55,
       }} />
 
       {/* scallop lace borders */}
       <ScallopBorder color={p.lace} side="left" />
       <ScallopBorder color={p.lace} side="right" />
 
-      {/* scattered paws */}
-      {[
-        { top: 180, left: 760, rot: -20, size: 36, op: 0.35 },
-        { top: 90, right: 280, rot: 15, size: 28, op: 0.45 },
-        { bottom: 220, left: 660, rot: 10, size: 32, op: 0.4 },
-        { top: 480, right: 80, rot: -25, size: 26, op: 0.3 },
-        { bottom: 120, right: 460, rot: 0, size: 30, op: 0.4 },
-        { top: 720, left: 780, rot: 30, size: 24, op: 0.35 },
-      ].map((s, i) => (
-        <div key={i} className="absolute" style={{ ...s, transform: `rotate(${s.rot}deg)`, opacity: s.op } as any}>
-          <PawIcon size={s.size} color={p.lace} />
-        </div>
-      ))}
-
-      {/* corner ribbon top-right */}
-      <div className="absolute" style={{ top: 0, right: 80, width: 90, height: 130 }}>
-        <svg viewBox="0 0 90 130" width="90" height="130">
-          <path d="M0 0 L90 0 L90 130 L45 100 L0 130 Z" fill={p.ribbon} />
-        </svg>
-        <div className="absolute inset-0 flex items-start justify-center" style={{ paddingTop: 30 }}>
-          <PawIcon size={36} color={p.ribbonText} />
+      {/* corner star badge top-right (yellow square + white star) */}
+      <div className="absolute" style={{ top: 30, right: 110, width: 110, height: 110 }}>
+        <div style={{
+          width: "100%", height: "100%", background: "#fdebb4",
+          borderRadius: 18, boxShadow: `0 4px 0 ${p.lace}55`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <Star size={56} fill="#ffffff" stroke="#ffffff" strokeWidth={0} />
         </div>
       </div>
 
       {/* MAIN body */}
-      <div className="relative h-full flex" style={{ padding: "50px 100px 50px 90px", gap: 30 }}>
-        {/* LEFT — character + title pill */}
-        <div className="relative flex flex-col" style={{ width: 720, gap: 24 }}>
-          {/* Logo pill */}
-          <div className="relative" style={{
-            background: p.pillBg, border: `2px dashed ${p.pillBorder}`, borderRadius: 999,
-            padding: "22px 40px", boxShadow: `0 6px 20px ${p.lace}55`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            position: "relative",
-          }}>
-            <div style={{ fontSize: 42, fontWeight: 700, color: p.text, fontFamily: "'Quicksand', sans-serif" }}>
-              {title || "Your Logo Here"}
-            </div>
-            <div className="absolute" style={{ top: -8, right: 30, color: p.ribbon, fontSize: 28, transform: "rotate(20deg)" }}>🍃</div>
-          </div>
-
-          {/* Schedule script */}
+      <div className="relative h-full" style={{ padding: "40px 90px 40px 90px" }}>
+        {/* TOP-LEFT logo pill + Schedule script (absolute, so character can sit free below) */}
+        <div className="absolute" style={{ left: 130, top: 40, width: 540, zIndex: 4 }}>
           <div style={{
-            fontFamily: "'Allura', 'Pinyon Script', 'Cormorant Garamond', cursive",
-            fontSize: 88, fontWeight: 700, fontStyle: "italic", color: p.accent,
-            lineHeight: 1, marginLeft: 60, marginTop: -6,
-            textShadow: `2px 2px 0 ${p.pillBg}`,
+            background: "#ffffff", border: `2.5px solid ${p.pillBorder}`, borderRadius: 999,
+            padding: "26px 36px", boxShadow: `0 6px 0 ${p.lace}44`,
+            display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            Schedule<span style={{ color: p.text }}>.</span>
-          </div>
-          {subtitle && (
-            <div style={{ marginLeft: 70, fontSize: 18, color: p.muted, letterSpacing: "0.2em", textTransform: "uppercase", marginTop: -10 }}>
-              {subtitle} · {dateRange}
-            </div>
-          )}
-
-          {/* Character area */}
-          <div className="relative flex-1" style={{ minHeight: 0 }}>
-            {characterUrl ? (
-              <img src={characterUrl} alt="character" crossOrigin="anonymous"
-                style={{ width: "100%", height: "100%", objectFit: charFit, objectPosition: "center bottom", display: "block" }} />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center" style={{ color: p.muted, fontSize: 26 }}>
-                Upload your character 🐾
-              </div>
-            )}
-          </div>
-
-          {/* bottom artist tags */}
-          <div className="flex items-center" style={{ gap: 12 }}>
             <div style={{
-              background: p.pillBg, border: `1.5px solid ${p.pillBorder}`, borderRadius: 8,
-              padding: "8px 16px", display: "flex", alignItems: "center", gap: 8,
-              fontSize: 16, color: p.text, minWidth: 200,
-            }}>
-              <Twitch size={16} color={p.accent} />
-              <span style={{ flex: 1 }}>&nbsp;</span>
-            </div>
-            {artBy && (
-              <div style={{
-                background: p.pillBg, border: `1.5px solid ${p.pillBorder}`, borderRadius: 8,
-                padding: "8px 16px", fontSize: 16, color: p.text,
-              }}>
-                {artBy.replace(/^Art by\s*/i, "") || "artist"}
-              </div>
-            )}
+              fontSize: 34, fontWeight: 600, color: p.accent,
+              fontFamily: "'Quicksand', sans-serif", letterSpacing: "0.02em",
+            }}>{title || "Your Logo Here"}</div>
+          </div>
+          <div style={{
+            position: "absolute", right: -10, bottom: -78,
+            fontFamily: "'Allura', 'Pinyon Script', cursive",
+            fontSize: 96, fontWeight: 400, fontStyle: "italic", color: p.accent,
+            lineHeight: 1, transform: "rotate(-6deg)",
+            textShadow: `2px 2px 0 #ffffff`,
+          }}>
+            Schedule<span style={{ color: p.accent }}>.</span>
           </div>
         </div>
 
-        {/* RIGHT — animal day pills */}
-        <div className="flex-1 flex flex-col justify-center" style={{ gap: 14 }}>
+        {/* CHARACTER — free standing on left */}
+        <div className="absolute" style={{ left: 60, top: 180, bottom: 140, width: 640, zIndex: 2 }}>
+          {characterUrl ? (
+            <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center bottom" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center" style={{ color: p.muted, fontSize: 24 }}>
+              Upload your character 🐰
+            </div>
+          )}
+        </div>
+
+        {/* bottom-left small bars + artist pill */}
+        <div className="absolute flex flex-col" style={{ left: 100, bottom: 50, gap: 10, zIndex: 5 }}>
+          <div style={{
+            background: "#ffffff", border: `2px solid ${p.pillBorder}`, borderRadius: 8,
+            width: 200, height: 30, display: "flex", alignItems: "center", padding: "0 10px",
+          }}>
+            <div style={{ width: 18, height: 18, background: p.accent, opacity: 0.6, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 11, fontWeight: 700 }}>‖</div>
+          </div>
+          <div className="flex items-center" style={{ gap: 8 }}>
+            <div style={{
+              background: "#ffffff", border: `2px solid ${p.pillBorder}`, borderRadius: 8,
+              width: 200, height: 30, display: "flex", alignItems: "center", padding: "0 10px",
+            }}>
+              <div style={{ width: 18, height: 18, background: p.muted, opacity: 0.5, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 700 }}>×</div>
+            </div>
+            <div style={{
+              background: "#ffffff", border: `2px solid ${p.pillBorder}`, borderRadius: 8,
+              padding: "5px 18px", fontSize: 14, color: p.muted, minWidth: 130, textAlign: "center",
+            }}>
+              {(artBy || "").replace(/^Art by\s*/i, "") || "artist"}
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT — day pills */}
+        <div className="absolute flex flex-col" style={{ right: 100, top: 50, bottom: 50, left: 780, justifyContent: "center", gap: 14, zIndex: 3 }}>
           {days.slice(0, 7).map((d: DayItem, i: number) => {
             const { abbr } = parseDay(d.day);
             const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platforms: [] } as Slot];
             const allOffline = slots.every((s) => s.type === "offline");
-            const multi = slots.length > 1;
-            const animal = ANIMALS[i % ANIMALS.length];
-            const headBg = ANIMAL_BG[i % ANIMAL_BG.length];
+            const rc = ANIMAL_ROW_COLORS[i % ANIMAL_ROW_COLORS.length];
 
             return (
-              <div key={i} className="relative flex items-center" style={{ gap: -10 } as any}>
-                {/* animal head circle */}
-                <div className="relative flex items-center justify-center flex-shrink-0" style={{
-                  width: 110, height: 110, borderRadius: "50%",
-                  background: headBg, boxShadow: `0 4px 12px ${p.lace}66`,
-                  zIndex: 2, marginRight: -18,
-                  border: `2px solid ${p.pillBg}`,
-                }}>
-                  <div style={{ fontSize: 64, lineHeight: 1 }}>{animal}</div>
-                  <div className="absolute" style={{
-                    bottom: 22, left: "50%", transform: "translateX(-50%)",
-                    background: p.pillBg, padding: "2px 12px", borderRadius: 999,
-                    fontSize: 16, fontWeight: 700, color: p.text, letterSpacing: "0.05em",
-                    border: `1px solid ${p.pillBorder}`, fontFamily: "'Quicksand', sans-serif",
-                  }}>{abbr.toLowerCase()}</div>
-                </div>
+              <div key={i} className="relative flex items-center" style={{ gap: 0 }}>
+                <BunnyBadge color={rc.tag} border={rc.border} label={abbr.toLowerCase()} chipText={rc.chipText} />
+                <ConnectorBars color={rc.border} />
 
                 {/* schedule pill */}
                 <div className="relative flex-1 flex items-center" style={{
-                  background: p.pillBg, borderRadius: 999,
-                  border: `2px solid ${p.pillBorder}`,
-                  padding: multi ? "16px 28px 16px 40px" : "18px 28px 18px 40px",
-                  minHeight: 70, gap: 14, flexWrap: "wrap",
-                  boxShadow: `0 4px 12px ${p.lace}44`,
+                  background: "#ffffff", borderRadius: 999,
+                  border: `2.5px solid ${rc.border}`,
+                  padding: "14px 24px",
+                  minHeight: 58, gap: 14,
+                  boxShadow: `0 3px 0 ${rc.border}55`,
+                  marginLeft: -4,
                 }}>
-                  <div className="flex-1 min-w-0 flex flex-col" style={{ gap: multi ? 6 : 0 }}>
+                  <div className="flex-1 min-w-0 flex flex-col" style={{ gap: 4 }}>
                     {slots.map((s, si) => {
                       const off = s.type === "offline";
                       return (
-                        <div key={si} className="flex items-center" style={{
-                          gap: 10, flexWrap: "wrap",
-                          paddingTop: si > 0 ? 6 : 0,
-                          borderTop: si > 0 ? `1px dashed ${p.pillBorder}` : undefined,
-                        }}>
+                        <div key={si} className="flex items-center" style={{ gap: 10, flexWrap: "wrap" }}>
                           {!off && s.time && (
                             <span style={{
-                              fontSize: 14, fontWeight: 700, color: p.accent,
-                              background: `${p.lace}44`, padding: "3px 10px", borderRadius: 999,
-                              letterSpacing: "0.05em",
+                              fontSize: 13, fontWeight: 700, color: rc.chipText,
+                              background: rc.tag, padding: "3px 10px", borderRadius: 999,
                             }}>{s.time}</span>
                           )}
                           <span style={{
-                            flex: 1, fontSize: multi ? 20 : 24, fontWeight: 600,
-                            color: off ? p.muted : p.text, lineHeight: 1.2,
+                            flex: 1, fontSize: 20, fontWeight: 500,
+                            color: off ? p.muted : "#a89a9a", lineHeight: 1.2,
                             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0,
+                            fontFamily: "'Quicksand', sans-serif",
                           }}>
                             {off ? "no stream today" : (s.title || "type your schedule here")}
                           </span>
@@ -1146,13 +1133,15 @@ const AnimalLayout = ({ title, subtitle, dateRange, days, characterUrl, charFit,
                   </div>
                   {allOffline && (
                     <div style={{
-                      background: p.ribbon, color: p.ribbonText,
-                      padding: "6px 16px", borderRadius: 999,
-                      fontSize: 16, fontWeight: 700, display: "flex", alignItems: "center", gap: 6,
-                    }}>break <Moon size={14} fill="currentColor" /></div>
+                      background: "#f7a8b8", color: "#ffffff",
+                      padding: "6px 18px", borderRadius: 999,
+                      fontSize: 15, fontWeight: 700, display: "flex", alignItems: "center", gap: 4,
+                      border: "2px solid #f9bcc8", flexShrink: 0,
+                    }}>
+                      break
+                      <span style={{ fontSize: 11, fontWeight: 700, transform: "translateY(-4px)" }}>z<sup style={{ fontSize: 9 }}>z</sup></span>
+                    </div>
                   )}
-                  {/* leaf accent on right */}
-                  <div className="absolute" style={{ right: 14, top: "50%", transform: "translateY(-50%) rotate(20deg)", fontSize: 18, opacity: 0.55 }}>🍃</div>
                 </div>
               </div>
             );
