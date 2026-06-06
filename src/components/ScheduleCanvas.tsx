@@ -35,7 +35,25 @@ export type ScheduleProps = {
   layout?: LayoutKey;
   youtubeHandle?: string;
   twitchHandle?: string;
+  charScale?: number;
+  charOffsetX?: number;
+  charOffsetY?: number;
 };
+
+export const CharImage = ({
+  url, fit, scale = 1, ox = 0, oy = 0, pos = "center",
+}: { url: string; fit: "cover" | "contain"; scale?: number; ox?: number; oy?: number; pos?: string }) => (
+  <div style={{ width: "100%", height: "100%", overflow: "hidden", display: "block" }}>
+    <img src={url} alt="character" crossOrigin="anonymous"
+      style={{
+        width: "100%", height: "100%",
+        objectFit: fit, objectPosition: pos,
+        transform: `translate(${ox}%, ${oy}%) scale(${scale})`,
+        transformOrigin: "center center",
+        display: "block",
+      }} />
+  </div>
+);
 
 const themeIcon: Record<ThemeKey, JSX.Element> = {
   cute: <Heart className="w-6 h-6" fill="currentColor" />,
