@@ -937,6 +937,22 @@ const ANIMAL_PALETTES: Record<string, AnimalPalette> = {
   mono:      { bgFrom: "#fafafa", bgTo: "#f0f0f0", lace: "#cccccc", pillBg: "#ffffff", pillBorder: "#d8d8d8", text: "#0a0a0a", muted: "#666666", accent: "#2a2a2a", ribbon: "#0a0a0a", ribbonText: "#ffffff" },
 };
 
+const ScallopBorder = ({ color, side = "left" }: { color: string; side?: "left" | "right" }) => {
+  const transform = side === "right" ? "scaleX(-1)" : undefined;
+  return (
+    <svg width="60" height="100%" viewBox="0 0 60 1080" preserveAspectRatio="none"
+      style={{ position: "absolute", top: 0, bottom: 0, [side]: 0, transform } as any}>
+      <defs>
+        <pattern id={`scallop-${side}`} x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+          <circle cx="30" cy="30" r="22" fill={color} opacity="0.5" />
+          <circle cx="30" cy="30" r="14" fill="#ffffff" opacity="0.65" />
+        </pattern>
+      </defs>
+      <rect width="60" height="1080" fill={`url(#scallop-${side})`} />
+    </svg>
+  );
+};
+
 // Per-row pastel colors (mon → sun)
 const ANIMAL_ROW_COLORS = [
   { tag: "#f7a8b8", border: "#f9bcc8", chipText: "#ffffff" }, // mon pink
