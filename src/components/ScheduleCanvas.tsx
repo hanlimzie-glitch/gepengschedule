@@ -275,8 +275,8 @@ const RoyalLayout = ({
           }}>✦</div>
         ))}
         {characterUrl ? (
-          <img src={characterUrl} alt="character" crossOrigin="anonymous"
-            style={{ width: "100%", height: "100%", objectFit: charFit, objectPosition: "center" }} />
+          <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
+
         ) : (
           <div className="w-full h-full flex items-center justify-center" style={{ color: "rgba(255,255,255,0.6)", fontSize: 28 }}>
             Upload your character ✨
