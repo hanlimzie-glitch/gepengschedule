@@ -252,6 +252,7 @@ const ROYAL_PALETTES: Record<ThemeKey, RoyalPalette> = {
 
 const RoyalLayout = ({
   title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, theme,
+  charScale = 1, charOffsetX = 0, charOffsetY = 0,
 }: any) => {
   const range = parseRange(dateRange) || { d1: "01", m1: "WEEK", d2: "07", m2: "OF" };
   const p: RoyalPalette = ROYAL_PALETTES[(theme as ThemeKey)] || ROYAL_PALETTES.royalred;
