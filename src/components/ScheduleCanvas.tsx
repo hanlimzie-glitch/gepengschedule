@@ -444,7 +444,7 @@ const DiamondBadge = ({ num, label, tag, accent, text }: { num: string; label: s
 /* ============================================================
    BUBBLE LAYOUT (existing, with multi-slot support)
    ============================================================ */
-const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, charFit, artBy }: any) => {
+const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, charFit, artBy, charScale = 1, charOffsetX = 0, charOffsetY = 0 }: any) => {
 
   return (
     <div className="relative h-full flex" style={{ padding: 56, gap: 48 }}>
