@@ -206,38 +206,14 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           </>
         )}
 
-        {layout === "royal" ? (
-          <RoyalLayout
-            title={title} subtitle={subtitle} dateRange={dateRange}
-            days={days} characterUrl={characterUrl} charFit={charFit}
-            artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
-            theme={theme}
-          />
-        ) : layout === "celestial" ? (
-          <CelestialLayout
-            title={title} subtitle={subtitle} dateRange={dateRange}
-            days={days} characterUrl={characterUrl} charFit={charFit}
-            artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
-            theme={theme}
-          />
-        ) : layout === "animal" ? (
-          <AnimalLayout
-            title={title} subtitle={subtitle} dateRange={dateRange}
-            days={days} characterUrl={characterUrl} charFit={charFit}
-            artBy={artBy} theme={theme}
-          />
-        ) : layout === "bubbles" ? (
-          <BubbleLayout
-            title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio}
-            days={days} characterUrl={characterUrl} charFit={charFit} artBy={artBy}
-          />
-        ) : (
-          <GridLayout
-            title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio}
-            days={days} characterUrl={characterUrl} charFit={charFit}
-            theme={theme} artBy={artBy}
-          />
-        )}
+        {(() => {
+          const charProps = { characterUrl, charFit, charScale, charOffsetX, charOffsetY };
+          if (layout === "royal") return <RoyalLayout title={title} subtitle={subtitle} dateRange={dateRange} days={days} {...charProps} artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle} theme={theme} />;
+          if (layout === "celestial") return <CelestialLayout title={title} subtitle={subtitle} dateRange={dateRange} days={days} {...charProps} artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle} theme={theme} />;
+          if (layout === "animal") return <AnimalLayout title={title} subtitle={subtitle} dateRange={dateRange} days={days} {...charProps} artBy={artBy} theme={theme} />;
+          if (layout === "bubbles") return <BubbleLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} artBy={artBy} />;
+          return <GridLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} theme={theme} artBy={artBy} />;
+        })()}
       </div>
     );
   }
