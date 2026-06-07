@@ -210,7 +210,7 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           const charProps = { characterUrl, charFit, charScale, charOffsetX, charOffsetY };
           if (layout === "royal") return <RoyalLayout title={title} subtitle={subtitle} dateRange={dateRange} days={days} {...charProps} artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle} theme={theme} />;
           if (layout === "celestial") return <CelestialLayout title={title} subtitle={subtitle} dateRange={dateRange} days={days} {...charProps} artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle} theme={theme} />;
-          if (layout === "animal") return <AnimalLayout title={title} subtitle={subtitle} dateRange={dateRange} days={days} {...charProps} artBy={artBy} theme={theme} />;
+          if (layout === "animal") return <AnimalLayout title={title} subtitle={subtitle} dateRange={dateRange} days={days} {...charProps} artBy={artBy} theme={theme} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle} />;
           if (layout === "bubbles") return <BubbleLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} artBy={artBy} />;
           return <GridLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} theme={theme} artBy={artBy} />;
         })()}
@@ -996,7 +996,7 @@ const ConnectorBars = ({ color }: { color: string }) => (
   </svg>
 );
 
-const AnimalLayout = ({ title, subtitle, dateRange, days, characterUrl, charFit, artBy, theme, charScale = 1, charOffsetX = 0, charOffsetY = 0 }: any) => {
+const AnimalLayout = ({ title, subtitle, dateRange, days, characterUrl, charFit, artBy, theme, youtubeHandle, twitchHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0 }: any) => {
   const p = ANIMAL_PALETTES[theme as string] || ANIMAL_PALETTES.cute;
   return (
     <div className="relative h-full w-full overflow-hidden" style={{
@@ -1063,25 +1063,37 @@ const AnimalLayout = ({ title, subtitle, dateRange, days, characterUrl, charFit,
 
         {/* bottom-left small bars + artist pill */}
         <div className="absolute flex flex-col" style={{ left: 100, bottom: 50, gap: 10, zIndex: 5 }}>
-          <div style={{
-            background: "#ffffff", border: `2px solid ${p.pillBorder}`, borderRadius: 8,
-            width: 200, height: 30, display: "flex", alignItems: "center", padding: "0 10px",
-          }}>
-            <div style={{ width: 18, height: 18, background: p.accent, opacity: 0.6, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 11, fontWeight: 700 }}>‖</div>
-          </div>
+          {youtubeHandle && (
+            <div style={{
+              background: "#ffffff", border: `2px solid ${p.pillBorder}`, borderRadius: 8,
+              minWidth: 200, height: 30, display: "flex", alignItems: "center", padding: "0 10px", gap: 8,
+            }}>
+              <div style={{ width: 18, height: 18, background: "#FF0033", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+                <Youtube size={12} />
+              </div>
+              <span style={{ fontSize: 13, color: p.muted, fontWeight: 600 }}>{youtubeHandle}</span>
+            </div>
+          )}
           <div className="flex items-center" style={{ gap: 8 }}>
-            <div style={{
-              background: "#ffffff", border: `2px solid ${p.pillBorder}`, borderRadius: 8,
-              width: 200, height: 30, display: "flex", alignItems: "center", padding: "0 10px",
-            }}>
-              <div style={{ width: 18, height: 18, background: p.muted, opacity: 0.5, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 700 }}>×</div>
-            </div>
-            <div style={{
-              background: "#ffffff", border: `2px solid ${p.pillBorder}`, borderRadius: 8,
-              padding: "5px 18px", fontSize: 14, color: p.muted, minWidth: 130, textAlign: "center",
-            }}>
-              {(artBy || "").replace(/^Art by\s*/i, "") || "artist"}
-            </div>
+            {twitchHandle && (
+              <div style={{
+                background: "#ffffff", border: `2px solid ${p.pillBorder}`, borderRadius: 8,
+                minWidth: 200, height: 30, display: "flex", alignItems: "center", padding: "0 10px", gap: 8,
+              }}>
+                <div style={{ width: 18, height: 18, background: "#9146FF", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+                  <Twitch size={12} />
+                </div>
+                <span style={{ fontSize: 13, color: p.muted, fontWeight: 600 }}>{twitchHandle}</span>
+              </div>
+            )}
+            {artBy && (
+              <div style={{
+                background: "#ffffff", border: `2px solid ${p.pillBorder}`, borderRadius: 8,
+                padding: "5px 18px", fontSize: 14, color: p.muted, minWidth: 130, textAlign: "center",
+              }}>
+                {artBy.replace(/^Art by\s*/i, "") || "artist"}
+              </div>
+            )}
           </div>
         </div>
 
