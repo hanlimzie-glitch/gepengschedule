@@ -996,7 +996,7 @@ const ConnectorBars = ({ color }: { color: string }) => (
   </svg>
 );
 
-const AnimalLayout = ({ title, subtitle, dateRange, days, characterUrl, charFit, artBy, theme, charScale = 1, charOffsetX = 0, charOffsetY = 0 }: any) => {
+const AnimalLayout = ({ title, subtitle, dateRange, days, characterUrl, charFit, artBy, theme, youtubeHandle, twitchHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0 }: any) => {
   const p = ANIMAL_PALETTES[theme as string] || ANIMAL_PALETTES.cute;
   return (
     <div className="relative h-full w-full overflow-hidden" style={{
