@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import type { DateRange } from "react-day-picker";
-import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentKey, type LayoutKey, type PlatformKey } from "./ScheduleCanvas";
+import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentKey, type LayoutKey, type PlatformKey, type TextureSettings } from "./ScheduleCanvas";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -105,6 +105,17 @@ export const ScheduleEditor = () => {
   const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [scale, setScale] = useState(0.4);
+  const [texture, setTexture] = useState<TextureSettings>({
+    url: null, blend: "overlay", opacity: 0.5, size: 100, repeat: true, scope: "all",
+  });
+  const updateTexture = <K extends keyof TextureSettings>(k: K, v: TextureSettings[K]) =>
+    setTexture((t) => ({ ...t, [k]: v }));
+  const handleTextureFile = (file: File) => {
+    if (!file.type.startsWith("image/")) { toast.error("File harus berupa gambar"); return; }
+    const r = new FileReader();
+    r.onload = (e) => updateTexture("url", e.target?.result as string);
+    r.readAsDataURL(file);
+  };
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const previewWrapRef = useRef<HTMLDivElement>(null);
@@ -395,6 +406,64 @@ export const ScheduleEditor = () => {
             </div>
           </Section>
 
+          <Section title="Texture Overlay">
+            <div
+              className="border-2 border-dashed rounded-xl p-4 text-center cursor-pointer hover:border-primary/60 transition-colors"
+              onClick={() => document.getElementById("tex-upload")?.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) handleTextureFile(f); }}
+            >
+              {texture.url ? (
+                <img src={texture.url} alt="tex" className="mx-auto max-h-24 rounded object-contain" />
+              ) : (
+                <>
+                  <Upload className="w-6 h-6 mx-auto mb-1 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground">Upload texture (grunge, paper, noise, glitter, dll)</p>
+                </>
+              )}
+              <input id="tex-upload" type="file" accept="image/*" hidden
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleTextureFile(f); }} />
+            </div>
+            {texture.url && (
+              <div className="mt-3 space-y-3">
+                <Field label="Blend mode">
+                  <Select value={texture.blend} onValueChange={(v) => updateTexture("blend", v)}>
+                    <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {["normal","multiply","screen","overlay","soft-light","hard-light","color-dodge","color-burn","darken","lighten","difference","exclusion","hue","saturation","color","luminosity"].map((m) => (
+                        <SelectItem key={m} value={m}>{m}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                    <span>Opacity</span><span>{Math.round(texture.opacity * 100)}%</span>
+                  </div>
+                  <input type="range" min="0" max="1" step="0.05" value={texture.opacity}
+                    onChange={(e) => updateTexture("opacity", parseFloat(e.target.value))} className="w-full accent-primary" />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                    <span>Size</span><span>{texture.size}%</span>
+                  </div>
+                  <input type="range" min="20" max="400" step="5" value={texture.size}
+                    onChange={(e) => updateTexture("size", parseInt(e.target.value))} className="w-full accent-primary"
+                    disabled={!texture.repeat} />
+                </div>
+                <label className="flex items-center gap-2 text-xs cursor-pointer">
+                  <Checkbox checked={texture.repeat} onCheckedChange={(v) => updateTexture("repeat", !!v)} />
+                  Repeat / tile (off = cover full canvas)
+                </label>
+                <Button variant="ghost" size="sm" className="w-full h-7 text-xs"
+                  onClick={() => setTexture({ url: null, blend: "overlay", opacity: 0.5, size: 100, repeat: true, scope: "all" })}>
+                  Hapus texture
+                </Button>
+              </div>
+            )}
+          </Section>
+
+
           <Section title="Export">
             <Field label="Rasio">
               <Select value={ratio} onValueChange={(v) => setRatio(v as any)}>
@@ -446,7 +515,8 @@ export const ScheduleEditor = () => {
                   days={days} characterUrl={characterUrl} charFit={charFit} theme={theme} ratio={ratio}
                   ornament={ornament} layout={layout} artBy={artBy}
                   youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
-                  charScale={charScale} charOffsetX={charOffsetX} charOffsetY={charOffsetY} />
+                  charScale={charScale} charOffsetX={charOffsetX} charOffsetY={charOffsetY}
+                  texture={texture} />
               </div>
             </div>
             <Button size="lg" onClick={downloadPng} disabled={busy}

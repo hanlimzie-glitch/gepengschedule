@@ -21,6 +21,15 @@ export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial" | "animal";
 export type OrnamentKey =
   | "dots" | "grid" | "diagonal" | "stars" | "hearts" | "sakura" | "crosses" | "circuit" | "magic" | "paws" | "none";
 
+export type TextureSettings = {
+  url: string | null;
+  blend: string; // CSS mix-blend-mode
+  opacity: number; // 0-1
+  size: number; // 50-400 (%)
+  repeat: boolean;
+  scope: "all" | "background" | "character";
+};
+
 export type ScheduleProps = {
   title: string;
   subtitle: string;
@@ -38,6 +47,7 @@ export type ScheduleProps = {
   charScale?: number;
   charOffsetX?: number;
   charOffsetY?: number;
+  texture?: TextureSettings;
 };
 
 export const CharImage = ({
@@ -158,10 +168,25 @@ const normalize = (d: any): DayItem => {
 };
 
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
-  ({ title, subtitle, dateRange, days: rawDays, characterUrl, charFit, theme, ratio, ornament, artBy, layout = "grid", youtubeHandle, twitchHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0 }, ref) => {
+  ({ title, subtitle, dateRange, days: rawDays, characterUrl, charFit, theme, ratio, ornament, artBy, layout = "grid", youtubeHandle, twitchHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0, texture }, ref) => {
     const w = 1920;
     const h = ratio === "16:9" ? 1080 : 1440;
     const days = rawDays.map(normalize);
+
+    const textureOverlay = texture?.url && (texture.scope === "all" || texture.scope === "background") ? (
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `url(${texture.url})`,
+          backgroundSize: texture.repeat ? `${texture.size}%` : "cover",
+          backgroundRepeat: texture.repeat ? "repeat" : "no-repeat",
+          backgroundPosition: "center",
+          mixBlendMode: texture.blend as any,
+          opacity: texture.opacity,
+          zIndex: 50,
+        }}
+      />
+    ) : null;
 
     return (
       <div
@@ -214,6 +239,7 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           if (layout === "bubbles") return <BubbleLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} artBy={artBy} />;
           return <GridLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} theme={theme} artBy={artBy} />;
         })()}
+        {textureOverlay}
       </div>
     );
   }
