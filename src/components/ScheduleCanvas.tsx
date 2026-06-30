@@ -21,6 +21,15 @@ export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial" | "animal";
 export type OrnamentKey =
   | "dots" | "grid" | "diagonal" | "stars" | "hearts" | "sakura" | "crosses" | "circuit" | "magic" | "paws" | "none";
 
+export type TextureSettings = {
+  url: string | null;
+  blend: string; // CSS mix-blend-mode
+  opacity: number; // 0-1
+  size: number; // 50-400 (%)
+  repeat: boolean;
+  scope: "all" | "background" | "character";
+};
+
 export type ScheduleProps = {
   title: string;
   subtitle: string;
@@ -38,6 +47,7 @@ export type ScheduleProps = {
   charScale?: number;
   charOffsetX?: number;
   charOffsetY?: number;
+  texture?: TextureSettings;
 };
 
 export const CharImage = ({
