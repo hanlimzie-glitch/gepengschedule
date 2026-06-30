@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import type { DateRange } from "react-day-picker";
-import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentKey, type LayoutKey, type PlatformKey } from "./ScheduleCanvas";
+import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentKey, type LayoutKey, type PlatformKey, type TextureSettings } from "./ScheduleCanvas";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
