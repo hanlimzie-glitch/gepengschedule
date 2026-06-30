@@ -457,7 +457,8 @@ export const ScheduleEditor = () => {
                   days={days} characterUrl={characterUrl} charFit={charFit} theme={theme} ratio={ratio}
                   ornament={ornament} layout={layout} artBy={artBy}
                   youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
-                  charScale={charScale} charOffsetX={charOffsetX} charOffsetY={charOffsetY} />
+                  charScale={charScale} charOffsetX={charOffsetX} charOffsetY={charOffsetY}
+                  texture={texture} />
               </div>
             </div>
             <Button size="lg" onClick={downloadPng} disabled={busy}
