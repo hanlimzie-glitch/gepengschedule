@@ -105,6 +105,17 @@ export const ScheduleEditor = () => {
   const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [scale, setScale] = useState(0.4);
+  const [texture, setTexture] = useState<TextureSettings>({
+    url: null, blend: "overlay", opacity: 0.5, size: 100, repeat: true, scope: "all",
+  });
+  const updateTexture = <K extends keyof TextureSettings>(k: K, v: TextureSettings[K]) =>
+    setTexture((t) => ({ ...t, [k]: v }));
+  const handleTextureFile = (file: File) => {
+    if (!file.type.startsWith("image/")) { toast.error("File harus berupa gambar"); return; }
+    const r = new FileReader();
+    r.onload = (e) => updateTexture("url", e.target?.result as string);
+    r.readAsDataURL(file);
+  };
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const previewWrapRef = useRef<HTMLDivElement>(null);
