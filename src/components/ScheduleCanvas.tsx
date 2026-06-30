@@ -239,6 +239,7 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           if (layout === "bubbles") return <BubbleLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} artBy={artBy} />;
           return <GridLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} theme={theme} artBy={artBy} />;
         })()}
+        {textureOverlay}
       </div>
     );
   }
