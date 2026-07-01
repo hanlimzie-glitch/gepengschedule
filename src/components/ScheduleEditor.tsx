@@ -457,13 +457,47 @@ export const ScheduleEditor = () => {
                   <Checkbox checked={texture.repeat} onCheckedChange={(v) => updateTexture("repeat", !!v)} />
                   Repeat / tile (off = cover full canvas)
                 </label>
+
+                <div className="pt-2 border-t border-border/50 space-y-3">
+                  <label className="flex items-center gap-2 text-xs cursor-pointer font-semibold text-primary">
+                    <Checkbox checked={textureEdit} onCheckedChange={(v) => setTextureEdit(!!v)} />
+                    Edit posisi texture (drag di preview)
+                  </label>
+                  <div>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                      <span>Posisi X</span><span>{texture.offsetX}%</span>
+                    </div>
+                    <input type="range" min="-100" max="100" step="1" value={texture.offsetX}
+                      onChange={(e) => updateTexture("offsetX", parseInt(e.target.value))} className="w-full accent-primary" />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                      <span>Posisi Y</span><span>{texture.offsetY}%</span>
+                    </div>
+                    <input type="range" min="-100" max="100" step="1" value={texture.offsetY}
+                      onChange={(e) => updateTexture("offsetY", parseInt(e.target.value))} className="w-full accent-primary" />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                      <span>Rotasi</span><span>{texture.rotation}°</span>
+                    </div>
+                    <input type="range" min="-180" max="180" step="1" value={texture.rotation}
+                      onChange={(e) => updateTexture("rotation", parseInt(e.target.value))} className="w-full accent-primary" />
+                  </div>
+                  <Button variant="outline" size="sm" className="w-full h-7 text-xs"
+                    onClick={() => setTexture((t) => ({ ...t, offsetX: 0, offsetY: 0, rotation: 0 }))}>
+                    Reset posisi & rotasi
+                  </Button>
+                </div>
+
                 <Button variant="ghost" size="sm" className="w-full h-7 text-xs"
-                  onClick={() => setTexture({ url: null, blend: "overlay", opacity: 0.5, size: 100, repeat: true, scope: "all" })}>
+                  onClick={() => { setTextureEdit(false); setTexture({ url: null, blend: "overlay", opacity: 0.5, size: 100, repeat: true, scope: "all", offsetX: 0, offsetY: 0, rotation: 0 }); }}>
                   Hapus texture
                 </Button>
               </div>
             )}
           </Section>
+
 
 
           <Section title="Export">
