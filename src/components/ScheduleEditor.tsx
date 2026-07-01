@@ -521,23 +521,36 @@ export const ScheduleEditor = () => {
               <span className="text-xs text-muted-foreground">Output: {ratio === "16:9" ? "3840×2160" : "3840×2880"} (HD)</span>
             </div>
             <div ref={previewWrapRef} className="w-full overflow-hidden rounded-xl border border-border bg-black/30 relative"
-              style={{ height: canvasH * scale, cursor: characterUrl ? "grab" : "default" }}
+              style={{ height: canvasH * scale, cursor: (textureEdit && texture.url) || characterUrl ? "grab" : "default" }}
               onWheel={(e) => {
+                if (textureEdit && texture.url) {
+                  e.preventDefault();
+                  updateTexture("rotation", Math.max(-180, Math.min(180, texture.rotation + (e.deltaY < 0 ? 2 : -2))));
+                  return;
+                }
                 if (!characterUrl) return;
                 e.preventDefault();
                 setCharScale((s) => Math.max(0.3, Math.min(3, s + (e.deltaY < 0 ? 0.05 : -0.05))));
               }}
               onPointerDown={(e) => {
-                if (!characterUrl) return;
+                const editingTex = textureEdit && texture.url;
+                if (!editingTex && !characterUrl) return;
                 const startX = e.clientX, startY = e.clientY;
-                const ox0 = charOffsetX, oy0 = charOffsetY;
+                const ox0 = editingTex ? texture.offsetX : charOffsetX;
+                const oy0 = editingTex ? texture.offsetY : charOffsetY;
                 (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
                 (e.currentTarget as HTMLDivElement).style.cursor = "grabbing";
                 const move = (ev: PointerEvent) => {
                   const dx = (ev.clientX - startX) / scale;
                   const dy = (ev.clientY - startY) / scale;
-                  setCharOffsetX(Math.max(-100, Math.min(100, Math.round(ox0 + (dx / 1920) * 100))));
-                  setCharOffsetY(Math.max(-100, Math.min(100, Math.round(oy0 + (dy / canvasH) * 100))));
+                  const nx = Math.max(-100, Math.min(100, Math.round(ox0 + (dx / 1920) * 200)));
+                  const ny = Math.max(-100, Math.min(100, Math.round(oy0 + (dy / canvasH) * 200)));
+                  if (editingTex) {
+                    setTexture((t) => ({ ...t, offsetX: nx, offsetY: ny }));
+                  } else {
+                    setCharOffsetX(Math.max(-100, Math.min(100, Math.round(ox0 + (dx / 1920) * 100))));
+                    setCharOffsetY(Math.max(-100, Math.min(100, Math.round(oy0 + (dy / canvasH) * 100))));
+                  }
                 };
                 const up = () => {
                   window.removeEventListener("pointermove", move);
@@ -546,6 +559,11 @@ export const ScheduleEditor = () => {
                 window.addEventListener("pointermove", move);
                 window.addEventListener("pointerup", up);
               }}>
+              {textureEdit && texture.url && (
+                <div className="absolute top-2 left-2 z-20 pointer-events-none px-2 py-1 rounded bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider">
+                  Texture edit • drag = pindah • scroll = rotasi
+                </div>
+              )}
               <div style={{ width: 1920, height: canvasH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
                 <ScheduleCanvas ref={canvasRef} title={title} subtitle={subtitle} dateRange={dateRange}
                   days={days} characterUrl={characterUrl} charFit={charFit} theme={theme} ratio={ratio}
