@@ -18,8 +18,23 @@ export type DayItem = {
 
 export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint" | "royalred" | "magic" | "mono";
 export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial" | "animal";
-export type OrnamentKey =
-  | "dots" | "grid" | "diagonal" | "stars" | "hearts" | "sakura" | "crosses" | "circuit" | "magic" | "paws" | "none";
+export type OrnamentIconKey =
+  | "dot" | "square" | "diagonal" | "star" | "sparkle" | "heart" | "sakura" | "cross" | "circuit" | "moon" | "paw";
+
+export type OrnamentLayer = {
+  icon: OrnamentIconKey;
+  count: number;    // 1-200
+  size: number;     // px 8-240
+  spacing: number;  // grid cell size in px 40-500
+  offsetX: number;  // px shift -400..400
+  offsetY: number;  // px shift -400..400
+  rotation: number; // deg -180..180
+  opacity: number;  // 0..1
+  color: string;    // "" = auto (theme color)
+};
+
+// legacy alias so old imports don't break
+export type OrnamentKey = OrnamentIconKey;
 
 export type TextureSettings = {
   url: string | null;
