@@ -28,6 +28,9 @@ export type TextureSettings = {
   size: number; // 50-400 (%)
   repeat: boolean;
   scope: "all" | "background" | "character";
+  offsetX: number; // -100..100 (%)
+  offsetY: number; // -100..100 (%)
+  rotation: number; // -180..180 deg
 };
 
 export type ScheduleProps = {
