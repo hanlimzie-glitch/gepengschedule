@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import type { DateRange } from "react-day-picker";
-import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentKey, type LayoutKey, type PlatformKey, type TextureSettings } from "./ScheduleCanvas";
+import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentIconKey, type OrnamentLayer, type LayoutKey, type PlatformKey, type TextureSettings } from "./ScheduleCanvas";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -40,16 +40,21 @@ const makeSlot = (over: Partial<Slot> = {}): Slot => ({
 
 const initialDays: DayItem[] = buildDayLabels(new Date(2026, 4, 5)).map((d) => ({ day: d, slots: [makeSlot()] }));
 
-const themes: { key: ThemeKey; label: string; swatch: string; defaultOrnament: OrnamentKey }[] = [
-  { key: "cute", label: "Cute", swatch: "linear-gradient(135deg,hsl(330 100% 78%),hsl(25 100% 82%))", defaultOrnament: "hearts" },
-  { key: "aesthetic", label: "Aesthetic", swatch: "linear-gradient(135deg,hsl(280 90% 75%),hsl(200 95% 75%))", defaultOrnament: "stars" },
-  { key: "gothic", label: "Gothic", swatch: "linear-gradient(135deg,hsl(0 0% 4%),hsl(0 80% 55%))", defaultOrnament: "crosses" },
-  { key: "sakura", label: "Sakura", swatch: "linear-gradient(135deg,hsl(340 90% 70%),hsl(350 100% 88%))", defaultOrnament: "sakura" },
-  { key: "cyber", label: "Cyber", swatch: "linear-gradient(135deg,hsl(180 100% 55%),hsl(320 100% 60%))", defaultOrnament: "circuit" },
-  { key: "mint", label: "Mint", swatch: "linear-gradient(135deg,hsl(160 70% 55%),hsl(190 80% 70%))", defaultOrnament: "dots" },
-  { key: "royalred", label: "Royal Red", swatch: "linear-gradient(90deg,#6b1622 50%,#e6c168 50%)", defaultOrnament: "none" },
-  { key: "magic", label: "Magic", swatch: "linear-gradient(135deg,hsl(270 60% 55%),hsl(35 80% 70%))", defaultOrnament: "stars" },
-  { key: "mono", label: "Mono", swatch: "linear-gradient(90deg,#0a0a0a 50%,#f5f5f5 50%)", defaultOrnament: "dots" },
+const makeLayer = (over: Partial<OrnamentLayer> = {}): OrnamentLayer => ({
+  icon: "star", count: 40, size: 32, spacing: 160,
+  offsetX: 0, offsetY: 0, rotation: 0, opacity: 0.35, color: "", ...over,
+});
+
+const themes: { key: ThemeKey; label: string; swatch: string; defaultLayers: OrnamentLayer[] }[] = [
+  { key: "cute",      label: "Cute",      swatch: "linear-gradient(135deg,hsl(330 100% 78%),hsl(25 100% 82%))", defaultLayers: [makeLayer({ icon: "heart", count: 50, size: 36 })] },
+  { key: "aesthetic", label: "Aesthetic", swatch: "linear-gradient(135deg,hsl(280 90% 75%),hsl(200 95% 75%))",  defaultLayers: [makeLayer({ icon: "sparkle", count: 45 })] },
+  { key: "gothic",    label: "Gothic",    swatch: "linear-gradient(135deg,hsl(0 0% 4%),hsl(0 80% 55%))",       defaultLayers: [makeLayer({ icon: "cross", count: 35 })] },
+  { key: "sakura",    label: "Sakura",    swatch: "linear-gradient(135deg,hsl(340 90% 70%),hsl(350 100% 88%))", defaultLayers: [makeLayer({ icon: "sakura", count: 40, size: 42 })] },
+  { key: "cyber",     label: "Cyber",     swatch: "linear-gradient(135deg,hsl(180 100% 55%),hsl(320 100% 60%))", defaultLayers: [makeLayer({ icon: "circuit", count: 40 })] },
+  { key: "mint",      label: "Mint",      swatch: "linear-gradient(135deg,hsl(160 70% 55%),hsl(190 80% 70%))",  defaultLayers: [makeLayer({ icon: "dot", count: 80, size: 14, spacing: 120 })] },
+  { key: "royalred",  label: "Royal Red", swatch: "linear-gradient(90deg,#6b1622 50%,#e6c168 50%)",             defaultLayers: [] },
+  { key: "magic",     label: "Magic",     swatch: "linear-gradient(135deg,hsl(270 60% 55%),hsl(35 80% 70%))",   defaultLayers: [makeLayer({ icon: "star", count: 45 }), makeLayer({ icon: "moon", count: 12, size: 44, opacity: 0.4 })] },
+  { key: "mono",      label: "Mono",      swatch: "linear-gradient(90deg,#0a0a0a 50%,#f5f5f5 50%)",             defaultLayers: [makeLayer({ icon: "dot", count: 100, size: 10, color: "#000" })] },
 ];
 
 const scheduleTypes: { key: Slot["type"]; label: string; icon: JSX.Element }[] = [
@@ -73,12 +78,18 @@ const formatRange = (from?: Date, to?: Date) => {
     : `${format(from, "d MMM", { locale: idLocale })} - ${format(to, "d MMM yyyy", { locale: idLocale })}`;
 };
 
-const ornamentOptions: { key: OrnamentKey; label: string }[] = [
-  { key: "dots", label: "Dots" }, { key: "grid", label: "Grid" }, { key: "diagonal", label: "Diagonal" },
-  { key: "stars", label: "Stars" }, { key: "hearts", label: "Hearts" }, { key: "sakura", label: "Sakura" },
-  { key: "crosses", label: "Crosses" }, { key: "circuit", label: "Circuit" }, { key: "magic", label: "Magic" },
-  { key: "paws", label: "Paws" },
-  { key: "none", label: "None" },
+const ornamentIconOptions: { key: OrnamentIconKey; label: string; glyph: string }[] = [
+  { key: "dot", label: "Dot", glyph: "●" },
+  { key: "square", label: "Diamond", glyph: "◇" },
+  { key: "diagonal", label: "Slash", glyph: "╱" },
+  { key: "star", label: "Star", glyph: "✦" },
+  { key: "sparkle", label: "Sparkle", glyph: "✧" },
+  { key: "heart", label: "Heart", glyph: "♥" },
+  { key: "sakura", label: "Sakura", glyph: "❀" },
+  { key: "cross", label: "Cross", glyph: "✚" },
+  { key: "circuit", label: "Circuit", glyph: "⌁" },
+  { key: "moon", label: "Moon", glyph: "☾" },
+  { key: "paw", label: "Paw", glyph: "🐾" },
 ];
 
 export const ScheduleEditor = () => {
@@ -99,7 +110,11 @@ export const ScheduleEditor = () => {
   const [charOffsetX, setCharOffsetX] = useState(0);
   const [charOffsetY, setCharOffsetY] = useState(0);
   const [theme, setTheme] = useState<ThemeKey>("cute");
-  const [ornament, setOrnament] = useState<OrnamentKey>("hearts");
+  const [ornaments, setOrnaments] = useState<OrnamentLayer[]>([makeLayer({ icon: "heart", count: 50, size: 36 })]);
+  const updateLayer = (i: number, patch: Partial<OrnamentLayer>) =>
+    setOrnaments((prev) => prev.map((l, idx) => idx === i ? { ...l, ...patch } : l));
+  const addLayer = () => setOrnaments((prev) => prev.length >= 3 ? prev : [...prev, makeLayer()]);
+  const removeLayer = (i: number) => setOrnaments((prev) => prev.filter((_, idx) => idx !== i));
   const [layout, setLayout] = useState<LayoutKey>("bubbles");
   const [ratio, setRatio] = useState<"16:9" | "4:3">("16:9");
   const [busy, setBusy] = useState(false);
@@ -125,13 +140,13 @@ export const ScheduleEditor = () => {
   const pickTheme = (k: ThemeKey) => {
     setTheme(k);
     const t = themes.find((x) => x.key === k);
-    if (t) setOrnament(t.defaultOrnament);
+    if (t) setOrnaments(t.defaultLayers.map((l) => ({ ...l })));
     if (k === "magic") setLayout("celestial");
   };
 
   const pickLayout = (k: LayoutKey) => {
     setLayout(k);
-    if (k === "animal") setOrnament("paws");
+    if (k === "animal") setOrnaments([makeLayer({ icon: "paw", count: 30, size: 44, opacity: 0.3 })]);
   };
 
   const handleDateRange = (r: DateRange | undefined) => {
@@ -288,18 +303,68 @@ export const ScheduleEditor = () => {
             </div>
           </Section>
 
-          <Section title="Ornament">
-            <div className="grid grid-cols-3 gap-2">
-              {ornamentOptions.map((o) => (
-                <button type="button" key={o.key} onClick={() => setOrnament(o.key)}
-                  className={cn("rounded-lg p-2 border-2 text-xs font-semibold transition-all hover:scale-[1.02]",
-                    ornament === o.key ? "border-primary" : "border-border")}>
-                  <div className={`h-10 rounded mb-1 theme-${theme} ornament-${o.key}`} style={{ backgroundColor: "hsl(var(--t-card))" }} />
-                  {o.label}
-                </button>
+          <Section title="Ornament Layers">
+            <p className="text-[11px] text-muted-foreground mb-3">
+              Max 3 layer. Setiap layer bisa custom icon, jumlah (1-200), jarak, ukuran, posisi, rotasi, & opacity.
+            </p>
+            <div className="space-y-3">
+              {ornaments.map((ly, i) => (
+                <div key={i} className={`rounded-xl p-3 border-2 space-y-2 ${theme ? `theme-${theme}` : ""}`} style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card) / 0.6)" }}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-widest text-primary">Layer {i + 1}</span>
+                    <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => removeLayer(i)}>
+                      <Minus className="w-3 h-3 mr-1" />Hapus
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-6 gap-1.5">
+                    {ornamentIconOptions.map((o) => (
+                      <button key={o.key} type="button" onClick={() => updateLayer(i, { icon: o.key })}
+                        title={o.label}
+                        className={cn("h-10 rounded border-2 flex items-center justify-center text-lg leading-none",
+                          ly.icon === o.key ? "border-primary text-primary" : "border-border text-foreground/70 hover:border-primary/50")}>
+                        {o.glyph}
+                      </button>
+                    ))}
+                  </div>
+
+                  <LayerSlider label="Jumlah" value={ly.count} min={1} max={200} step={1}
+                    onChange={(v) => updateLayer(i, { count: v })} />
+                  <LayerSlider label="Jarak (spacing)" value={ly.spacing} min={40} max={500} step={5} unit="px"
+                    onChange={(v) => updateLayer(i, { spacing: v })} />
+                  <LayerSlider label="Ukuran" value={ly.size} min={8} max={240} step={2} unit="px"
+                    onChange={(v) => updateLayer(i, { size: v })} />
+                  <LayerSlider label="Posisi X" value={ly.offsetX} min={-400} max={400} step={2} unit="px"
+                    onChange={(v) => updateLayer(i, { offsetX: v })} />
+                  <LayerSlider label="Posisi Y" value={ly.offsetY} min={-400} max={400} step={2} unit="px"
+                    onChange={(v) => updateLayer(i, { offsetY: v })} />
+                  <LayerSlider label="Rotasi" value={ly.rotation} min={-180} max={180} step={1} unit="°"
+                    onChange={(v) => updateLayer(i, { rotation: v })} />
+                  <LayerSlider label="Opacity" value={Math.round(ly.opacity * 100)} min={0} max={100} step={1} unit="%"
+                    onChange={(v) => updateLayer(i, { opacity: v / 100 })} />
+
+                  <div className="flex items-center gap-2">
+                    <Label className="text-xs text-muted-foreground w-16">Warna</Label>
+                    <input type="color" value={ly.color || "#ffffff"}
+                      onChange={(e) => updateLayer(i, { color: e.target.value })}
+                      className="h-8 w-12 rounded border border-border cursor-pointer bg-transparent" />
+                    <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => updateLayer(i, { color: "" })}>
+                      Auto (tema)
+                    </Button>
+                  </div>
+                </div>
               ))}
+              {ornaments.length < 3 && (
+                <Button variant="outline" size="sm" className="w-full" onClick={addLayer}>
+                  <Plus className="w-4 h-4 mr-1" />Tambah Layer ({ornaments.length}/3)
+                </Button>
+              )}
+              {ornaments.length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-2">Belum ada ornament.</p>
+              )}
             </div>
           </Section>
+
 
           <Section title="Karakter VTuber">
             <div onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -567,7 +632,7 @@ export const ScheduleEditor = () => {
               <div style={{ width: 1920, height: canvasH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
                 <ScheduleCanvas ref={canvasRef} title={title} subtitle={subtitle} dateRange={dateRange}
                   days={days} characterUrl={characterUrl} charFit={charFit} theme={theme} ratio={ratio}
-                  ornament={ornament} layout={layout} artBy={artBy}
+                  ornaments={ornaments} layout={layout} artBy={artBy}
                   youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
                   charScale={charScale} charOffsetX={charOffsetX} charOffsetY={charOffsetY}
                   texture={texture} />
@@ -596,5 +661,18 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
   <div className="space-y-1.5">
     <Label className="text-xs text-muted-foreground">{label}</Label>
     {children}
+  </div>
+);
+
+const LayerSlider = ({ label, value, min, max, step = 1, unit = "", onChange }: {
+  label: string; value: number; min: number; max: number; step?: number; unit?: string;
+  onChange: (v: number) => void;
+}) => (
+  <div>
+    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+      <span>{label}</span><span>{value}{unit}</span>
+    </div>
+    <input type="range" min={min} max={max} step={step} value={value}
+      onChange={(e) => onChange(parseFloat(e.target.value))} className="w-full accent-primary" />
   </div>
 );

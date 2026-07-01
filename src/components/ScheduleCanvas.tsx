@@ -18,8 +18,23 @@ export type DayItem = {
 
 export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint" | "royalred" | "magic" | "mono";
 export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial" | "animal";
-export type OrnamentKey =
-  | "dots" | "grid" | "diagonal" | "stars" | "hearts" | "sakura" | "crosses" | "circuit" | "magic" | "paws" | "none";
+export type OrnamentIconKey =
+  | "dot" | "square" | "diagonal" | "star" | "sparkle" | "heart" | "sakura" | "cross" | "circuit" | "moon" | "paw";
+
+export type OrnamentLayer = {
+  icon: OrnamentIconKey;
+  count: number;    // 1-200
+  size: number;     // px 8-240
+  spacing: number;  // grid cell size in px 40-500
+  offsetX: number;  // px shift -400..400
+  offsetY: number;  // px shift -400..400
+  rotation: number; // deg -180..180
+  opacity: number;  // 0..1
+  color: string;    // "" = auto (theme color)
+};
+
+// legacy alias so old imports don't break
+export type OrnamentKey = OrnamentIconKey;
 
 export type TextureSettings = {
   url: string | null;
@@ -42,7 +57,7 @@ export type ScheduleProps = {
   charFit: "cover" | "contain";
   theme: ThemeKey;
   ratio: "16:9" | "4:3";
-  ornament: OrnamentKey;
+  ornaments: OrnamentLayer[];
   artBy?: string;
   layout?: LayoutKey;
   youtubeHandle?: string;
@@ -98,19 +113,110 @@ const typeMeta: Record<Slot["type"], { label: string; icon: JSX.Element }> = {
   offline: { label: "Offline", icon: <CloudOff className="w-5 h-5" /> },
 };
 
-const ornamentGlyphs: Record<OrnamentKey, string[]> = {
-  dots: ["•", "·", "•", "·"],
-  grid: ["□", "◇", "□", "◇"],
-  diagonal: ["╱", "╲", "╱", "╲"],
-  stars: ["✦", "✧", "⋆", "✩"],
-  hearts: ["♡", "♥", "♡", "❥"],
-  sakura: ["✿", "❀", "✽", "✿"],
-  crosses: ["✚", "✦", "†", "✚"],
-  circuit: ["⌁", "◇", "⟐", "⌬"],
-  magic: ["✦", "☾", "✧", "⋆"],
-  paws: ["🐾", "🐾", "🐾", "🐾"],
-  none: [],
+/* ---------- Ornament icon renderers ---------- */
+const IconSVG = ({ d, size, color }: { d: string; size: number; color: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" style={{ display: "block" }}>
+    <path d={d} fill={color} />
+  </svg>
+);
+const IconGlyph = ({ ch, size, color }: { ch: string; size: number; color: string }) => (
+  <span style={{ fontSize: size, lineHeight: 1, color, display: "inline-block" }}>{ch}</span>
+);
+const renderOrnamentIcon = (icon: OrnamentIconKey, size: number, color: string): JSX.Element => {
+  switch (icon) {
+    case "dot":
+      return <svg width={size} height={size} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill={color} /></svg>;
+    case "square":
+      return <IconGlyph ch="◇" size={size} color={color} />;
+    case "diagonal":
+      return <IconGlyph ch="╱" size={size} color={color} />;
+    case "star":
+      return <IconGlyph ch="✦" size={size} color={color} />;
+    case "sparkle":
+      return <IconGlyph ch="✧" size={size} color={color} />;
+    case "heart":
+      return <IconSVG size={size} color={color}
+        d="M12 21s-7.5-4.6-9.9-9.2C.4 7.9 3 4 6.6 4c2.1 0 3.7 1.2 5.4 3.4C13.7 5.2 15.3 4 17.4 4 21 4 23.6 7.9 21.9 11.8 19.5 16.4 12 21 12 21z" />;
+    case "sakura":
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24">
+          {[0, 72, 144, 216, 288].map((a) => (
+            <ellipse key={a} cx="12" cy="6" rx="3.2" ry="4.2" fill={color}
+              transform={`rotate(${a} 12 12)`} />
+          ))}
+          <circle cx="12" cy="12" r="1.8" fill="#fff" opacity="0.9" />
+        </svg>
+      );
+    case "cross":
+      return <IconGlyph ch="✚" size={size} color={color} />;
+    case "circuit":
+      return <IconGlyph ch="⌁" size={size} color={color} />;
+    case "moon":
+      return <IconGlyph ch="☾" size={size} color={color} />;
+    case "paw":
+      return <IconSVG size={size} color={color}
+        d="M12 13.5c-2.6 0-6 2.6-6 5 0 1.6 1.4 2.5 3 2.5 1 0 1.8-.4 3-.4s2 .4 3 .4c1.6 0 3-.9 3-2.5 0-2.4-3.4-5-6-5zM6 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm12 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM9.5 6.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm5 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />;
+  }
 };
+
+/* Deterministic pseudo-random */
+const seededRand = (i: number): number => {
+  const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453;
+  return x - Math.floor(x);
+};
+
+const generatePositions = (count: number, spacing: number, W: number, H: number, seedBase: number) => {
+  const cols = Math.max(1, Math.floor(W / Math.max(20, spacing)));
+  const rows = Math.max(1, Math.floor(H / Math.max(20, spacing)));
+  const total = cols * rows;
+  const cells = Array.from({ length: total }, (_, i) => i)
+    .sort((a, b) => seededRand(a + seedBase * 1000) - seededRand(b + seedBase * 1000));
+  const positions: { x: number; y: number; r: number }[] = [];
+  const n = Math.min(count, total);
+  const s = Math.max(20, spacing);
+  const cellW = W / cols, cellH = H / rows;
+  for (let k = 0; k < n; k++) {
+    const idx = cells[k];
+    const col = idx % cols;
+    const row = Math.floor(idx / cols);
+    const jx = (seededRand(idx * 3 + seedBase) - 0.5) * s * 0.35;
+    const jy = (seededRand(idx * 3 + 1 + seedBase) - 0.5) * s * 0.35;
+    positions.push({
+      x: col * cellW + cellW / 2 + jx,
+      y: row * cellH + cellH / 2 + jy,
+      r: (seededRand(idx * 5 + seedBase) - 0.5) * 40,
+    });
+  }
+  for (let k = total; k < count; k++) {
+    positions.push({
+      x: seededRand(k * 7 + seedBase) * W,
+      y: seededRand(k * 7 + 1 + seedBase) * H,
+      r: (seededRand(k * 11 + seedBase) - 0.5) * 40,
+    });
+  }
+  return positions;
+};
+
+const OrnamentLayerView = ({ layer, W, H, idx }: { layer: OrnamentLayer; W: number; H: number; idx: number }) => {
+  const color = layer.color?.trim() ? layer.color : "hsl(var(--t-1))";
+  const positions = generatePositions(layer.count, layer.spacing, W, H, idx + 1);
+  return (
+    <div className="absolute inset-0 pointer-events-none" style={{ opacity: layer.opacity }}>
+      {positions.map((p, i) => (
+        <div key={i} style={{
+          position: "absolute",
+          left: p.x + layer.offsetX,
+          top: p.y + layer.offsetY,
+          transform: `translate(-50%,-50%) rotate(${layer.rotation + p.r}deg)`,
+          lineHeight: 0,
+        }}>
+          {renderOrnamentIcon(layer.icon, layer.size, color)}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 
 const DAY_ABBR: Record<string, string> = {
   minggu: "SUN", senin: "MON", selasa: "TUE", rabu: "WED", kamis: "THU", jumat: "FRI", sabtu: "SAT",
@@ -171,7 +277,7 @@ const normalize = (d: any): DayItem => {
 };
 
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
-  ({ title, subtitle, dateRange, days: rawDays, characterUrl, charFit, theme, ratio, ornament, artBy, layout = "grid", youtubeHandle, twitchHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0, texture }, ref) => {
+  ({ title, subtitle, dateRange, days: rawDays, characterUrl, charFit, theme, ratio, ornaments, artBy, layout = "grid", youtubeHandle, twitchHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0, texture }, ref) => {
     const w = 1920;
     const h = ratio === "16:9" ? 1080 : 1440;
     const days = rawDays.map(normalize);
@@ -208,28 +314,11 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           fontFamily: themeFont[theme],
         }}
       >
-        <div className={`absolute inset-0 ornament-${ornament}`} style={{ opacity: 0.95 }} />
-        {ornament !== "none" && ornament !== "hearts" && ornament !== "sakura" && (
-          <div className="absolute inset-0" style={{ pointerEvents: "none", color: "hsl(var(--t-1))" }}>
-            {Array.from({ length: 36 }).map((_, i) => {
-              const glyph = ornamentGlyphs[ornament][i % ornamentGlyphs[ornament].length];
-              return (
-                <span
-                  key={i}
-                  style={{
-                    position: "absolute",
-                    left: `${(i * 17) % 96}%`,
-                    top: `${(i * 29) % 92}%`,
-                    fontSize: 28 + ((i * 7) % 34),
-                    opacity: 0.16 + ((i % 3) * 0.06),
-                    transform: `rotate(${(i * 23) % 70 - 35}deg)`,
-                    lineHeight: 1,
-                  }}
-                >
-                  {glyph}
-                </span>
-              );
-            })}
+        {ornaments && ornaments.length > 0 && (
+          <div className="absolute inset-0" style={{ pointerEvents: "none" }}>
+            {ornaments.slice(0, 3).map((ly, i) => (
+              <OrnamentLayerView key={i} idx={i} layer={ly} W={w} H={h} />
+            ))}
           </div>
         )}
         {layout !== "royal" && (
