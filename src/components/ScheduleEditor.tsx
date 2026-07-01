@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import type { DateRange } from "react-day-picker";
-import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentKey, type LayoutKey, type PlatformKey, type TextureSettings } from "./ScheduleCanvas";
+import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentIconKey, type OrnamentLayer, type LayoutKey, type PlatformKey, type TextureSettings } from "./ScheduleCanvas";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -40,16 +40,21 @@ const makeSlot = (over: Partial<Slot> = {}): Slot => ({
 
 const initialDays: DayItem[] = buildDayLabels(new Date(2026, 4, 5)).map((d) => ({ day: d, slots: [makeSlot()] }));
 
-const themes: { key: ThemeKey; label: string; swatch: string; defaultOrnament: OrnamentKey }[] = [
-  { key: "cute", label: "Cute", swatch: "linear-gradient(135deg,hsl(330 100% 78%),hsl(25 100% 82%))", defaultOrnament: "hearts" },
-  { key: "aesthetic", label: "Aesthetic", swatch: "linear-gradient(135deg,hsl(280 90% 75%),hsl(200 95% 75%))", defaultOrnament: "stars" },
-  { key: "gothic", label: "Gothic", swatch: "linear-gradient(135deg,hsl(0 0% 4%),hsl(0 80% 55%))", defaultOrnament: "crosses" },
-  { key: "sakura", label: "Sakura", swatch: "linear-gradient(135deg,hsl(340 90% 70%),hsl(350 100% 88%))", defaultOrnament: "sakura" },
-  { key: "cyber", label: "Cyber", swatch: "linear-gradient(135deg,hsl(180 100% 55%),hsl(320 100% 60%))", defaultOrnament: "circuit" },
-  { key: "mint", label: "Mint", swatch: "linear-gradient(135deg,hsl(160 70% 55%),hsl(190 80% 70%))", defaultOrnament: "dots" },
-  { key: "royalred", label: "Royal Red", swatch: "linear-gradient(90deg,#6b1622 50%,#e6c168 50%)", defaultOrnament: "none" },
-  { key: "magic", label: "Magic", swatch: "linear-gradient(135deg,hsl(270 60% 55%),hsl(35 80% 70%))", defaultOrnament: "stars" },
-  { key: "mono", label: "Mono", swatch: "linear-gradient(90deg,#0a0a0a 50%,#f5f5f5 50%)", defaultOrnament: "dots" },
+const makeLayer = (over: Partial<OrnamentLayer> = {}): OrnamentLayer => ({
+  icon: "star", count: 40, size: 32, spacing: 160,
+  offsetX: 0, offsetY: 0, rotation: 0, opacity: 0.35, color: "", ...over,
+});
+
+const themes: { key: ThemeKey; label: string; swatch: string; defaultLayers: OrnamentLayer[] }[] = [
+  { key: "cute",      label: "Cute",      swatch: "linear-gradient(135deg,hsl(330 100% 78%),hsl(25 100% 82%))", defaultLayers: [makeLayer({ icon: "heart", count: 50, size: 36 })] },
+  { key: "aesthetic", label: "Aesthetic", swatch: "linear-gradient(135deg,hsl(280 90% 75%),hsl(200 95% 75%))",  defaultLayers: [makeLayer({ icon: "sparkle", count: 45 })] },
+  { key: "gothic",    label: "Gothic",    swatch: "linear-gradient(135deg,hsl(0 0% 4%),hsl(0 80% 55%))",       defaultLayers: [makeLayer({ icon: "cross", count: 35 })] },
+  { key: "sakura",    label: "Sakura",    swatch: "linear-gradient(135deg,hsl(340 90% 70%),hsl(350 100% 88%))", defaultLayers: [makeLayer({ icon: "sakura", count: 40, size: 42 })] },
+  { key: "cyber",     label: "Cyber",     swatch: "linear-gradient(135deg,hsl(180 100% 55%),hsl(320 100% 60%))", defaultLayers: [makeLayer({ icon: "circuit", count: 40 })] },
+  { key: "mint",      label: "Mint",      swatch: "linear-gradient(135deg,hsl(160 70% 55%),hsl(190 80% 70%))",  defaultLayers: [makeLayer({ icon: "dot", count: 80, size: 14, spacing: 120 })] },
+  { key: "royalred",  label: "Royal Red", swatch: "linear-gradient(90deg,#6b1622 50%,#e6c168 50%)",             defaultLayers: [] },
+  { key: "magic",     label: "Magic",     swatch: "linear-gradient(135deg,hsl(270 60% 55%),hsl(35 80% 70%))",   defaultLayers: [makeLayer({ icon: "star", count: 45 }), makeLayer({ icon: "moon", count: 12, size: 44, opacity: 0.4 })] },
+  { key: "mono",      label: "Mono",      swatch: "linear-gradient(90deg,#0a0a0a 50%,#f5f5f5 50%)",             defaultLayers: [makeLayer({ icon: "dot", count: 100, size: 10, color: "#000" })] },
 ];
 
 const scheduleTypes: { key: Slot["type"]; label: string; icon: JSX.Element }[] = [
@@ -73,12 +78,18 @@ const formatRange = (from?: Date, to?: Date) => {
     : `${format(from, "d MMM", { locale: idLocale })} - ${format(to, "d MMM yyyy", { locale: idLocale })}`;
 };
 
-const ornamentOptions: { key: OrnamentKey; label: string }[] = [
-  { key: "dots", label: "Dots" }, { key: "grid", label: "Grid" }, { key: "diagonal", label: "Diagonal" },
-  { key: "stars", label: "Stars" }, { key: "hearts", label: "Hearts" }, { key: "sakura", label: "Sakura" },
-  { key: "crosses", label: "Crosses" }, { key: "circuit", label: "Circuit" }, { key: "magic", label: "Magic" },
-  { key: "paws", label: "Paws" },
-  { key: "none", label: "None" },
+const ornamentIconOptions: { key: OrnamentIconKey; label: string; glyph: string }[] = [
+  { key: "dot", label: "Dot", glyph: "●" },
+  { key: "square", label: "Diamond", glyph: "◇" },
+  { key: "diagonal", label: "Slash", glyph: "╱" },
+  { key: "star", label: "Star", glyph: "✦" },
+  { key: "sparkle", label: "Sparkle", glyph: "✧" },
+  { key: "heart", label: "Heart", glyph: "♥" },
+  { key: "sakura", label: "Sakura", glyph: "❀" },
+  { key: "cross", label: "Cross", glyph: "✚" },
+  { key: "circuit", label: "Circuit", glyph: "⌁" },
+  { key: "moon", label: "Moon", glyph: "☾" },
+  { key: "paw", label: "Paw", glyph: "🐾" },
 ];
 
 export const ScheduleEditor = () => {
