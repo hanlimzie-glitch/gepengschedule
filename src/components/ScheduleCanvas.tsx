@@ -178,17 +178,22 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
 
     const textureOverlay = texture?.url && (texture.scope === "all" || texture.scope === "background") ? (
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `url(${texture.url})`,
-          backgroundSize: texture.repeat ? `${texture.size}%` : "cover",
-          backgroundRepeat: texture.repeat ? "repeat" : "no-repeat",
-          backgroundPosition: "center",
-          mixBlendMode: texture.blend as any,
-          opacity: texture.opacity,
-          zIndex: 50,
-        }}
-      />
+        className="absolute inset-0 pointer-events-none overflow-hidden"
+        style={{ zIndex: 1, mixBlendMode: texture.blend as any, opacity: texture.opacity }}
+      >
+        <div
+          className="absolute"
+          style={{
+            inset: "-25%",
+            backgroundImage: `url(${texture.url})`,
+            backgroundSize: texture.repeat ? `${texture.size}%` : "cover",
+            backgroundRepeat: texture.repeat ? "repeat" : "no-repeat",
+            backgroundPosition: `${50 + (texture.offsetX ?? 0) / 2}% ${50 + (texture.offsetY ?? 0) / 2}%`,
+            transform: `rotate(${texture.rotation ?? 0}deg)`,
+            transformOrigin: "center center",
+          }}
+        />
+      </div>
     ) : null;
 
     return (
