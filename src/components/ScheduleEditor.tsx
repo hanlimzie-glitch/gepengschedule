@@ -107,7 +107,9 @@ export const ScheduleEditor = () => {
   const [scale, setScale] = useState(0.4);
   const [texture, setTexture] = useState<TextureSettings>({
     url: null, blend: "overlay", opacity: 0.5, size: 100, repeat: true, scope: "all",
+    offsetX: 0, offsetY: 0, rotation: 0,
   });
+  const [textureEdit, setTextureEdit] = useState(false);
   const updateTexture = <K extends keyof TextureSettings>(k: K, v: TextureSettings[K]) =>
     setTexture((t) => ({ ...t, [k]: v }));
   const handleTextureFile = (file: File) => {
