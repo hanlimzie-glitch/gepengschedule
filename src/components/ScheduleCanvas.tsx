@@ -239,6 +239,8 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           </>
         )}
 
+        {textureOverlay}
+
         {(() => {
           const charProps = { characterUrl, charFit, charScale, charOffsetX, charOffsetY };
           if (layout === "royal") return <RoyalLayout title={title} subtitle={subtitle} dateRange={dateRange} days={days} {...charProps} artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle} theme={theme} />;
@@ -247,7 +249,6 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           if (layout === "bubbles") return <BubbleLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} artBy={artBy} />;
           return <GridLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} theme={theme} artBy={artBy} />;
         })()}
-        {textureOverlay}
       </div>
     );
   }
