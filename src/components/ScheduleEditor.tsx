@@ -110,7 +110,11 @@ export const ScheduleEditor = () => {
   const [charOffsetX, setCharOffsetX] = useState(0);
   const [charOffsetY, setCharOffsetY] = useState(0);
   const [theme, setTheme] = useState<ThemeKey>("cute");
-  const [ornament, setOrnament] = useState<OrnamentKey>("hearts");
+  const [ornaments, setOrnaments] = useState<OrnamentLayer[]>([makeLayer({ icon: "heart", count: 50, size: 36 })]);
+  const updateLayer = (i: number, patch: Partial<OrnamentLayer>) =>
+    setOrnaments((prev) => prev.map((l, idx) => idx === i ? { ...l, ...patch } : l));
+  const addLayer = () => setOrnaments((prev) => prev.length >= 3 ? prev : [...prev, makeLayer()]);
+  const removeLayer = (i: number) => setOrnaments((prev) => prev.filter((_, idx) => idx !== i));
   const [layout, setLayout] = useState<LayoutKey>("bubbles");
   const [ratio, setRatio] = useState<"16:9" | "4:3">("16:9");
   const [busy, setBusy] = useState(false);
@@ -136,13 +140,13 @@ export const ScheduleEditor = () => {
   const pickTheme = (k: ThemeKey) => {
     setTheme(k);
     const t = themes.find((x) => x.key === k);
-    if (t) setOrnament(t.defaultOrnament);
+    if (t) setOrnaments(t.defaultLayers.map((l) => ({ ...l })));
     if (k === "magic") setLayout("celestial");
   };
 
   const pickLayout = (k: LayoutKey) => {
     setLayout(k);
-    if (k === "animal") setOrnament("paws");
+    if (k === "animal") setOrnaments([makeLayer({ icon: "paw", count: 30, size: 44, opacity: 0.3 })]);
   };
 
   const handleDateRange = (r: DateRange | undefined) => {
