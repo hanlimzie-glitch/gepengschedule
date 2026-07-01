@@ -632,7 +632,7 @@ export const ScheduleEditor = () => {
               <div style={{ width: 1920, height: canvasH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
                 <ScheduleCanvas ref={canvasRef} title={title} subtitle={subtitle} dateRange={dateRange}
                   days={days} characterUrl={characterUrl} charFit={charFit} theme={theme} ratio={ratio}
-                  ornament={ornament} layout={layout} artBy={artBy}
+                  ornaments={ornaments} layout={layout} artBy={artBy}
                   youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
                   charScale={charScale} charOffsetX={charOffsetX} charOffsetY={charOffsetY}
                   texture={texture} />
