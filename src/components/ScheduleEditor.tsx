@@ -303,18 +303,68 @@ export const ScheduleEditor = () => {
             </div>
           </Section>
 
-          <Section title="Ornament">
-            <div className="grid grid-cols-3 gap-2">
-              {ornamentOptions.map((o) => (
-                <button type="button" key={o.key} onClick={() => setOrnament(o.key)}
-                  className={cn("rounded-lg p-2 border-2 text-xs font-semibold transition-all hover:scale-[1.02]",
-                    ornament === o.key ? "border-primary" : "border-border")}>
-                  <div className={`h-10 rounded mb-1 theme-${theme} ornament-${o.key}`} style={{ backgroundColor: "hsl(var(--t-card))" }} />
-                  {o.label}
-                </button>
+          <Section title="Ornament Layers">
+            <p className="text-[11px] text-muted-foreground mb-3">
+              Max 3 layer. Setiap layer bisa custom icon, jumlah (1-200), jarak, ukuran, posisi, rotasi, & opacity.
+            </p>
+            <div className="space-y-3">
+              {ornaments.map((ly, i) => (
+                <div key={i} className={`rounded-xl p-3 border-2 space-y-2 ${theme ? `theme-${theme}` : ""}`} style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card) / 0.6)" }}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-widest text-primary">Layer {i + 1}</span>
+                    <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => removeLayer(i)}>
+                      <Minus className="w-3 h-3 mr-1" />Hapus
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-6 gap-1.5">
+                    {ornamentIconOptions.map((o) => (
+                      <button key={o.key} type="button" onClick={() => updateLayer(i, { icon: o.key })}
+                        title={o.label}
+                        className={cn("h-10 rounded border-2 flex items-center justify-center text-lg leading-none",
+                          ly.icon === o.key ? "border-primary text-primary" : "border-border text-foreground/70 hover:border-primary/50")}>
+                        {o.glyph}
+                      </button>
+                    ))}
+                  </div>
+
+                  <LayerSlider label="Jumlah" value={ly.count} min={1} max={200} step={1}
+                    onChange={(v) => updateLayer(i, { count: v })} />
+                  <LayerSlider label="Jarak (spacing)" value={ly.spacing} min={40} max={500} step={5} unit="px"
+                    onChange={(v) => updateLayer(i, { spacing: v })} />
+                  <LayerSlider label="Ukuran" value={ly.size} min={8} max={240} step={2} unit="px"
+                    onChange={(v) => updateLayer(i, { size: v })} />
+                  <LayerSlider label="Posisi X" value={ly.offsetX} min={-400} max={400} step={2} unit="px"
+                    onChange={(v) => updateLayer(i, { offsetX: v })} />
+                  <LayerSlider label="Posisi Y" value={ly.offsetY} min={-400} max={400} step={2} unit="px"
+                    onChange={(v) => updateLayer(i, { offsetY: v })} />
+                  <LayerSlider label="Rotasi" value={ly.rotation} min={-180} max={180} step={1} unit="°"
+                    onChange={(v) => updateLayer(i, { rotation: v })} />
+                  <LayerSlider label="Opacity" value={Math.round(ly.opacity * 100)} min={0} max={100} step={1} unit="%"
+                    onChange={(v) => updateLayer(i, { opacity: v / 100 })} />
+
+                  <div className="flex items-center gap-2">
+                    <Label className="text-xs text-muted-foreground w-16">Warna</Label>
+                    <input type="color" value={ly.color || "#ffffff"}
+                      onChange={(e) => updateLayer(i, { color: e.target.value })}
+                      className="h-8 w-12 rounded border border-border cursor-pointer bg-transparent" />
+                    <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => updateLayer(i, { color: "" })}>
+                      Auto (tema)
+                    </Button>
+                  </div>
+                </div>
               ))}
+              {ornaments.length < 3 && (
+                <Button variant="outline" size="sm" className="w-full" onClick={addLayer}>
+                  <Plus className="w-4 h-4 mr-1" />Tambah Layer ({ornaments.length}/3)
+                </Button>
+              )}
+              {ornaments.length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-2">Belum ada ornament.</p>
+              )}
             </div>
           </Section>
+
 
           <Section title="Karakter VTuber">
             <div onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
