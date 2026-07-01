@@ -28,6 +28,9 @@ export type TextureSettings = {
   size: number; // 50-400 (%)
   repeat: boolean;
   scope: "all" | "background" | "character";
+  offsetX: number; // -100..100 (%)
+  offsetY: number; // -100..100 (%)
+  rotation: number; // -180..180 deg
 };
 
 export type ScheduleProps = {
@@ -175,17 +178,22 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
 
     const textureOverlay = texture?.url && (texture.scope === "all" || texture.scope === "background") ? (
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `url(${texture.url})`,
-          backgroundSize: texture.repeat ? `${texture.size}%` : "cover",
-          backgroundRepeat: texture.repeat ? "repeat" : "no-repeat",
-          backgroundPosition: "center",
-          mixBlendMode: texture.blend as any,
-          opacity: texture.opacity,
-          zIndex: 50,
-        }}
-      />
+        className="absolute inset-0 pointer-events-none overflow-hidden"
+        style={{ zIndex: 1, mixBlendMode: texture.blend as any, opacity: texture.opacity }}
+      >
+        <div
+          className="absolute"
+          style={{
+            inset: "-25%",
+            backgroundImage: `url(${texture.url})`,
+            backgroundSize: texture.repeat ? `${texture.size}%` : "cover",
+            backgroundRepeat: texture.repeat ? "repeat" : "no-repeat",
+            backgroundPosition: `${50 + (texture.offsetX ?? 0) / 2}% ${50 + (texture.offsetY ?? 0) / 2}%`,
+            transform: `rotate(${texture.rotation ?? 0}deg)`,
+            transformOrigin: "center center",
+          }}
+        />
+      </div>
     ) : null;
 
     return (
@@ -231,6 +239,8 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           </>
         )}
 
+        {textureOverlay}
+
         {(() => {
           const charProps = { characterUrl, charFit, charScale, charOffsetX, charOffsetY };
           if (layout === "royal") return <RoyalLayout title={title} subtitle={subtitle} dateRange={dateRange} days={days} {...charProps} artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle} theme={theme} />;
@@ -239,7 +249,6 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           if (layout === "bubbles") return <BubbleLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} artBy={artBy} />;
           return <GridLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} theme={theme} artBy={artBy} />;
         })()}
-        {textureOverlay}
       </div>
     );
   }
