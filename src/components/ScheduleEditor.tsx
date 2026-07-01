@@ -663,3 +663,16 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
     {children}
   </div>
 );
+
+const LayerSlider = ({ label, value, min, max, step = 1, unit = "", onChange }: {
+  label: string; value: number; min: number; max: number; step?: number; unit?: string;
+  onChange: (v: number) => void;
+}) => (
+  <div>
+    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+      <span>{label}</span><span>{value}{unit}</span>
+    </div>
+    <input type="range" min={min} max={max} step={step} value={value}
+      onChange={(e) => onChange(parseFloat(e.target.value))} className="w-full accent-primary" />
+  </div>
+);
