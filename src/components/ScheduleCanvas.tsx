@@ -277,7 +277,7 @@ const normalize = (d: any): DayItem => {
 };
 
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
-  ({ title, subtitle, dateRange, days: rawDays, characterUrl, charFit, theme, ratio, ornament, artBy, layout = "grid", youtubeHandle, twitchHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0, texture }, ref) => {
+  ({ title, subtitle, dateRange, days: rawDays, characterUrl, charFit, theme, ratio, ornaments, artBy, layout = "grid", youtubeHandle, twitchHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0, texture }, ref) => {
     const w = 1920;
     const h = ratio === "16:9" ? 1080 : 1440;
     const days = rawDays.map(normalize);
