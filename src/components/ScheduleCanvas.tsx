@@ -57,7 +57,7 @@ export type ScheduleProps = {
   charFit: "cover" | "contain";
   theme: ThemeKey;
   ratio: "16:9" | "4:3";
-  ornament: OrnamentKey;
+  ornaments: OrnamentLayer[];
   artBy?: string;
   layout?: LayoutKey;
   youtubeHandle?: string;
@@ -314,28 +314,11 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           fontFamily: themeFont[theme],
         }}
       >
-        <div className={`absolute inset-0 ornament-${ornament}`} style={{ opacity: 0.95 }} />
-        {ornament !== "none" && ornament !== "hearts" && ornament !== "sakura" && (
-          <div className="absolute inset-0" style={{ pointerEvents: "none", color: "hsl(var(--t-1))" }}>
-            {Array.from({ length: 36 }).map((_, i) => {
-              const glyph = ornamentGlyphs[ornament][i % ornamentGlyphs[ornament].length];
-              return (
-                <span
-                  key={i}
-                  style={{
-                    position: "absolute",
-                    left: `${(i * 17) % 96}%`,
-                    top: `${(i * 29) % 92}%`,
-                    fontSize: 28 + ((i * 7) % 34),
-                    opacity: 0.16 + ((i % 3) * 0.06),
-                    transform: `rotate(${(i * 23) % 70 - 35}deg)`,
-                    lineHeight: 1,
-                  }}
-                >
-                  {glyph}
-                </span>
-              );
-            })}
+        {ornaments && ornaments.length > 0 && (
+          <div className="absolute inset-0" style={{ pointerEvents: "none" }}>
+            {ornaments.slice(0, 3).map((ly, i) => (
+              <OrnamentLayerView key={i} idx={i} layer={ly} W={w} H={h} />
+            ))}
           </div>
         )}
         {layout !== "royal" && (
