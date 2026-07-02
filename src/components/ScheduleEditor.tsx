@@ -39,7 +39,18 @@ const makeSlot = (over: Partial<Slot> = {}): Slot => ({
   time: "19:00 WIB", title: "Just Chatting", note: "", type: "solo", platforms: [], ...over,
 });
 
-const initialDays: DayItem[] = buildDayLabels(new Date(2026, 4, 5)).map((d) => ({ day: d, slots: [makeSlot()] }));
+const getCurrentWeekMonday = (): Date => {
+  const d = new Date();
+  const dow = d.getDay();
+  const diff = dow === 0 ? -6 : 1 - dow;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+const CURRENT_MONDAY = getCurrentWeekMonday();
+const CURRENT_SUNDAY = new Date(CURRENT_MONDAY);
+CURRENT_SUNDAY.setDate(CURRENT_MONDAY.getDate() + 6);
+const initialDays: DayItem[] = buildDayLabels(CURRENT_MONDAY).map((d) => ({ day: d, slots: [makeSlot()] }));
 
 const makeLayer = (over: Partial<OrnamentLayer> = {}): OrnamentLayer => ({
   icon: "star", count: 40, size: 32, spacing: 160,
@@ -96,10 +107,10 @@ const ornamentIconOptions: { key: OrnamentIconKey; label: string; glyph: string 
 export const ScheduleEditor = () => {
   const [title, setTitle] = useState("Huan Weekly Schedule");
   const [subtitle, setSubtitle] = useState("powered by Huan");
-  const [dateRange, setDateRange] = useState("5 - 11 Mei 2026");
+  const [dateRange, setDateRange] = useState(formatRange(CURRENT_MONDAY, CURRENT_SUNDAY));
   const [dateRangeObj, setDateRangeObj] = useState<DateRange | undefined>({
-    from: new Date(2026, 4, 5),
-    to: new Date(2026, 4, 11),
+    from: CURRENT_MONDAY,
+    to: CURRENT_SUNDAY,
   });
   const [artBy, setArtBy] = useState("Art by @yourname");
   const [youtubeHandle, setYoutubeHandle] = useState("@your youtube channel");
