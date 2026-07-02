@@ -107,10 +107,10 @@ const ornamentIconOptions: { key: OrnamentIconKey; label: string; glyph: string 
 export const ScheduleEditor = () => {
   const [title, setTitle] = useState("Huan Weekly Schedule");
   const [subtitle, setSubtitle] = useState("powered by Huan");
-  const [dateRange, setDateRange] = useState("5 - 11 Mei 2026");
+  const [dateRange, setDateRange] = useState(formatRange(CURRENT_MONDAY, CURRENT_SUNDAY));
   const [dateRangeObj, setDateRangeObj] = useState<DateRange | undefined>({
-    from: new Date(2026, 4, 5),
-    to: new Date(2026, 4, 11),
+    from: CURRENT_MONDAY,
+    to: CURRENT_SUNDAY,
   });
   const [artBy, setArtBy] = useState("Art by @yourname");
   const [youtubeHandle, setYoutubeHandle] = useState("@your youtube channel");
