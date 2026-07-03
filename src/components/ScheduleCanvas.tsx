@@ -1,5 +1,9 @@
 import { forwardRef } from "react";
 import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Cloud, Twitch, Youtube, Crown, Wand2, Feather, Star, PawPrint, Circle } from "lucide-react";
+import animalLogoAsset from "@/assets/animal/schedule-logo.png.asset.json";
+import animalFrameAsset from "@/assets/animal/cat-frame.png.asset.json";
+import animalPillAsset from "@/assets/animal/pill-bar.png.asset.json";
+import animalPawAsset from "@/assets/animal/paw-pink.png.asset.json";
 
 export type PlatformKey = "twitch" | "youtube" | "tiktok";
 
