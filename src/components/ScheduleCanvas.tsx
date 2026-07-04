@@ -1122,30 +1122,93 @@ const AnimalLayout = ({
         }}
       />
 
-      {/* ============ TOP BANNER ============ */}
+      {/* ============ TOP BANNER — "SCHEDULE" logo lookalike ============ */}
       <div
-        className="absolute flex items-center justify-center"
-        style={{ top: 40, left: 60, right: 60, height: 120, gap: 20, zIndex: 5 }}
+        className="absolute flex items-end justify-center"
+        style={{ top: 30, left: 60, right: 60, height: 150, zIndex: 5 }}
       >
-        <img src={animalPawAsset.url} alt="" style={{ width: 88, height: 88, transform: "rotate(-18deg)", opacity: 0.9 }} />
-        <div style={{ position: "relative", flex: 1, maxWidth: 900, height: 110 }}>
-          <img src={animalPillAsset.url} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "fill" }} />
-          <div
-            className="absolute inset-0 flex flex-col items-center justify-center text-center"
-            style={{ padding: "0 40px" }}
+        <div style={{ position: "relative", display: "inline-block" }}>
+          {/* peeking cat behind the wordmark (SVG, no PNG) */}
+          <svg
+            width="150" height="120" viewBox="0 0 150 120"
+            style={{ position: "absolute", top: -46, right: -34, zIndex: 0 }}
           >
-            <div style={{ fontSize: 44, fontWeight: 900, color: p.ink, letterSpacing: "0.04em", lineHeight: 1 }}>
-              {title || "Weekly Schedule"}
-            </div>
-            {subtitle && (
-              <div style={{ marginTop: 8, fontSize: 16, color: p.sub, letterSpacing: "0.18em", textTransform: "uppercase" }}>
-                {subtitle}
-              </div>
-            )}
+            {/* ears */}
+            <path d="M32 60 L22 20 L58 42 Z" fill="#ffffff" stroke={p.accent} strokeWidth="4" strokeLinejoin="round" />
+            <path d="M118 60 L128 20 L92 42 Z" fill="#ffffff" stroke={p.accent} strokeWidth="4" strokeLinejoin="round" />
+            <path d="M34 55 L27 30 L52 44 Z" fill={`${p.accent}55`} />
+            <path d="M116 55 L123 30 L98 44 Z" fill={`${p.accent}55`} />
+            {/* head */}
+            <ellipse cx="75" cy="70" rx="52" ry="42" fill="#ffffff" stroke={p.accent} strokeWidth="4" />
+            {/* cheeks */}
+            <circle cx="52" cy="82" r="7" fill={`${p.accent}66`} />
+            <circle cx="98" cy="82" r="7" fill={`${p.accent}66`} />
+            {/* eyes (closed happy) */}
+            <path d="M58 70 q6 -8 12 0" fill="none" stroke={p.ink} strokeWidth="3.5" strokeLinecap="round" />
+            <path d="M80 70 q6 -8 12 0" fill="none" stroke={p.ink} strokeWidth="3.5" strokeLinecap="round" />
+            {/* mouth */}
+            <path d="M70 84 q5 5 10 0" fill="none" stroke={p.ink} strokeWidth="3" strokeLinecap="round" />
+          </svg>
+
+          {/* Wordmark: SCHEDULE — big bubbly script style, double-outline */}
+          <div
+            style={{
+              position: "relative", zIndex: 1,
+              fontFamily: "'Fredoka One', 'Pacifico', 'Quicksand', cursive",
+              fontSize: 96, fontWeight: 900,
+              letterSpacing: "0.02em",
+              color: "#ffffff",
+              WebkitTextStroke: `3px ${p.ink}`,
+              textShadow: `
+                6px 6px 0 ${p.accent},
+                6px 6px 0 ${p.ink},
+                0 8px 0 ${p.ink}22
+              `,
+              lineHeight: 1,
+              padding: "0 20px",
+              transform: "rotate(-2deg)",
+            }}
+          >
+            Schedule
           </div>
+
+          {subtitle && (
+            <div
+              style={{
+                marginTop: 4, textAlign: "center",
+                fontSize: 14, color: p.sub,
+                letterSpacing: "0.32em", textTransform: "uppercase",
+                fontWeight: 700,
+              }}
+            >
+              {subtitle}
+            </div>
+          )}
         </div>
-        <img src={animalPawAsset.url} alt="" style={{ width: 88, height: 88, transform: "rotate(20deg)", opacity: 0.9 }} />
       </div>
+
+      {/* Title sub-strip (if provided) */}
+      {title && (
+        <div
+          className="absolute text-center"
+          style={{ top: 178, left: 60, right: 60, zIndex: 5 }}
+        >
+          <span
+            style={{
+              display: "inline-block",
+              background: "#ffffff",
+              border: `2.5px dashed ${p.accent}`,
+              borderRadius: 999,
+              padding: "6px 22px",
+              fontSize: 16, fontWeight: 800, color: p.accent,
+              letterSpacing: "0.14em", textTransform: "uppercase",
+            }}
+          >
+            {title}
+          </span>
+        </div>
+      )}
+
 
       {/* ============ LEFT: DAY ROWS ============ */}
       <div
