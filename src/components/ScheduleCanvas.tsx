@@ -1,7 +1,5 @@
 import { forwardRef } from "react";
 import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Cloud, Twitch, Youtube, Crown, Wand2, Feather, Star, PawPrint, Circle } from "lucide-react";
-import animalFrameAsset from "@/assets/animal/cat-frame.png.asset.json";
-import animalPillAsset from "@/assets/animal/pill-bar.png.asset.json";
 import animalPawAsset from "@/assets/animal/paw-pink.png.asset.json";
 
 export type PlatformKey = "twitch" | "youtube" | "tiktok";
@@ -1124,30 +1122,93 @@ const AnimalLayout = ({
         }}
       />
 
-      {/* ============ TOP BANNER ============ */}
+      {/* ============ TOP BANNER — "SCHEDULE" logo lookalike ============ */}
       <div
-        className="absolute flex items-center justify-center"
-        style={{ top: 40, left: 60, right: 60, height: 120, gap: 20, zIndex: 5 }}
+        className="absolute flex items-end justify-center"
+        style={{ top: 30, left: 60, right: 60, height: 150, zIndex: 5 }}
       >
-        <img src={animalPawAsset.url} alt="" style={{ width: 88, height: 88, transform: "rotate(-18deg)", opacity: 0.9 }} />
-        <div style={{ position: "relative", flex: 1, maxWidth: 900, height: 110 }}>
-          <img src={animalPillAsset.url} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "fill" }} />
-          <div
-            className="absolute inset-0 flex flex-col items-center justify-center text-center"
-            style={{ padding: "0 40px" }}
+        <div style={{ position: "relative", display: "inline-block" }}>
+          {/* peeking cat behind the wordmark (SVG, no PNG) */}
+          <svg
+            width="150" height="120" viewBox="0 0 150 120"
+            style={{ position: "absolute", top: -46, right: -34, zIndex: 0 }}
           >
-            <div style={{ fontSize: 44, fontWeight: 900, color: p.ink, letterSpacing: "0.04em", lineHeight: 1 }}>
-              {title || "Weekly Schedule"}
-            </div>
-            {subtitle && (
-              <div style={{ marginTop: 8, fontSize: 16, color: p.sub, letterSpacing: "0.18em", textTransform: "uppercase" }}>
-                {subtitle}
-              </div>
-            )}
+            {/* ears */}
+            <path d="M32 60 L22 20 L58 42 Z" fill="#ffffff" stroke={p.accent} strokeWidth="4" strokeLinejoin="round" />
+            <path d="M118 60 L128 20 L92 42 Z" fill="#ffffff" stroke={p.accent} strokeWidth="4" strokeLinejoin="round" />
+            <path d="M34 55 L27 30 L52 44 Z" fill={`${p.accent}55`} />
+            <path d="M116 55 L123 30 L98 44 Z" fill={`${p.accent}55`} />
+            {/* head */}
+            <ellipse cx="75" cy="70" rx="52" ry="42" fill="#ffffff" stroke={p.accent} strokeWidth="4" />
+            {/* cheeks */}
+            <circle cx="52" cy="82" r="7" fill={`${p.accent}66`} />
+            <circle cx="98" cy="82" r="7" fill={`${p.accent}66`} />
+            {/* eyes (closed happy) */}
+            <path d="M58 70 q6 -8 12 0" fill="none" stroke={p.ink} strokeWidth="3.5" strokeLinecap="round" />
+            <path d="M80 70 q6 -8 12 0" fill="none" stroke={p.ink} strokeWidth="3.5" strokeLinecap="round" />
+            {/* mouth */}
+            <path d="M70 84 q5 5 10 0" fill="none" stroke={p.ink} strokeWidth="3" strokeLinecap="round" />
+          </svg>
+
+          {/* Wordmark: SCHEDULE — big bubbly script style, double-outline */}
+          <div
+            style={{
+              position: "relative", zIndex: 1,
+              fontFamily: "'Fredoka One', 'Pacifico', 'Quicksand', cursive",
+              fontSize: 96, fontWeight: 900,
+              letterSpacing: "0.02em",
+              color: "#ffffff",
+              WebkitTextStroke: `3px ${p.ink}`,
+              textShadow: `
+                6px 6px 0 ${p.accent},
+                6px 6px 0 ${p.ink},
+                0 8px 0 ${p.ink}22
+              `,
+              lineHeight: 1,
+              padding: "0 20px",
+              transform: "rotate(-2deg)",
+            }}
+          >
+            Schedule
           </div>
+
+          {subtitle && (
+            <div
+              style={{
+                marginTop: 4, textAlign: "center",
+                fontSize: 14, color: p.sub,
+                letterSpacing: "0.32em", textTransform: "uppercase",
+                fontWeight: 700,
+              }}
+            >
+              {subtitle}
+            </div>
+          )}
         </div>
-        <img src={animalPawAsset.url} alt="" style={{ width: 88, height: 88, transform: "rotate(20deg)", opacity: 0.9 }} />
       </div>
+
+      {/* Title sub-strip (if provided) */}
+      {title && (
+        <div
+          className="absolute text-center"
+          style={{ top: 178, left: 60, right: 60, zIndex: 5 }}
+        >
+          <span
+            style={{
+              display: "inline-block",
+              background: "#ffffff",
+              border: `2.5px dashed ${p.accent}`,
+              borderRadius: 999,
+              padding: "6px 22px",
+              fontSize: 16, fontWeight: 800, color: p.accent,
+              letterSpacing: "0.14em", textTransform: "uppercase",
+            }}
+          >
+            {title}
+          </span>
+        </div>
+      )}
+
 
       {/* ============ LEFT: DAY ROWS ============ */}
       <div
@@ -1166,12 +1227,15 @@ const AnimalLayout = ({
             <div key={i} className="flex items-center" style={{ gap: 18 }}>
               <PawDayBadge label={label} date={num} tint={p.accent} />
 
-              <div style={{ position: "relative", flex: 1, height: 84 }}>
-                <img
-                  src={animalPillAsset.url}
-                  alt=""
-                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "fill" }}
-                />
+              <div
+                style={{
+                  position: "relative", flex: 1, height: 84,
+                  background: "#ffffff",
+                  borderRadius: 999,
+                  border: `3px solid ${p.accent}`,
+                  boxShadow: `0 4px 0 ${p.accent}33, inset 0 -3px 0 ${p.dot}22`,
+                }}
+              >
                 <div
                   className="absolute inset-0 flex items-center"
                   style={{ padding: "0 32px 0 28px", gap: 16 }}
@@ -1223,46 +1287,92 @@ const AnimalLayout = ({
         })}
       </div>
 
-      {/* ============ RIGHT: CHARACTER IN CAT-FRAME ============ */}
+      {/* ============ RIGHT: CHARACTER IN CAT-HEAD FRAME (pure SVG) ============ */}
       <div
         className="absolute"
-        style={{ right: 60, top: 200, width: 760, bottom: 200, zIndex: 3 }}
+        style={{ right: 60, top: 210, width: 760, bottom: 190, zIndex: 3 }}
       >
         <div style={{ position: "relative", width: "100%", height: "100%" }}>
-          {/* character clipped to a soft rounded window inside the frame */}
-          <div
-            style={{
-              position: "absolute",
-              top: "14%", left: "12%", right: "12%", bottom: "20%",
-              borderRadius: "50% / 42%",
-              overflow: "hidden",
-              background: `linear-gradient(180deg, ${p.bg1}, ${p.dot}44)`,
-              boxShadow: `inset 0 0 40px ${p.dot}66`,
-            }}
+          <svg
+            viewBox="0 0 400 460"
+            preserveAspectRatio="xMidYMid meet"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", overflow: "visible" }}
           >
-            {characterUrl ? (
-              <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ color: p.sub }}>
-                <div style={{ fontSize: 56 }}>🐾</div>
-                <div style={{ fontSize: 18, fontWeight: 700 }}>Upload your character</div>
-              </div>
-            )}
-          </div>
-          {/* frame overlay on top */}
-          <img
-            src={animalFrameAsset.url}
-            alt=""
-            style={{
-              position: "absolute", inset: 0,
-              width: "100%", height: "100%",
-              objectFit: "contain",
-              pointerEvents: "none",
-              zIndex: 2,
-            }}
-          />
+            <defs>
+              {/* Cat-head silhouette: two ears + rounded head */}
+              <clipPath id="catHeadClip" clipPathUnits="userSpaceOnUse">
+                <path d="
+                  M 90 120
+                  L 60 20
+                  L 160 80
+                  Q 200 68 240 80
+                  L 340 20
+                  L 310 120
+                  Q 380 180 380 270
+                  Q 380 400 200 440
+                  Q 20 400 20 270
+                  Q 20 180 90 120
+                  Z
+                " />
+              </clipPath>
+            </defs>
+
+            {/* Inner ear tint */}
+            <path d="M 88 118 L 78 46 L 148 90 Z" fill={`${p.accent}55`} />
+            <path d="M 312 118 L 322 46 L 252 90 Z" fill={`${p.accent}55`} />
+
+            {/* Character masked to cat head */}
+            <g clipPath="url(#catHeadClip)">
+              <rect x="0" y="0" width="400" height="460" fill={p.bg1} />
+              <foreignObject x="0" y="0" width="400" height="460">
+                <div style={{ width: "100%", height: "100%", background: `linear-gradient(180deg, ${p.bg1}, ${p.dot}55)` }}>
+                  {characterUrl ? (
+                    <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ color: p.sub }}>
+                      <div style={{ fontSize: 72 }}>🐾</div>
+                      <div style={{ fontSize: 18, fontWeight: 700 }}>Upload your character</div>
+                    </div>
+                  )}
+                </div>
+              </foreignObject>
+            </g>
+
+            {/* Outline on top */}
+            <path
+              d="
+                M 90 120
+                L 60 20
+                L 160 80
+                Q 200 68 240 80
+                L 340 20
+                L 310 120
+                Q 380 180 380 270
+                Q 380 400 200 440
+                Q 20 400 20 270
+                Q 20 180 90 120
+                Z
+              "
+              fill="none"
+              stroke={p.accent}
+              strokeWidth="6"
+              strokeLinejoin="round"
+            />
+
+            {/* whiskers / cheeks */}
+            <circle cx="120" cy="330" r="14" fill={`${p.accent}44`} />
+            <circle cx="280" cy="330" r="14" fill={`${p.accent}44`} />
+
+            {/* little bow on left ear */}
+            <g transform="translate(110, 60) rotate(-15)">
+              <path d="M -18 0 L 0 -8 L 0 8 Z" fill={p.accent} stroke={p.ink} strokeWidth="2" />
+              <path d="M 18 0 L 0 -8 L 0 8 Z" fill={p.accent} stroke={p.ink} strokeWidth="2" />
+              <circle cx="0" cy="0" r="4" fill={p.ink} />
+            </g>
+          </svg>
         </div>
       </div>
+
 
       {/* ============ FOOTER ============ */}
       <div
