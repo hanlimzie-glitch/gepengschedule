@@ -1048,296 +1048,295 @@ const CelestialLayout = ({
 };
 
 /* ============================================================
-   ANIMAL LAYOUT — cute pastel with animal head day badges
+   ANIMAL LAYOUT v2 — fresh rebuild
+   Uses ONLY: paw-pink.png, cat-frame.png, pill-bar.png
+   Structure:
+     • Top-center banner: title inside a pill-bar with paw badges on sides
+     • Left column: 7 day rows (paw badge circle + pill-bar with slot info)
+     • Right column: character portrait framed by cat-frame.png
+     • Bottom footer: date range + art credit + socials
    ============================================================ */
-type AnimalPalette = { bgFrom: string; bgTo: string; lace: string; pillBg: string; pillBorder: string; text: string; muted: string; accent: string; ribbon: string; ribbonText: string };
 
-const ANIMAL_PALETTES: Record<string, AnimalPalette> = {
-  cute:      { bgFrom: "#fff4e6", bgTo: "#ffe4ec", lace: "#f4c8a8", pillBg: "#ffffff", pillBorder: "#f4d4b8", text: "#7a4a2a", muted: "#b08868", accent: "#f4a896", ribbon: "#a8c89a", ribbonText: "#ffffff" },
-  sakura:    { bgFrom: "#fff0f5", bgTo: "#ffe4ec", lace: "#f7c7d4", pillBg: "#ffffff", pillBorder: "#f7c7d4", text: "#8a3a5c", muted: "#b56a8a", accent: "#f4a8c0", ribbon: "#f7c7d4", ribbonText: "#8a3a5c" },
-  mint:      { bgFrom: "#e8f5ec", bgTo: "#f0fae8", lace: "#b8d8b8", pillBg: "#ffffff", pillBorder: "#c8e0c8", text: "#2a5a3a", muted: "#6a8a7a", accent: "#9bc9a8", ribbon: "#a8c89a", ribbonText: "#ffffff" },
-  aesthetic: { bgFrom: "#f0eaff", bgTo: "#e6f0ff", lace: "#c8b8e8", pillBg: "#ffffff", pillBorder: "#d4c8e8", text: "#4a3a7a", muted: "#7a6a9a", accent: "#a890d8", ribbon: "#c8b8e8", ribbonText: "#ffffff" },
-  cyber:     { bgFrom: "#e8faff", bgTo: "#ffe8f5", lace: "#b8e8e8", pillBg: "#ffffff", pillBorder: "#c8e8f0", text: "#1a4a5a", muted: "#5a7a8a", accent: "#88d0e0", ribbon: "#88d0e0", ribbonText: "#ffffff" },
-  gothic:    { bgFrom: "#2a2028", bgTo: "#1a1018", lace: "#4a3a48", pillBg: "#3a2a38", pillBorder: "#5a4a58", text: "#f0e8e8", muted: "#a89898", accent: "#c0506a", ribbon: "#7a2a3a", ribbonText: "#ffffff" },
-  royalred:  { bgFrom: "#fff8e8", bgTo: "#ffe8d8", lace: "#e6c168", pillBg: "#ffffff", pillBorder: "#e6c168", text: "#6b1622", muted: "#a06868", accent: "#c9a060", ribbon: "#6b1622", ribbonText: "#fff" },
-  magic:     { bgFrom: "#f3eaff", bgTo: "#fff0d8", lace: "#c9a4ff", pillBg: "#ffffff", pillBorder: "#c9a4ff", text: "#3a1d6e", muted: "#7a6a9a", accent: "#c9a4ff", ribbon: "#3a1d6e", ribbonText: "#f3d27a" },
-  mono:      { bgFrom: "#fafafa", bgTo: "#f0f0f0", lace: "#cccccc", pillBg: "#ffffff", pillBorder: "#d8d8d8", text: "#0a0a0a", muted: "#666666", accent: "#2a2a2a", ribbon: "#0a0a0a", ribbonText: "#ffffff" },
+const ANIMAL_V2_PALETTES: Record<string, { bg1: string; bg2: string; dot: string; ink: string; sub: string; accent: string; chipInk: string }> = {
+  cute:      { bg1: "#fff2e0", bg2: "#ffe0ec", dot: "#f7c6a8", ink: "#6b3a24", sub: "#a67b60", accent: "#ef8fa8", chipInk: "#ffffff" },
+  sakura:    { bg1: "#fff0f5", bg2: "#ffe0ec", dot: "#f5b6c8", ink: "#7a2f4e", sub: "#a86a86", accent: "#ec7fa6", chipInk: "#ffffff" },
+  mint:      { bg1: "#e8f7ec", bg2: "#f2fbe6", dot: "#a8d6a8", ink: "#22523a", sub: "#5f8574", accent: "#7fbf8f", chipInk: "#ffffff" },
+  aesthetic: { bg1: "#efe8ff", bg2: "#e2ecff", dot: "#c0b0e8", ink: "#3b2a72", sub: "#7566a0", accent: "#9a7fd6", chipInk: "#ffffff" },
+  cyber:     { bg1: "#e2f9ff", bg2: "#ffe4f2", dot: "#a8dfe8", ink: "#154858", sub: "#557080", accent: "#5fb8d0", chipInk: "#ffffff" },
+  gothic:    { bg1: "#241a22", bg2: "#150c14", dot: "#5a4658", ink: "#f0e6e6", sub: "#a89696", accent: "#c04a66", chipInk: "#ffffff" },
+  royalred:  { bg1: "#fff5e2", bg2: "#ffe4d0", dot: "#e6c168", ink: "#5f101c", sub: "#946060", accent: "#b8843a", chipInk: "#ffffff" },
+  magic:     { bg1: "#efe4ff", bg2: "#fff0d8", dot: "#c8a3ff", ink: "#331862", sub: "#75669a", accent: "#a888ff", chipInk: "#ffffff" },
+  mono:      { bg1: "#fafafa", bg2: "#eeeeee", dot: "#cccccc", ink: "#0a0a0a", sub: "#5f5f5f", accent: "#1f1f1f", chipInk: "#ffffff" },
 };
 
-const ScallopBorder = ({ color, side = "left" }: { color: string; side?: "left" | "right" }) => {
-  const transform = side === "right" ? "scaleX(-1)" : undefined;
-  return (
-    <svg width="60" height="100%" viewBox="0 0 60 1080" preserveAspectRatio="none"
-      style={{ position: "absolute", top: 0, bottom: 0, [side]: 0, transform } as any}>
-      <defs>
-        <pattern id={`scallop-${side}`} x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-          <circle cx="30" cy="30" r="22" fill={color} opacity="0.5" />
-          <circle cx="30" cy="30" r="14" fill="#ffffff" opacity="0.65" />
-        </pattern>
-      </defs>
-      <rect width="60" height="1080" fill={`url(#scallop-${side})`} />
-    </svg>
-  );
-};
+const ANIMAL_V2_DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
-// Per-row pastel colors (mon → sun)
-const ANIMAL_ROW_COLORS = [
-  { tag: "#f7a8b8", border: "#f9bcc8", chipText: "#ffffff" }, // mon pink
-  { tag: "#f5d97a", border: "#f7e4a0", chipText: "#7a5a1a" }, // tue yellow
-  { tag: "#a8d8a8", border: "#c4e4c0", chipText: "#2a5a2a" }, // wed green
-  { tag: "#a8d8e8", border: "#c4e4ee", chipText: "#1a4a5a" }, // thu cyan
-  { tag: "#a8b8e8", border: "#c4cdee", chipText: "#1a2a5a" }, // fri blue
-  { tag: "#c0a8d8", border: "#d4c4e4", chipText: "#3a1a5a" }, // sat lavender
-  { tag: "#c8c8c8", border: "#d8d8d8", chipText: "#3a3a3a" }, // sun gray
-];
-
-const BunnyBadge = ({ color, border, label, chipText }: { color: string; border: string; label: string; chipText: string }) => (
-  <div style={{ position: "relative", width: 110, height: 92, flexShrink: 0 }}>
-    <svg viewBox="0 0 110 92" width="110" height="92" style={{ position: "absolute", inset: 0 }}>
-      {/* ears */}
-      <ellipse cx="38" cy="20" rx="9" ry="18" fill="#ffffff" stroke={border} strokeWidth="2.5" />
-      <ellipse cx="38" cy="22" rx="4" ry="12" fill={color} opacity="0.45" />
-      <ellipse cx="72" cy="20" rx="9" ry="18" fill="#ffffff" stroke={border} strokeWidth="2.5" />
-      <ellipse cx="72" cy="22" rx="4" ry="12" fill={color} opacity="0.45" />
-      {/* head */}
-      <ellipse cx="55" cy="58" rx="36" ry="28" fill="#ffffff" stroke={border} strokeWidth="2.5" />
-    </svg>
-    {/* day label chip */}
-    <div style={{
-      position: "absolute", left: "50%", top: 50, transform: "translateX(-50%)",
-      background: color, color: chipText,
-      padding: "3px 14px", borderRadius: 999,
-      fontSize: 18, fontWeight: 700, letterSpacing: "0.05em",
-      fontFamily: "'Quicksand', 'Poppins', sans-serif",
-      textTransform: "lowercase", lineHeight: 1.1,
-      boxShadow: "0 1px 0 rgba(0,0,0,0.04)",
-    }}>{label}</div>
+// A round paw badge that renders paw-pink.png tinted with a color overlay,
+// with day label + date centered on top.
+const PawDayBadge = ({ label, date, tint }: { label: string; date?: string; tint: string }) => (
+  <div style={{ position: "relative", width: 96, height: 96, flexShrink: 0 }}>
+    <img
+      src={animalPawAsset.url}
+      alt=""
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
+    />
+    <div
+      style={{
+        position: "absolute", inset: 0,
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        color: "#ffffff",
+        textShadow: `0 2px 4px ${tint}aa, 0 1px 0 rgba(0,0,0,0.15)`,
+        fontFamily: "'Quicksand', 'Poppins', sans-serif",
+        lineHeight: 1,
+      }}
+    >
+      <div style={{ fontSize: 16, fontWeight: 800, letterSpacing: "0.08em" }}>{label}</div>
+      {date && <div style={{ fontSize: 22, fontWeight: 900, marginTop: 4 }}>{date}</div>}
+    </div>
   </div>
 );
 
-const ConnectorBars = ({ color }: { color: string }) => (
-  <svg width="22" height="40" viewBox="0 0 22 40" style={{ flexShrink: 0 }}>
-    {[8, 16, 24, 32].map((y) => (
-      <rect key={y} x="2" y={y - 1.5} width="18" height="3" rx="1.5" fill={color} opacity="0.55" />
-    ))}
-  </svg>
-);
-
-const ANIMAL_DAY_LABELS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-
-const AnimalLayout = ({ title, subtitle, dateRange, days, characterUrl, charFit, artBy, theme, youtubeHandle, twitchHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0 }: any) => {
-  const p = ANIMAL_PALETTES[theme as string] || ANIMAL_PALETTES.cute;
-
-  // Scatter decorative paws around canvas (deterministic)
-  const scatter = [
-    { top: 40, left: 40, size: 90, rot: -18, op: 0.55 },
-    { top: 80, left: 720, size: 60, rot: 22, op: 0.45 },
-    { bottom: 60, left: 30, size: 110, rot: 14, op: 0.5 },
-    { bottom: 40, right: 40, size: 80, rot: -12, op: 0.5 },
-    { top: 260, right: 60, size: 55, rot: 30, op: 0.4 },
-    { top: 520, left: 470, size: 45, rot: -25, op: 0.35 },
-    { bottom: 260, right: 90, size: 50, rot: 18, op: 0.4 },
-  ];
+const AnimalLayout = ({
+  title, subtitle, dateRange, days,
+  characterUrl, charFit, artBy, theme,
+  youtubeHandle, twitchHandle,
+  charScale = 1, charOffsetX = 0, charOffsetY = 0,
+}: any) => {
+  const p = ANIMAL_V2_PALETTES[theme as string] || ANIMAL_V2_PALETTES.cute;
 
   return (
-    <div className="relative h-full w-full overflow-hidden" style={{
-      background: `linear-gradient(180deg, ${p.bgFrom} 0%, ${p.bgTo} 100%)`,
-      fontFamily: "'Quicksand', 'Poppins', sans-serif",
-      color: p.text,
-    }}>
-      {/* subtle polka dots */}
-      <div className="absolute inset-0" style={{
-        backgroundImage: `radial-gradient(${p.lace}55 2px, transparent 3px)`,
-        backgroundSize: "34px 34px", opacity: 0.4,
-      }} />
+    <div
+      className="relative h-full w-full overflow-hidden"
+      style={{
+        background: `linear-gradient(160deg, ${p.bg1} 0%, ${p.bg2} 100%)`,
+        color: p.ink,
+        fontFamily: "'Quicksand', 'Poppins', sans-serif",
+      }}
+    >
+      {/* soft polka dot backdrop */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `radial-gradient(${p.dot}66 2px, transparent 3px)`,
+          backgroundSize: "36px 36px",
+          opacity: 0.45,
+        }}
+      />
 
-      {/* scattered paw stickers */}
-      {scatter.map((s, i) => (
-        <img key={i} src={animalPawAsset.url} alt=""
-          style={{
-            position: "absolute", ...s as any,
-            width: s.size, height: s.size,
-            transform: `rotate(${s.rot}deg)`,
-            opacity: s.op, pointerEvents: "none",
-          }} />
-      ))}
-
-      {/* SCHEDULE logo (top-left) */}
-      <div className="absolute" style={{ top: 30, left: 60, width: 560, zIndex: 5 }}>
-        <img src={animalLogoAsset.url} alt="schedule" style={{ width: "100%", height: "auto", display: "block" }} />
-        {title && (
-          <div style={{
-            marginTop: 8, marginLeft: 40,
-            fontFamily: "'Quicksand', sans-serif",
-            fontSize: 26, fontWeight: 700, color: p.accent, letterSpacing: "0.04em",
-          }}>{title}</div>
-        )}
-        {subtitle && (
-          <div style={{
-            marginLeft: 40, fontSize: 14, color: p.muted, letterSpacing: "0.14em", textTransform: "uppercase",
-          }}>{subtitle}</div>
-        )}
-      </div>
-
-      {/* CAT FRAME with character (right) */}
-      <div className="absolute" style={{ right: 60, top: 60, width: 680, bottom: 60, zIndex: 3 }}>
-        <div style={{ position: "relative", width: "100%", height: "100%" }}>
-          {/* character clipped inside frame area */}
-          <div style={{
-            position: "absolute", top: "12%", left: "10%", right: "10%", bottom: "18%",
-            borderRadius: "24px", overflow: "hidden",
-            background: `linear-gradient(180deg, ${p.bgFrom}, ${p.pillBorder}55)`,
-          }}>
-            {characterUrl ? (
-              <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center" style={{ color: p.muted, fontSize: 22 }}>
-                Upload your character 🐱
+      {/* ============ TOP BANNER ============ */}
+      <div
+        className="absolute flex items-center justify-center"
+        style={{ top: 40, left: 60, right: 60, height: 120, gap: 20, zIndex: 5 }}
+      >
+        <img src={animalPawAsset.url} alt="" style={{ width: 88, height: 88, transform: "rotate(-18deg)", opacity: 0.9 }} />
+        <div style={{ position: "relative", flex: 1, maxWidth: 900, height: 110 }}>
+          <img src={animalPillAsset.url} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "fill" }} />
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center text-center"
+            style={{ padding: "0 40px" }}
+          >
+            <div style={{ fontSize: 44, fontWeight: 900, color: p.ink, letterSpacing: "0.04em", lineHeight: 1 }}>
+              {title || "Weekly Schedule"}
+            </div>
+            {subtitle && (
+              <div style={{ marginTop: 8, fontSize: 16, color: p.sub, letterSpacing: "0.18em", textTransform: "uppercase" }}>
+                {subtitle}
               </div>
             )}
           </div>
-          {/* frame overlay */}
-          <img src={animalFrameAsset.url} alt="" style={{
-            position: "absolute", inset: 0, width: "100%", height: "100%",
-            objectFit: "contain", pointerEvents: "none", zIndex: 2,
-          }} />
         </div>
+        <img src={animalPawAsset.url} alt="" style={{ width: 88, height: 88, transform: "rotate(20deg)", opacity: 0.9 }} />
       </div>
 
-      {/* SCHEDULE ROWS (left) */}
-      <div className="absolute flex flex-col" style={{
-        left: 70, right: 780, top: 300, bottom: 140,
-        gap: 18, justifyContent: "center", zIndex: 4,
-      }}>
+      {/* ============ LEFT: DAY ROWS ============ */}
+      <div
+        className="absolute flex flex-col justify-center"
+        style={{ left: 80, top: 200, bottom: 160, width: 1050, gap: 14, zIndex: 4 }}
+      >
         {days.slice(0, 7).map((d: DayItem, i: number) => {
-          const label = ANIMAL_DAY_LABELS[i] || d.day.toLowerCase();
+          const label = ANIMAL_V2_DAYS[i] || d.day.slice(0, 3).toUpperCase();
           const { num } = parseDay(d.day);
           const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platforms: [] } as Slot];
           const allOffline = slots.every((s) => s.type === "offline");
-          const rc = ANIMAL_ROW_COLORS[i % ANIMAL_ROW_COLORS.length];
+          const first = slots[0];
+          const off = first.type === "offline";
 
           return (
-            <div key={i} className="relative flex items-center" style={{ gap: 12, minHeight: 78 }}>
-              {/* Paw badge with day label */}
-              <div style={{ position: "relative", width: 108, height: 108, flexShrink: 0 }}>
-                <img src={animalPawAsset.url} alt="" style={{
-                  width: "100%", height: "100%", display: "block",
-                  filter: `drop-shadow(0 2px 0 ${rc.border}55)`,
-                }} />
-                <div style={{
-                  position: "absolute", inset: 0,
-                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                  paddingTop: 8,
-                }}>
-                  <div style={{
-                    fontFamily: "'Quicksand', sans-serif",
-                    fontSize: 17, fontWeight: 800, color: "#ffffff",
-                    letterSpacing: "0.02em", textTransform: "lowercase",
-                    textShadow: `0 1px 2px ${rc.border}aa`,
-                    lineHeight: 1,
-                  }}>{label}</div>
-                  {num && (
-                    <div style={{
-                      marginTop: 3, fontSize: 13, fontWeight: 700, color: "#ffffff",
-                      opacity: 0.9, textShadow: `0 1px 2px ${rc.border}aa`,
-                    }}>{num}</div>
+            <div key={i} className="flex items-center" style={{ gap: 18 }}>
+              <PawDayBadge label={label} date={num} tint={p.accent} />
+
+              <div style={{ position: "relative", flex: 1, height: 84 }}>
+                <img
+                  src={animalPillAsset.url}
+                  alt=""
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "fill" }}
+                />
+                <div
+                  className="absolute inset-0 flex items-center"
+                  style={{ padding: "0 32px 0 28px", gap: 16 }}
+                >
+                  {!off && first.time && (
+                    <span
+                      style={{
+                        background: p.accent, color: p.chipInk,
+                        padding: "6px 16px", borderRadius: 999,
+                        fontSize: 16, fontWeight: 800, letterSpacing: "0.04em",
+                        flexShrink: 0, boxShadow: `0 2px 0 ${p.accent}55`,
+                      }}
+                    >
+                      {first.time}
+                    </span>
+                  )}
+
+                  <span
+                    style={{
+                      flex: 1, minWidth: 0,
+                      fontSize: 22, fontWeight: 700,
+                      color: off ? p.sub : p.ink,
+                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                      fontStyle: off ? "italic" : "normal",
+                    }}
+                  >
+                    {off ? "no stream today 💤" : (first.title || "type your schedule here")}
+                  </span>
+
+                  {!off && <PlatformBadges list={first.platforms} compact />}
+
+                  {allOffline && (
+                    <span
+                      style={{
+                        background: "#ffffff", color: p.accent,
+                        border: `2px dashed ${p.accent}`,
+                        padding: "3px 12px", borderRadius: 999,
+                        fontSize: 12, fontWeight: 800, letterSpacing: "0.1em",
+                        flexShrink: 0,
+                      }}
+                    >
+                      BREAK
+                    </span>
                   )}
                 </div>
-              </div>
-
-              {/* Pill bar */}
-              <div style={{
-                position: "relative", flex: 1, minHeight: 72,
-                display: "flex", alignItems: "center",
-              }}>
-                <img src={animalPillAsset.url} alt="" style={{
-                  position: "absolute", inset: 0, width: "100%", height: "100%",
-                  objectFit: "fill", pointerEvents: "none",
-                }} />
-                <div className="relative flex-1 flex flex-col" style={{
-                  padding: "10px 26px 10px 22px", gap: 6, zIndex: 1,
-                }}>
-                  {slots.map((s, si) => {
-                    const off = s.type === "offline";
-                    return (
-                      <div key={si} className="flex items-center" style={{ gap: 12, flexWrap: "wrap" }}>
-                        {!off && s.time && (
-                          <span style={{
-                            fontSize: 15, fontWeight: 800, color: "#ffffff",
-                            background: rc.tag, padding: "3px 12px", borderRadius: 999,
-                            letterSpacing: "0.03em", flexShrink: 0,
-                          }}>{s.time}</span>
-                        )}
-                        <span style={{
-                          flex: 1, fontSize: 20, fontWeight: 600,
-                          color: off ? p.muted : "#7a5a5a", lineHeight: 1.2,
-                          whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0,
-                          fontFamily: "'Quicksand', sans-serif",
-                        }}>
-                          {off ? "no stream today 💤" : (s.title || "type your schedule here")}
-                        </span>
-                        <PlatformBadges list={s.platforms} compact />
-                      </div>
-                    );
-                  })}
-                </div>
-                {allOffline && (
-                  <div style={{
-                    position: "absolute", right: 20, top: "50%", transform: "translateY(-50%)",
-                    background: "#f7a8b8", color: "#ffffff",
-                    padding: "4px 14px", borderRadius: 999,
-                    fontSize: 13, fontWeight: 800,
-                    border: "2px solid #ffffff",
-                    boxShadow: "0 2px 0 #f9bcc855",
-                  }}>break</div>
-                )}
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Date range banner top center */}
-      {dateRange && (
-        <div className="absolute" style={{
-          top: 44, left: "50%", transform: "translateX(-50%)",
-          background: "#ffffff", border: `2.5px dashed ${p.accent}`,
-          padding: "8px 26px", borderRadius: 999,
-          fontSize: 16, fontWeight: 700, color: p.accent, letterSpacing: "0.06em",
-          zIndex: 6,
-        }}>{dateRange}</div>
-      )}
+      {/* ============ RIGHT: CHARACTER IN CAT-FRAME ============ */}
+      <div
+        className="absolute"
+        style={{ right: 60, top: 200, width: 760, bottom: 200, zIndex: 3 }}
+      >
+        <div style={{ position: "relative", width: "100%", height: "100%" }}>
+          {/* character clipped to a soft rounded window inside the frame */}
+          <div
+            style={{
+              position: "absolute",
+              top: "14%", left: "12%", right: "12%", bottom: "20%",
+              borderRadius: "50% / 42%",
+              overflow: "hidden",
+              background: `linear-gradient(180deg, ${p.bg1}, ${p.dot}44)`,
+              boxShadow: `inset 0 0 40px ${p.dot}66`,
+            }}
+          >
+            {characterUrl ? (
+              <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ color: p.sub }}>
+                <div style={{ fontSize: 56 }}>🐾</div>
+                <div style={{ fontSize: 18, fontWeight: 700 }}>Upload your character</div>
+              </div>
+            )}
+          </div>
+          {/* frame overlay on top */}
+          <img
+            src={animalFrameAsset.url}
+            alt=""
+            style={{
+              position: "absolute", inset: 0,
+              width: "100%", height: "100%",
+              objectFit: "contain",
+              pointerEvents: "none",
+              zIndex: 2,
+            }}
+          />
+        </div>
+      </div>
 
-      {/* Footer: art credit + socials */}
-      <div className="absolute flex items-center" style={{ left: 80, bottom: 46, gap: 10, zIndex: 6 }}>
-        {artBy && (
-          <div style={{
-            background: "#ffffff", border: `2px dashed ${p.accent}`, borderRadius: 999,
-            padding: "6px 18px", fontSize: 14, fontWeight: 700, color: p.accent,
-          }}>{artBy.replace(/^Art by\s*/i, "art by ")}</div>
-        )}
-        {youtubeHandle && (
-          <div style={{
-            background: "#ffffff", border: `2px solid ${p.pillBorder}`, borderRadius: 999,
-            padding: "6px 14px", fontSize: 13, fontWeight: 700, color: p.muted,
-            display: "flex", alignItems: "center", gap: 8,
-          }}>
-            <span style={{ width: 20, height: 20, background: "#FF0033", borderRadius: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
-              <Youtube size={12} />
-            </span>{youtubeHandle}
-          </div>
-        )}
-        {twitchHandle && (
-          <div style={{
-            background: "#ffffff", border: `2px solid ${p.pillBorder}`, borderRadius: 999,
-            padding: "6px 14px", fontSize: 13, fontWeight: 700, color: p.muted,
-            display: "flex", alignItems: "center", gap: 8,
-          }}>
-            <span style={{ width: 20, height: 20, background: "#9146FF", borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
-              <Twitch size={12} />
-            </span>{twitchHandle}
-          </div>
-        )}
+      {/* ============ FOOTER ============ */}
+      <div
+        className="absolute flex items-center justify-between"
+        style={{ left: 80, right: 80, bottom: 50, zIndex: 6, gap: 16 }}
+      >
+        <div className="flex items-center" style={{ gap: 12 }}>
+          {dateRange && (
+            <div
+              style={{
+                background: "#ffffff",
+                border: `2.5px dashed ${p.accent}`,
+                borderRadius: 999,
+                padding: "8px 22px",
+                fontSize: 16, fontWeight: 800,
+                color: p.accent, letterSpacing: "0.08em",
+              }}
+            >
+              {dateRange}
+            </div>
+          )}
+          {artBy && (
+            <div
+              style={{
+                background: `${p.accent}22`,
+                border: `2px solid ${p.accent}55`,
+                borderRadius: 999,
+                padding: "8px 18px",
+                fontSize: 14, fontWeight: 700, color: p.ink,
+              }}
+            >
+              {artBy}
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center" style={{ gap: 10 }}>
+          {youtubeHandle && (
+            <div
+              className="flex items-center"
+              style={{
+                background: "#ffffff",
+                border: `2px solid ${p.dot}`,
+                borderRadius: 999,
+                padding: "6px 14px 6px 8px",
+                gap: 8,
+                fontSize: 13, fontWeight: 700, color: p.ink,
+              }}
+            >
+              <span style={{ width: 24, height: 24, background: "#FF0033", borderRadius: 8, display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+                <Youtube size={14} />
+              </span>
+              {youtubeHandle}
+            </div>
+          )}
+          {twitchHandle && (
+            <div
+              className="flex items-center"
+              style={{
+                background: "#ffffff",
+                border: `2px solid ${p.dot}`,
+                borderRadius: 999,
+                padding: "6px 14px 6px 8px",
+                gap: 8,
+                fontSize: 13, fontWeight: 700, color: p.ink,
+              }}
+            >
+              <span style={{ width: 24, height: 24, background: "#9146FF", borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+                <Twitch size={14} />
+              </span>
+              {twitchHandle}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
