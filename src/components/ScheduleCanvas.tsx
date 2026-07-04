@@ -1227,12 +1227,15 @@ const AnimalLayout = ({
             <div key={i} className="flex items-center" style={{ gap: 18 }}>
               <PawDayBadge label={label} date={num} tint={p.accent} />
 
-              <div style={{ position: "relative", flex: 1, height: 84 }}>
-                <img
-                  src={animalPillAsset.url}
-                  alt=""
-                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "fill" }}
-                />
+              <div
+                style={{
+                  position: "relative", flex: 1, height: 84,
+                  background: "#ffffff",
+                  borderRadius: 999,
+                  border: `3px solid ${p.accent}`,
+                  boxShadow: `0 4px 0 ${p.accent}33, inset 0 -3px 0 ${p.dot}22`,
+                }}
+              >
                 <div
                   className="absolute inset-0 flex items-center"
                   style={{ padding: "0 32px 0 28px", gap: 16 }}
