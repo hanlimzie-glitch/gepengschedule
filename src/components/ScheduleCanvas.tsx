@@ -1287,46 +1287,92 @@ const AnimalLayout = ({
         })}
       </div>
 
-      {/* ============ RIGHT: CHARACTER IN CAT-FRAME ============ */}
+      {/* ============ RIGHT: CHARACTER IN CAT-HEAD FRAME (pure SVG) ============ */}
       <div
         className="absolute"
-        style={{ right: 60, top: 200, width: 760, bottom: 200, zIndex: 3 }}
+        style={{ right: 60, top: 210, width: 760, bottom: 190, zIndex: 3 }}
       >
         <div style={{ position: "relative", width: "100%", height: "100%" }}>
-          {/* character clipped to a soft rounded window inside the frame */}
-          <div
-            style={{
-              position: "absolute",
-              top: "14%", left: "12%", right: "12%", bottom: "20%",
-              borderRadius: "50% / 42%",
-              overflow: "hidden",
-              background: `linear-gradient(180deg, ${p.bg1}, ${p.dot}44)`,
-              boxShadow: `inset 0 0 40px ${p.dot}66`,
-            }}
+          <svg
+            viewBox="0 0 400 460"
+            preserveAspectRatio="xMidYMid meet"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", overflow: "visible" }}
           >
-            {characterUrl ? (
-              <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ color: p.sub }}>
-                <div style={{ fontSize: 56 }}>🐾</div>
-                <div style={{ fontSize: 18, fontWeight: 700 }}>Upload your character</div>
-              </div>
-            )}
-          </div>
-          {/* frame overlay on top */}
-          <img
-            src={animalFrameAsset.url}
-            alt=""
-            style={{
-              position: "absolute", inset: 0,
-              width: "100%", height: "100%",
-              objectFit: "contain",
-              pointerEvents: "none",
-              zIndex: 2,
-            }}
-          />
+            <defs>
+              {/* Cat-head silhouette: two ears + rounded head */}
+              <clipPath id="catHeadClip" clipPathUnits="userSpaceOnUse">
+                <path d="
+                  M 90 120
+                  L 60 20
+                  L 160 80
+                  Q 200 68 240 80
+                  L 340 20
+                  L 310 120
+                  Q 380 180 380 270
+                  Q 380 400 200 440
+                  Q 20 400 20 270
+                  Q 20 180 90 120
+                  Z
+                " />
+              </clipPath>
+            </defs>
+
+            {/* Inner ear tint */}
+            <path d="M 88 118 L 78 46 L 148 90 Z" fill={`${p.accent}55`} />
+            <path d="M 312 118 L 322 46 L 252 90 Z" fill={`${p.accent}55`} />
+
+            {/* Character masked to cat head */}
+            <g clipPath="url(#catHeadClip)">
+              <rect x="0" y="0" width="400" height="460" fill={p.bg1} />
+              <foreignObject x="0" y="0" width="400" height="460">
+                <div style={{ width: "100%", height: "100%", background: `linear-gradient(180deg, ${p.bg1}, ${p.dot}55)` }}>
+                  {characterUrl ? (
+                    <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ color: p.sub }}>
+                      <div style={{ fontSize: 72 }}>🐾</div>
+                      <div style={{ fontSize: 18, fontWeight: 700 }}>Upload your character</div>
+                    </div>
+                  )}
+                </div>
+              </foreignObject>
+            </g>
+
+            {/* Outline on top */}
+            <path
+              d="
+                M 90 120
+                L 60 20
+                L 160 80
+                Q 200 68 240 80
+                L 340 20
+                L 310 120
+                Q 380 180 380 270
+                Q 380 400 200 440
+                Q 20 400 20 270
+                Q 20 180 90 120
+                Z
+              "
+              fill="none"
+              stroke={p.accent}
+              strokeWidth="6"
+              strokeLinejoin="round"
+            />
+
+            {/* whiskers / cheeks */}
+            <circle cx="120" cy="330" r="14" fill={`${p.accent}44`} />
+            <circle cx="280" cy="330" r="14" fill={`${p.accent}44`} />
+
+            {/* little bow on left ear */}
+            <g transform="translate(110, 60) rotate(-15)">
+              <path d="M -18 0 L 0 -8 L 0 8 Z" fill={p.accent} stroke={p.ink} strokeWidth="2" />
+              <path d="M 18 0 L 0 -8 L 0 8 Z" fill={p.accent} stroke={p.ink} strokeWidth="2" />
+              <circle cx="0" cy="0" r="4" fill={p.ink} />
+            </g>
+          </svg>
         </div>
       </div>
+
 
       {/* ============ FOOTER ============ */}
       <div
