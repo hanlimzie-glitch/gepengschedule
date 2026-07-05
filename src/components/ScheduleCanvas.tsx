@@ -1347,42 +1347,48 @@ const AnimalLayout = ({
         })}
       </div>
 
-      {/* ~~~ scattered paw stamps as poster accents (off-grid, deliberate) ~~~ */}
-      <div className="absolute" style={{ top: 470, left: 60, zIndex: 4, opacity: 0.85 }}>
-        <PawStamp size={46} color={p.accent} rotate={-24} />
+      {/* ~~~ scattered kawaii accents (off-grid, deliberate) ~~~ */}
+      <div className="absolute" style={{ top: 470, left: 60, zIndex: 4 }}>
+        <PawStamp size={50} color={p.accent} rotate={-24} />
       </div>
       <div className="absolute" style={{ top: 78, right: 120, zIndex: 7 }}>
-        <PawStamp size={54} color={p.ink} opacity={0.18} rotate={22} />
+        <Star size={54} color={p.accent2} opacity={0.85} rotate={22} />
       </div>
       <div className="absolute" style={{ bottom: 260, left: "48%", zIndex: 4 }}>
-        <PawStamp size={30} color={p.accent} opacity={0.6} rotate={40} />
+        <Heart size={34} color={p.accent} opacity={0.75} rotate={20} />
+      </div>
+      <div className="absolute" style={{ top: 340, left: 40, zIndex: 4 }}>
+        <Star size={22} color={p.accent2} opacity={0.85} rotate={-10} />
+      </div>
+      <div className="absolute" style={{ top: 560, right: 80, zIndex: 4 }}>
+        <PawStamp size={34} color={p.accent2} opacity={0.7} rotate={30} />
       </div>
 
-      {/* ~~~ FOOTER — colophon strip, poster-style ~~~ */}
+      {/* ~~~ FOOTER — kawaii ribbon strip ~~~ */}
       <div className="absolute" style={{ left: 96, right: 96, bottom: 88, zIndex: 8 }}>
-        <div style={{ height: 1, background: p.ink, opacity: 0.6, marginBottom: 18 }} />
+        <div style={{ height: 3, borderRadius: 3, background: `repeating-linear-gradient(90deg, ${p.accent} 0 12px, transparent 12px 22px)`, opacity: 0.75, marginBottom: 18 }} />
         <div style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 13, letterSpacing: "0.22em", textTransform: "uppercase",
-          color: p.sub,
+          fontFamily: "'Quicksand', 'Nunito', sans-serif",
+          fontSize: 14, letterSpacing: "0.16em", textTransform: "uppercase",
+          color: p.sub, fontWeight: 700,
         }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <PawStamp size={16} color={p.accent} />
-            {artBy ? <>Illustration — <span style={{ color: p.ink }}>{artBy}</span></> : "Illustration — —"}
+          <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <Heart size={16} color={p.accent} />
+            {artBy ? <>Illust — <span style={{ color: p.ink }}>{artBy}</span></> : "Illust — —"}
           </span>
-          <span style={{ color: p.ink, fontStyle: "italic", fontFamily: "'Fraunces', serif", textTransform: "none", letterSpacing: 0, fontSize: 18 }}>
-            a cozy weekly poster
+          <span style={{ color: p.accent, fontFamily: "'Caveat', 'Pacifico', cursive", textTransform: "none", letterSpacing: 0, fontSize: 26, fontWeight: 700 }}>
+            a cozy weekly poster ♡
           </span>
           <span style={{ display: "flex", alignItems: "center", gap: 18 }}>
             {youtubeHandle && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <Youtube size={13} /> {youtubeHandle}
+                <Youtube size={14} /> {youtubeHandle}
               </span>
             )}
             {twitchHandle && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <Twitch size={13} /> {twitchHandle}
+                <Twitch size={14} /> {twitchHandle}
               </span>
             )}
           </span>
@@ -1391,5 +1397,6 @@ const AnimalLayout = ({
     </div>
   );
 };
+
 
 
