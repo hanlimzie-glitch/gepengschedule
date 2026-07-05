@@ -1274,61 +1274,76 @@ const AnimalLayout = ({
               alignItems: "baseline",
               gap: 28,
               padding: "14px 0 14px 0",
-              borderBottom: `1px solid ${p.ink}22`,
+              borderBottom: `2px dashed ${p.accent}55`,
             }}>
-              {/* index number */}
+              {/* index number in a heart */}
               <span style={{
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 15, color: p.sub, letterSpacing: "0.1em",
-                lineHeight: 1,
-              }}>{idx}</span>
+                position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center",
+                width: 44, height: 44,
+              }}>
+                <Heart size={44} color={`${p.accent}33`} rotate={-6} />
+                <span style={{
+                  position: "absolute",
+                  fontFamily: "'Fredoka One', 'Quicksand', cursive",
+                  fontSize: 16, color: p.accent, letterSpacing: "0.02em",
+                  lineHeight: 1,
+                }}>{idx}</span>
+              </span>
 
-              {/* day + date, small caps top, big numeral */}
+              {/* day + date */}
               <span style={{ display: "flex", alignItems: "baseline", gap: 10, lineHeight: 1 }}>
                 <span style={{
-                  fontFamily: "'Fraunces', serif", fontStyle: "italic",
-                  fontSize: 34, fontWeight: 500, color: p.ink,
+                  fontFamily: "'Fredoka One', 'Quicksand', cursive",
+                  fontSize: 36, fontWeight: 400, color: p.ink,
+                  textTransform: "lowercase",
                 }}>{label}</span>
                 {num && (
                   <span style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: 15, color: p.sub, letterSpacing: "0.06em",
+                    fontFamily: "'Caveat', cursive",
+                    fontSize: 22, fontWeight: 700, color: p.accent, letterSpacing: "0.02em",
                   }}>·{num}</span>
                 )}
               </span>
 
-              {/* title — big serif, italic when offline */}
+              {/* title */}
               <span style={{
-                fontFamily: "'Fraunces', 'Playfair Display', serif",
-                fontSize: off ? 26 : 30,
-                fontWeight: off ? 400 : 600,
+                fontFamily: "'Quicksand', 'Nunito', sans-serif",
+                fontSize: off ? 26 : 28,
+                fontWeight: off ? 600 : 700,
                 fontStyle: off ? "italic" : "normal",
                 color: off ? p.sub : p.ink,
                 lineHeight: 1.15,
-                letterSpacing: "-0.01em",
+                letterSpacing: "-0.005em",
                 whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                display: "inline-flex", alignItems: "center", gap: 10,
               }}>
+                {!off && <Heart size={14} color={p.accent} />}
                 {off ? "— resting day —" : (first.title || "untitled broadcast")}
               </span>
 
-              {/* right meta: time in mono + platform icons */}
-              <span style={{ display: "flex", alignItems: "center", gap: 14, minHeight: 28 }}>
+              {/* right meta */}
+              <span style={{ display: "flex", alignItems: "center", gap: 12, minHeight: 28 }}>
                 {!off && first.time && (
                   <span style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: 16, letterSpacing: "0.08em",
-                    color: p.ink, whiteSpace: "nowrap",
+                    fontFamily: "'Fredoka One', 'Quicksand', cursive",
+                    fontSize: 15, letterSpacing: "0.06em",
+                    color: p.cream, background: p.accent,
+                    padding: "6px 14px", borderRadius: 999,
+                    border: `2px solid ${p.ink}`,
+                    boxShadow: `2px 2px 0 ${p.ink}`,
+                    whiteSpace: "nowrap",
                   }}>{first.time}</span>
                 )}
                 {!off && first.platforms?.length > 0 && (
                   <PlatformBadges list={first.platforms} compact />
                 )}
                 {off && (
-                  <PawStamp size={22} color={p.accent} opacity={0.55} rotate={i * 17} />
+                  <Star size={22} color={p.accent2} opacity={0.7} rotate={i * 17} />
                 )}
               </span>
             </div>
           );
+
         })}
       </div>
 
