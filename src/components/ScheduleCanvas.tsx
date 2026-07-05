@@ -1055,16 +1055,16 @@ const CelestialLayout = ({
      • Bottom footer: date range + art credit + socials
    ============================================================ */
 
-const ANIMAL_V2_PALETTES: Record<string, { bg1: string; bg2: string; dot: string; ink: string; sub: string; accent: string; chipInk: string }> = {
-  cute:      { bg1: "#fff2e0", bg2: "#ffe0ec", dot: "#f7c6a8", ink: "#6b3a24", sub: "#a67b60", accent: "#ef8fa8", chipInk: "#ffffff" },
-  sakura:    { bg1: "#fff0f5", bg2: "#ffe0ec", dot: "#f5b6c8", ink: "#7a2f4e", sub: "#a86a86", accent: "#ec7fa6", chipInk: "#ffffff" },
-  mint:      { bg1: "#e8f7ec", bg2: "#f2fbe6", dot: "#a8d6a8", ink: "#22523a", sub: "#5f8574", accent: "#7fbf8f", chipInk: "#ffffff" },
-  aesthetic: { bg1: "#efe8ff", bg2: "#e2ecff", dot: "#c0b0e8", ink: "#3b2a72", sub: "#7566a0", accent: "#9a7fd6", chipInk: "#ffffff" },
-  cyber:     { bg1: "#e2f9ff", bg2: "#ffe4f2", dot: "#a8dfe8", ink: "#154858", sub: "#557080", accent: "#5fb8d0", chipInk: "#ffffff" },
-  gothic:    { bg1: "#241a22", bg2: "#150c14", dot: "#5a4658", ink: "#f0e6e6", sub: "#a89696", accent: "#c04a66", chipInk: "#ffffff" },
-  royalred:  { bg1: "#fff5e2", bg2: "#ffe4d0", dot: "#e6c168", ink: "#5f101c", sub: "#946060", accent: "#b8843a", chipInk: "#ffffff" },
-  magic:     { bg1: "#efe4ff", bg2: "#fff0d8", dot: "#c8a3ff", ink: "#331862", sub: "#75669a", accent: "#a888ff", chipInk: "#ffffff" },
-  mono:      { bg1: "#fafafa", bg2: "#eeeeee", dot: "#cccccc", ink: "#0a0a0a", sub: "#5f5f5f", accent: "#1f1f1f", chipInk: "#ffffff" },
+const ANIMAL_V2_PALETTES: Record<string, { bg1: string; bg2: string; bg3: string; dot: string; ink: string; sub: string; accent: string; accent2: string; cream: string; chipInk: string }> = {
+  cute:      { bg1: "#ffe8f1", bg2: "#fff3e0", bg3: "#ffd9e8", dot: "#ffb4cf", ink: "#5b2a3e", sub: "#b07289", accent: "#ff6fa3", accent2: "#ffb84d", cream: "#fff8ef", chipInk: "#ffffff" },
+  sakura:    { bg1: "#ffe4ee", bg2: "#ffeef4", bg3: "#ffd0e0", dot: "#f7a5c0", ink: "#6e2340", sub: "#b56d8a", accent: "#ff5c94", accent2: "#ffc0d4", cream: "#fff5f8", chipInk: "#ffffff" },
+  mint:      { bg1: "#dff5e5", bg2: "#eefbe6", bg3: "#c9ecd3", dot: "#8fd3a5", ink: "#1f4a34", sub: "#5c8874", accent: "#57c48a", accent2: "#ffd66b", cream: "#f4fff2", chipInk: "#ffffff" },
+  aesthetic: { bg1: "#ece1ff", bg2: "#dbe6ff", bg3: "#d6c8ff", dot: "#b6a3ec", ink: "#2f1f66", sub: "#7566a0", accent: "#8f6cf0", accent2: "#f5c76e", cream: "#f6f0ff", chipInk: "#ffffff" },
+  cyber:     { bg1: "#d6f4ff", bg2: "#ffdaee", bg3: "#c7e8ff", dot: "#8fd0e2", ink: "#0f3a4a", sub: "#557080", accent: "#33a8c6", accent2: "#ff77b8", cream: "#eefaff", chipInk: "#ffffff" },
+  gothic:    { bg1: "#2a1e26", bg2: "#180f17", bg3: "#38222f", dot: "#7a5a70", ink: "#f6e6ec", sub: "#b898a8", accent: "#e05c7c", accent2: "#f0b8c8", cream: "#241820", chipInk: "#ffffff" },
+  royalred:  { bg1: "#fff0dc", bg2: "#ffddc4", bg3: "#ffe6cc", dot: "#e6b25c", ink: "#5c0f1a", sub: "#946060", accent: "#c2632e", accent2: "#e6b96a", cream: "#fff7ea", chipInk: "#ffffff" },
+  magic:     { bg1: "#eadfff", bg2: "#fff0d8", bg3: "#e0d0ff", dot: "#c1a3ff", ink: "#2b1656", sub: "#7566a0", accent: "#9a76ff", accent2: "#ffd580", cream: "#f6f0ff", chipInk: "#ffffff" },
+  mono:      { bg1: "#fafafa", bg2: "#efefef", bg3: "#f4f4f4", dot: "#cccccc", ink: "#0a0a0a", sub: "#5f5f5f", accent: "#1f1f1f", accent2: "#8a8a8a", cream: "#ffffff", chipInk: "#ffffff" },
 };
 
 const ANIMAL_V2_DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
@@ -1100,41 +1100,62 @@ const AnimalLayout = ({
     </svg>
   );
 
+  const Heart = ({ size = 20, color = p.accent, opacity = 1, rotate = 0 }: any) => (
+    <svg width={size} height={size} viewBox="0 0 24 24"
+         style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
+      <path d="M12 21s-7-4.5-9.5-9C.8 8.6 2.6 4.5 6.4 4.5c2 0 3.5 1 4.6 2.6C12.1 5.5 13.6 4.5 15.6 4.5c3.8 0 5.6 4.1 3.9 7.5C19 16.5 12 21 12 21z"
+            fill={color} />
+    </svg>
+  );
+
+  const Star = ({ size = 18, color = p.accent2, opacity = 1, rotate = 0 }: any) => (
+    <svg width={size} height={size} viewBox="0 0 24 24"
+         style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
+      <path d="M12 2l2.4 6.6L21 9.6l-5 4.6L17.5 21 12 17.4 6.5 21 8 14.2l-5-4.6 6.6-1z" fill={color} />
+    </svg>
+  );
+
   return (
     <div
       className="relative h-full w-full overflow-hidden"
       style={{
-        background: `linear-gradient(165deg, ${p.bg1} 0%, ${p.bg2} 100%)`,
+        background: `radial-gradient(1200px 900px at 15% 10%, ${p.bg3} 0%, transparent 55%), radial-gradient(1000px 800px at 90% 90%, ${p.bg3} 0%, transparent 55%), linear-gradient(165deg, ${p.bg1} 0%, ${p.bg2} 100%)`,
         color: p.ink,
-        fontFamily: "'Fraunces', 'Cormorant Garamond', 'Playfair Display', serif",
+        fontFamily: "'Quicksand', 'Nunito', 'Poppins', sans-serif",
       }}
     >
-      {/* ~~~ paper grain / halftone dust ~~~ */}
+      {/* ~~~ fluffy pastel blobs ~~~ */}
+      <div className="absolute pointer-events-none" style={{
+        top: -180, left: -160, width: 620, height: 620, borderRadius: "50%",
+        background: `radial-gradient(closest-side, ${p.accent}33, transparent 70%)`, filter: "blur(10px)",
+      }} />
+      <div className="absolute pointer-events-none" style={{
+        bottom: -220, right: -140, width: 700, height: 700, borderRadius: "50%",
+        background: `radial-gradient(closest-side, ${p.accent2}33, transparent 70%)`, filter: "blur(10px)",
+      }} />
+
+      {/* ~~~ polka dot backdrop ~~~ */}
       <div className="absolute inset-0 pointer-events-none"
            style={{
-             backgroundImage: `radial-gradient(${p.dot}55 1.2px, transparent 1.8px)`,
-             backgroundSize: "22px 22px",
-             opacity: 0.35,
+             backgroundImage: `radial-gradient(${p.dot}66 3px, transparent 4px)`,
+             backgroundSize: "38px 38px",
+             opacity: 0.5,
              mixBlendMode: "multiply",
            }}
       />
 
-      {/* ~~~ poster frame: thin double rule border ~~~ */}
+      {/* ~~~ kawaii frame: dashed rounded border ~~~ */}
       <div className="absolute pointer-events-none"
-           style={{ inset: 44, border: `1.5px solid ${p.ink}`, opacity: 0.55 }} />
+           style={{ inset: 40, border: `4px dashed ${p.accent}`, borderRadius: 42, opacity: 0.85 }} />
       <div className="absolute pointer-events-none"
-           style={{ inset: 54, border: `1px solid ${p.ink}`, opacity: 0.25 }} />
+           style={{ inset: 56, border: `2px solid ${p.accent2}`, borderRadius: 32, opacity: 0.55 }} />
 
-      {/* Corner marks (registration ticks — printer's poster feel) */}
-      {[
-        { top: 32, left: 32 }, { top: 32, right: 32 },
-        { bottom: 32, left: 32 }, { bottom: 32, right: 32 },
-      ].map((pos, i) => (
-        <div key={i} className="absolute pointer-events-none" style={{ ...pos, width: 22, height: 22 }}>
-          <div style={{ position: "absolute", top: 10, left: 0, right: 0, height: 1, background: p.ink, opacity: 0.6 }} />
-          <div style={{ position: "absolute", left: 10, top: 0, bottom: 0, width: 1, background: p.ink, opacity: 0.6 }} />
-        </div>
-      ))}
+      {/* corner cute stamps instead of registration ticks */}
+      <div className="absolute pointer-events-none" style={{ top: 28, left: 28 }}><Heart size={38} color={p.accent} rotate={-18} /></div>
+      <div className="absolute pointer-events-none" style={{ top: 28, right: 28 }}><Star size={38} color={p.accent2} rotate={12} /></div>
+      <div className="absolute pointer-events-none" style={{ bottom: 28, left: 28 }}><Star size={34} color={p.accent2} rotate={-8} /></div>
+      <div className="absolute pointer-events-none" style={{ bottom: 28, right: 28 }}><Heart size={34} color={p.accent} rotate={22} /></div>
+
 
       {/* ~~~ CHARACTER: full-bleed hero, right ~44%, bleeds off top & right ~~~ */}
       <div
@@ -1183,12 +1204,12 @@ const AnimalLayout = ({
         <div style={{
           fontSize: 200,
           lineHeight: 0.86,
-          fontWeight: 900,
-          fontFamily: "'Fraunces', 'Playfair Display', serif",
-          fontStyle: "italic",
-          letterSpacing: "-0.045em",
-          color: p.ink,
-          transform: "translateX(-6px)",
+          fontWeight: 400,
+          fontFamily: "'Fredoka One', 'Pacifico', 'Quicksand', cursive",
+          letterSpacing: "-0.02em",
+          color: p.accent,
+          textShadow: `4px 4px 0 ${p.ink}, 8px 8px 0 ${p.accent2}55`,
+          transform: "translateX(-6px) rotate(-2deg)",
         }}>
           Stream
         </div>
@@ -1196,16 +1217,19 @@ const AnimalLayout = ({
           fontSize: 200,
           lineHeight: 0.86,
           fontWeight: 400,
-          fontFamily: "'Fraunces', 'Playfair Display', serif",
-          letterSpacing: "-0.045em",
-          color: "transparent",
-          WebkitTextStroke: `2px ${p.ink}`,
+          fontFamily: "'Fredoka One', 'Pacifico', 'Quicksand', cursive",
+          letterSpacing: "-0.02em",
+          color: p.cream,
+          WebkitTextStroke: `4px ${p.ink}`,
+          textShadow: `6px 6px 0 ${p.accent}66`,
           marginTop: -4,
           display: "flex", alignItems: "center", gap: 28,
+          transform: "rotate(-1deg)",
         }}>
           <span>Schedule</span>
           <PawStamp size={72} color={p.accent} rotate={18} />
         </div>
+
 
         {/* sub-line: date range + issue tagline */}
         <div style={{ marginTop: 26, display: "flex", alignItems: "center", gap: 22 }}>
@@ -1220,9 +1244,10 @@ const AnimalLayout = ({
           {(subtitle || title) && (
             <span style={{
               fontStyle: "italic",
-              fontSize: 22,
+              fontSize: 24,
               color: p.sub,
-              fontFamily: "'Fraunces', 'Playfair Display', serif",
+              fontFamily: "'Caveat', 'Pacifico', cursive",
+              fontWeight: 700,
             }}>
               {subtitle || title}
             </span>
@@ -1249,100 +1274,121 @@ const AnimalLayout = ({
               alignItems: "baseline",
               gap: 28,
               padding: "14px 0 14px 0",
-              borderBottom: `1px solid ${p.ink}22`,
+              borderBottom: `2px dashed ${p.accent}55`,
             }}>
-              {/* index number */}
+              {/* index number in a heart */}
               <span style={{
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 15, color: p.sub, letterSpacing: "0.1em",
-                lineHeight: 1,
-              }}>{idx}</span>
+                position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center",
+                width: 44, height: 44,
+              }}>
+                <Heart size={44} color={`${p.accent}33`} rotate={-6} />
+                <span style={{
+                  position: "absolute",
+                  fontFamily: "'Fredoka One', 'Quicksand', cursive",
+                  fontSize: 16, color: p.accent, letterSpacing: "0.02em",
+                  lineHeight: 1,
+                }}>{idx}</span>
+              </span>
 
-              {/* day + date, small caps top, big numeral */}
+              {/* day + date */}
               <span style={{ display: "flex", alignItems: "baseline", gap: 10, lineHeight: 1 }}>
                 <span style={{
-                  fontFamily: "'Fraunces', serif", fontStyle: "italic",
-                  fontSize: 34, fontWeight: 500, color: p.ink,
+                  fontFamily: "'Fredoka One', 'Quicksand', cursive",
+                  fontSize: 36, fontWeight: 400, color: p.ink,
+                  textTransform: "lowercase",
                 }}>{label}</span>
                 {num && (
                   <span style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: 15, color: p.sub, letterSpacing: "0.06em",
+                    fontFamily: "'Caveat', cursive",
+                    fontSize: 22, fontWeight: 700, color: p.accent, letterSpacing: "0.02em",
                   }}>·{num}</span>
                 )}
               </span>
 
-              {/* title — big serif, italic when offline */}
+              {/* title */}
               <span style={{
-                fontFamily: "'Fraunces', 'Playfair Display', serif",
-                fontSize: off ? 26 : 30,
-                fontWeight: off ? 400 : 600,
+                fontFamily: "'Quicksand', 'Nunito', sans-serif",
+                fontSize: off ? 26 : 28,
+                fontWeight: off ? 600 : 700,
                 fontStyle: off ? "italic" : "normal",
                 color: off ? p.sub : p.ink,
                 lineHeight: 1.15,
-                letterSpacing: "-0.01em",
+                letterSpacing: "-0.005em",
                 whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                display: "inline-flex", alignItems: "center", gap: 10,
               }}>
+                {!off && <Heart size={14} color={p.accent} />}
                 {off ? "— resting day —" : (first.title || "untitled broadcast")}
               </span>
 
-              {/* right meta: time in mono + platform icons */}
-              <span style={{ display: "flex", alignItems: "center", gap: 14, minHeight: 28 }}>
+              {/* right meta */}
+              <span style={{ display: "flex", alignItems: "center", gap: 12, minHeight: 28 }}>
                 {!off && first.time && (
                   <span style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: 16, letterSpacing: "0.08em",
-                    color: p.ink, whiteSpace: "nowrap",
+                    fontFamily: "'Fredoka One', 'Quicksand', cursive",
+                    fontSize: 15, letterSpacing: "0.06em",
+                    color: p.cream, background: p.accent,
+                    padding: "6px 14px", borderRadius: 999,
+                    border: `2px solid ${p.ink}`,
+                    boxShadow: `2px 2px 0 ${p.ink}`,
+                    whiteSpace: "nowrap",
                   }}>{first.time}</span>
                 )}
                 {!off && first.platforms?.length > 0 && (
                   <PlatformBadges list={first.platforms} compact />
                 )}
                 {off && (
-                  <PawStamp size={22} color={p.accent} opacity={0.55} rotate={i * 17} />
+                  <Star size={22} color={p.accent2} opacity={0.7} rotate={i * 17} />
                 )}
               </span>
             </div>
           );
+
         })}
       </div>
 
-      {/* ~~~ scattered paw stamps as poster accents (off-grid, deliberate) ~~~ */}
-      <div className="absolute" style={{ top: 470, left: 60, zIndex: 4, opacity: 0.85 }}>
-        <PawStamp size={46} color={p.accent} rotate={-24} />
+      {/* ~~~ scattered kawaii accents (off-grid, deliberate) ~~~ */}
+      <div className="absolute" style={{ top: 470, left: 60, zIndex: 4 }}>
+        <PawStamp size={50} color={p.accent} rotate={-24} />
       </div>
       <div className="absolute" style={{ top: 78, right: 120, zIndex: 7 }}>
-        <PawStamp size={54} color={p.ink} opacity={0.18} rotate={22} />
+        <Star size={54} color={p.accent2} opacity={0.85} rotate={22} />
       </div>
       <div className="absolute" style={{ bottom: 260, left: "48%", zIndex: 4 }}>
-        <PawStamp size={30} color={p.accent} opacity={0.6} rotate={40} />
+        <Heart size={34} color={p.accent} opacity={0.75} rotate={20} />
+      </div>
+      <div className="absolute" style={{ top: 340, left: 40, zIndex: 4 }}>
+        <Star size={22} color={p.accent2} opacity={0.85} rotate={-10} />
+      </div>
+      <div className="absolute" style={{ top: 560, right: 80, zIndex: 4 }}>
+        <PawStamp size={34} color={p.accent2} opacity={0.7} rotate={30} />
       </div>
 
-      {/* ~~~ FOOTER — colophon strip, poster-style ~~~ */}
+      {/* ~~~ FOOTER — kawaii ribbon strip ~~~ */}
       <div className="absolute" style={{ left: 96, right: 96, bottom: 88, zIndex: 8 }}>
-        <div style={{ height: 1, background: p.ink, opacity: 0.6, marginBottom: 18 }} />
+        <div style={{ height: 3, borderRadius: 3, background: `repeating-linear-gradient(90deg, ${p.accent} 0 12px, transparent 12px 22px)`, opacity: 0.75, marginBottom: 18 }} />
         <div style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 13, letterSpacing: "0.22em", textTransform: "uppercase",
-          color: p.sub,
+          fontFamily: "'Quicksand', 'Nunito', sans-serif",
+          fontSize: 14, letterSpacing: "0.16em", textTransform: "uppercase",
+          color: p.sub, fontWeight: 700,
         }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <PawStamp size={16} color={p.accent} />
-            {artBy ? <>Illustration — <span style={{ color: p.ink }}>{artBy}</span></> : "Illustration — —"}
+          <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <Heart size={16} color={p.accent} />
+            {artBy ? <>Illust — <span style={{ color: p.ink }}>{artBy}</span></> : "Illust — —"}
           </span>
-          <span style={{ color: p.ink, fontStyle: "italic", fontFamily: "'Fraunces', serif", textTransform: "none", letterSpacing: 0, fontSize: 18 }}>
-            a cozy weekly poster
+          <span style={{ color: p.accent, fontFamily: "'Caveat', 'Pacifico', cursive", textTransform: "none", letterSpacing: 0, fontSize: 26, fontWeight: 700 }}>
+            a cozy weekly poster ♡
           </span>
           <span style={{ display: "flex", alignItems: "center", gap: 18 }}>
             {youtubeHandle && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <Youtube size={13} /> {youtubeHandle}
+                <Youtube size={14} /> {youtubeHandle}
               </span>
             )}
             {twitchHandle && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <Twitch size={13} /> {twitchHandle}
+                <Twitch size={14} /> {twitchHandle}
               </span>
             )}
           </span>
@@ -1351,5 +1397,6 @@ const AnimalLayout = ({
     </div>
   );
 };
+
 
 
