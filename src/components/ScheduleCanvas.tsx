@@ -1067,33 +1067,16 @@ const ANIMAL_V2_PALETTES: Record<string, { bg1: string; bg2: string; dot: string
   mono:      { bg1: "#fafafa", bg2: "#eeeeee", dot: "#cccccc", ink: "#0a0a0a", sub: "#5f5f5f", accent: "#1f1f1f", chipInk: "#ffffff" },
 };
 
-const ANIMAL_V2_DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+const ANIMAL_V2_DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
-// A round paw badge that renders paw-pink.png tinted with a color overlay,
-// with day label + date centered on top.
-const PawDayBadge = ({ label, date, tint }: { label: string; date?: string; tint: string }) => (
-  <div style={{ position: "relative", width: 96, height: 96, flexShrink: 0 }}>
-    <img
-      src={animalPawAsset.url}
-      alt=""
-      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
-    />
-    <div
-      style={{
-        position: "absolute", inset: 0,
-        display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        color: "#ffffff",
-        textShadow: `0 2px 4px ${tint}aa, 0 1px 0 rgba(0,0,0,0.15)`,
-        fontFamily: "'Quicksand', 'Poppins', sans-serif",
-        lineHeight: 1,
-      }}
-    >
-      <div style={{ fontSize: 16, fontWeight: 800, letterSpacing: "0.08em" }}>{label}</div>
-      {date && <div style={{ fontSize: 22, fontWeight: 900, marginTop: 4 }}>{date}</div>}
-    </div>
-  </div>
-);
+/* ============================================================
+   POSTER COMPOSITION — not a dashboard.
+   Full-bleed 1920×{1080|1440} art object.
+   Asymmetric split: LEFT ~58% editorial column, RIGHT ~42% hero character silhouette
+   bleeding off top & right edges. Oversized rotated wordmark, hand-drawn paw stamps,
+   thin rule lines, numbered day list (01→07) with generous leading. No cards, no
+   pills-in-a-row grid, no dashboard bars.
+   ============================================================ */
 
 const AnimalLayout = ({
   title, subtitle, dateRange, days,
@@ -1103,352 +1086,270 @@ const AnimalLayout = ({
 }: any) => {
   const p = ANIMAL_V2_PALETTES[theme as string] || ANIMAL_V2_PALETTES.cute;
 
+  // Tiny hand-drawn paw glyph (inline SVG mark used as poster stamp)
+  const PawStamp = ({ size = 40, color = p.accent, opacity = 1, rotate = 0 }: any) => (
+    <svg width={size} height={size} viewBox="0 0 40 40"
+         style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
+      <g fill={color}>
+        <ellipse cx="20" cy="26" rx="9" ry="7.5" />
+        <ellipse cx="8"  cy="16" rx="3.6" ry="4.6" />
+        <ellipse cx="32" cy="16" rx="3.6" ry="4.6" />
+        <ellipse cx="14" cy="8"  rx="3"   ry="4"   />
+        <ellipse cx="26" cy="8"  rx="3"   ry="4"   />
+      </g>
+    </svg>
+  );
+
   return (
     <div
       className="relative h-full w-full overflow-hidden"
       style={{
-        background: `linear-gradient(160deg, ${p.bg1} 0%, ${p.bg2} 100%)`,
+        background: `linear-gradient(165deg, ${p.bg1} 0%, ${p.bg2} 100%)`,
         color: p.ink,
-        fontFamily: "'Quicksand', 'Poppins', sans-serif",
+        fontFamily: "'Fraunces', 'Cormorant Garamond', 'Playfair Display', serif",
       }}
     >
-      {/* soft polka dot backdrop */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `radial-gradient(${p.dot}66 2px, transparent 3px)`,
-          backgroundSize: "36px 36px",
-          opacity: 0.45,
-        }}
+      {/* ~~~ paper grain / halftone dust ~~~ */}
+      <div className="absolute inset-0 pointer-events-none"
+           style={{
+             backgroundImage: `radial-gradient(${p.dot}55 1.2px, transparent 1.8px)`,
+             backgroundSize: "22px 22px",
+             opacity: 0.35,
+             mixBlendMode: "multiply",
+           }}
       />
 
-      {/* ============ TOP BANNER — "SCHEDULE" logo lookalike ============ */}
+      {/* ~~~ poster frame: thin double rule border ~~~ */}
+      <div className="absolute pointer-events-none"
+           style={{ inset: 44, border: `1.5px solid ${p.ink}`, opacity: 0.55 }} />
+      <div className="absolute pointer-events-none"
+           style={{ inset: 54, border: `1px solid ${p.ink}`, opacity: 0.25 }} />
+
+      {/* Corner marks (registration ticks — printer's poster feel) */}
+      {[
+        { top: 32, left: 32 }, { top: 32, right: 32 },
+        { bottom: 32, left: 32 }, { bottom: 32, right: 32 },
+      ].map((pos, i) => (
+        <div key={i} className="absolute pointer-events-none" style={{ ...pos, width: 22, height: 22 }}>
+          <div style={{ position: "absolute", top: 10, left: 0, right: 0, height: 1, background: p.ink, opacity: 0.6 }} />
+          <div style={{ position: "absolute", left: 10, top: 0, bottom: 0, width: 1, background: p.ink, opacity: 0.6 }} />
+        </div>
+      ))}
+
+      {/* ~~~ CHARACTER: full-bleed hero, right ~44%, bleeds off top & right ~~~ */}
       <div
-        className="absolute flex items-end justify-center"
-        style={{ top: 30, left: 60, right: 60, height: 150, zIndex: 5 }}
+        className="absolute overflow-hidden"
+        style={{
+          top: -20, right: -40, bottom: 220, width: 900,
+          zIndex: 2,
+        }}
       >
-        <div style={{ position: "relative", display: "inline-block" }}>
-          {/* peeking cat behind the wordmark (SVG, no PNG) */}
-          <svg
-            width="150" height="120" viewBox="0 0 150 120"
-            style={{ position: "absolute", top: -46, right: -34, zIndex: 0 }}
-          >
-            {/* ears */}
-            <path d="M32 60 L22 20 L58 42 Z" fill="#ffffff" stroke={p.accent} strokeWidth="4" strokeLinejoin="round" />
-            <path d="M118 60 L128 20 L92 42 Z" fill="#ffffff" stroke={p.accent} strokeWidth="4" strokeLinejoin="round" />
-            <path d="M34 55 L27 30 L52 44 Z" fill={`${p.accent}55`} />
-            <path d="M116 55 L123 30 L98 44 Z" fill={`${p.accent}55`} />
-            {/* head */}
-            <ellipse cx="75" cy="70" rx="52" ry="42" fill="#ffffff" stroke={p.accent} strokeWidth="4" />
-            {/* cheeks */}
-            <circle cx="52" cy="82" r="7" fill={`${p.accent}66`} />
-            <circle cx="98" cy="82" r="7" fill={`${p.accent}66`} />
-            {/* eyes (closed happy) */}
-            <path d="M58 70 q6 -8 12 0" fill="none" stroke={p.ink} strokeWidth="3.5" strokeLinecap="round" />
-            <path d="M80 70 q6 -8 12 0" fill="none" stroke={p.ink} strokeWidth="3.5" strokeLinecap="round" />
-            {/* mouth */}
-            <path d="M70 84 q5 5 10 0" fill="none" stroke={p.ink} strokeWidth="3" strokeLinecap="round" />
-          </svg>
-
-          {/* Wordmark: SCHEDULE — big bubbly script style, double-outline */}
-          <div
-            style={{
-              position: "relative", zIndex: 1,
-              fontFamily: "'Fredoka One', 'Pacifico', 'Quicksand', cursive",
-              fontSize: 96, fontWeight: 900,
-              letterSpacing: "0.02em",
-              color: "#ffffff",
-              WebkitTextStroke: `3px ${p.ink}`,
-              textShadow: `
-                6px 6px 0 ${p.accent},
-                6px 6px 0 ${p.ink},
-                0 8px 0 ${p.ink}22
-              `,
-              lineHeight: 1,
-              padding: "0 20px",
-              transform: "rotate(-2deg)",
-            }}
-          >
-            Schedule
+        {/* soft radial halo behind character */}
+        <div className="absolute" style={{
+          inset: 40,
+          background: `radial-gradient(closest-side, ${p.accent}33, transparent 70%)`,
+          filter: "blur(20px)",
+        }} />
+        {characterUrl ? (
+          <div className="relative w-full h-full">
+            <CharImage url={characterUrl} fit={charFit || "contain"} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
           </div>
-
-          {subtitle && (
-            <div
-              style={{
-                marginTop: 4, textAlign: "center",
-                fontSize: 14, color: p.sub,
-                letterSpacing: "0.32em", textTransform: "uppercase",
-                fontWeight: 700,
-              }}
-            >
-              {subtitle}
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-3"
+               style={{ color: p.sub, border: `2px dashed ${p.accent}66`, borderRadius: 24, margin: 40 }}>
+            <PawStamp size={80} />
+            <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "'Quicksand', sans-serif" }}>
+              upload your character
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* ~~~ HERO WORDMARK — oversized, rotated, off-center ~~~ */}
+      <div className="absolute" style={{ top: 96, left: 96, zIndex: 6, maxWidth: 1080 }}>
+        {/* micro eyebrow — issue no. */}
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 14,
+          fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace",
+          fontSize: 13, letterSpacing: "0.32em", textTransform: "uppercase",
+          color: p.sub, marginBottom: 18,
+        }}>
+          <span style={{ width: 42, height: 1, background: p.sub, display: "inline-block" }} />
+          Vol. 01 — Weekly Broadcast
+          <PawStamp size={18} color={p.sub} opacity={0.7} rotate={-12} />
+        </div>
+
+        {/* huge display title */}
+        <div style={{
+          fontSize: 200,
+          lineHeight: 0.86,
+          fontWeight: 900,
+          fontFamily: "'Fraunces', 'Playfair Display', serif",
+          fontStyle: "italic",
+          letterSpacing: "-0.045em",
+          color: p.ink,
+          transform: "translateX(-6px)",
+        }}>
+          Stream
+        </div>
+        <div style={{
+          fontSize: 200,
+          lineHeight: 0.86,
+          fontWeight: 400,
+          fontFamily: "'Fraunces', 'Playfair Display', serif",
+          letterSpacing: "-0.045em",
+          color: "transparent",
+          WebkitTextStroke: `2px ${p.ink}`,
+          marginTop: -4,
+          display: "flex", alignItems: "center", gap: 28,
+        }}>
+          <span>Schedule</span>
+          <PawStamp size={72} color={p.accent} rotate={18} />
+        </div>
+
+        {/* sub-line: date range + issue tagline */}
+        <div style={{ marginTop: 26, display: "flex", alignItems: "center", gap: 22 }}>
+          {dateRange && (
+            <span style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 20, letterSpacing: "0.14em", textTransform: "uppercase",
+              color: p.ink,
+            }}>{dateRange}</span>
+          )}
+          <span style={{ flex: "0 0 60px", height: 1, background: p.ink, opacity: 0.5 }} />
+          {(subtitle || title) && (
+            <span style={{
+              fontStyle: "italic",
+              fontSize: 22,
+              color: p.sub,
+              fontFamily: "'Fraunces', 'Playfair Display', serif",
+            }}>
+              {subtitle || title}
+            </span>
           )}
         </div>
       </div>
 
-      {/* Title sub-strip (if provided) */}
-      {title && (
-        <div
-          className="absolute text-center"
-          style={{ top: 178, left: 60, right: 60, zIndex: 5 }}
-        >
-          <span
-            style={{
-              display: "inline-block",
-              background: "#ffffff",
-              border: `2.5px dashed ${p.accent}`,
-              borderRadius: 999,
-              padding: "6px 22px",
-              fontSize: 16, fontWeight: 800, color: p.accent,
-              letterSpacing: "0.14em", textTransform: "uppercase",
-            }}
-          >
-            {title}
-          </span>
-        </div>
-      )}
-
-
-      {/* ============ LEFT: DAY ROWS ============ */}
-      <div
-        className="absolute flex flex-col justify-center"
-        style={{ left: 80, top: 200, bottom: 160, width: 1050, gap: 14, zIndex: 4 }}
-      >
+      {/* ~~~ EDITORIAL DAY LIST — numbered, typographic, no card chrome ~~~ */}
+      <div className="absolute" style={{
+        left: 96, top: 600, width: 1000, zIndex: 5,
+      }}>
         {days.slice(0, 7).map((d: DayItem, i: number) => {
-          const label = ANIMAL_V2_DAYS[i] || d.day.slice(0, 3).toUpperCase();
+          const label = ANIMAL_V2_DAYS[i] || d.day.slice(0, 3).toLowerCase();
           const { num } = parseDay(d.day);
           const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platforms: [] } as Slot];
-          const allOffline = slots.every((s) => s.type === "offline");
           const first = slots[0];
           const off = first.type === "offline";
+          const idx = String(i + 1).padStart(2, "0");
 
           return (
-            <div key={i} className="flex items-center" style={{ gap: 18 }}>
-              <PawDayBadge label={label} date={num} tint={p.accent} />
+            <div key={i} style={{
+              display: "grid",
+              gridTemplateColumns: "56px 130px 1fr auto",
+              alignItems: "baseline",
+              gap: 28,
+              padding: "14px 0 14px 0",
+              borderBottom: `1px solid ${p.ink}22`,
+            }}>
+              {/* index number */}
+              <span style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 15, color: p.sub, letterSpacing: "0.1em",
+                lineHeight: 1,
+              }}>{idx}</span>
 
-              <div
-                style={{
-                  position: "relative", flex: 1, height: 84,
-                  background: "#ffffff",
-                  borderRadius: 999,
-                  border: `3px solid ${p.accent}`,
-                  boxShadow: `0 4px 0 ${p.accent}33, inset 0 -3px 0 ${p.dot}22`,
-                }}
-              >
-                <div
-                  className="absolute inset-0 flex items-center"
-                  style={{ padding: "0 32px 0 28px", gap: 16 }}
-                >
-                  {!off && first.time && (
-                    <span
-                      style={{
-                        background: p.accent, color: p.chipInk,
-                        padding: "6px 16px", borderRadius: 999,
-                        fontSize: 16, fontWeight: 800, letterSpacing: "0.04em",
-                        flexShrink: 0, boxShadow: `0 2px 0 ${p.accent}55`,
-                      }}
-                    >
-                      {first.time}
-                    </span>
-                  )}
+              {/* day + date, small caps top, big numeral */}
+              <span style={{ display: "flex", alignItems: "baseline", gap: 10, lineHeight: 1 }}>
+                <span style={{
+                  fontFamily: "'Fraunces', serif", fontStyle: "italic",
+                  fontSize: 34, fontWeight: 500, color: p.ink,
+                }}>{label}</span>
+                {num && (
+                  <span style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 15, color: p.sub, letterSpacing: "0.06em",
+                  }}>·{num}</span>
+                )}
+              </span>
 
-                  <span
-                    style={{
-                      flex: 1, minWidth: 0,
-                      fontSize: 22, fontWeight: 700,
-                      color: off ? p.sub : p.ink,
-                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                      fontStyle: off ? "italic" : "normal",
-                    }}
-                  >
-                    {off ? "no stream today 💤" : (first.title || "type your schedule here")}
-                  </span>
+              {/* title — big serif, italic when offline */}
+              <span style={{
+                fontFamily: "'Fraunces', 'Playfair Display', serif",
+                fontSize: off ? 26 : 30,
+                fontWeight: off ? 400 : 600,
+                fontStyle: off ? "italic" : "normal",
+                color: off ? p.sub : p.ink,
+                lineHeight: 1.15,
+                letterSpacing: "-0.01em",
+                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+              }}>
+                {off ? "— resting day —" : (first.title || "untitled broadcast")}
+              </span>
 
-                  {!off && <PlatformBadges list={first.platforms} compact />}
-
-                  {allOffline && (
-                    <span
-                      style={{
-                        background: "#ffffff", color: p.accent,
-                        border: `2px dashed ${p.accent}`,
-                        padding: "3px 12px", borderRadius: 999,
-                        fontSize: 12, fontWeight: 800, letterSpacing: "0.1em",
-                        flexShrink: 0,
-                      }}
-                    >
-                      BREAK
-                    </span>
-                  )}
-                </div>
-              </div>
+              {/* right meta: time in mono + platform icons */}
+              <span style={{ display: "flex", alignItems: "center", gap: 14, minHeight: 28 }}>
+                {!off && first.time && (
+                  <span style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 16, letterSpacing: "0.08em",
+                    color: p.ink, whiteSpace: "nowrap",
+                  }}>{first.time}</span>
+                )}
+                {!off && first.platforms?.length > 0 && (
+                  <PlatformBadges list={first.platforms} compact />
+                )}
+                {off && (
+                  <PawStamp size={22} color={p.accent} opacity={0.55} rotate={i * 17} />
+                )}
+              </span>
             </div>
           );
         })}
       </div>
 
-      {/* ============ RIGHT: CHARACTER IN CAT-HEAD FRAME (pure SVG) ============ */}
-      <div
-        className="absolute"
-        style={{ right: 60, top: 210, width: 760, bottom: 190, zIndex: 3 }}
-      >
-        <div style={{ position: "relative", width: "100%", height: "100%" }}>
-          <svg
-            viewBox="0 0 400 460"
-            preserveAspectRatio="xMidYMid meet"
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", overflow: "visible" }}
-          >
-            <defs>
-              {/* Cat-head silhouette: two ears + rounded head */}
-              <clipPath id="catHeadClip" clipPathUnits="userSpaceOnUse">
-                <path d="
-                  M 90 120
-                  L 60 20
-                  L 160 80
-                  Q 200 68 240 80
-                  L 340 20
-                  L 310 120
-                  Q 380 180 380 270
-                  Q 380 400 200 440
-                  Q 20 400 20 270
-                  Q 20 180 90 120
-                  Z
-                " />
-              </clipPath>
-            </defs>
-
-            {/* Inner ear tint */}
-            <path d="M 88 118 L 78 46 L 148 90 Z" fill={`${p.accent}55`} />
-            <path d="M 312 118 L 322 46 L 252 90 Z" fill={`${p.accent}55`} />
-
-            {/* Character masked to cat head */}
-            <g clipPath="url(#catHeadClip)">
-              <rect x="0" y="0" width="400" height="460" fill={p.bg1} />
-              <foreignObject x="0" y="0" width="400" height="460">
-                <div style={{ width: "100%", height: "100%", background: `linear-gradient(180deg, ${p.bg1}, ${p.dot}55)` }}>
-                  {characterUrl ? (
-                    <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ color: p.sub }}>
-                      <div style={{ fontSize: 72 }}>🐾</div>
-                      <div style={{ fontSize: 18, fontWeight: 700 }}>Upload your character</div>
-                    </div>
-                  )}
-                </div>
-              </foreignObject>
-            </g>
-
-            {/* Outline on top */}
-            <path
-              d="
-                M 90 120
-                L 60 20
-                L 160 80
-                Q 200 68 240 80
-                L 340 20
-                L 310 120
-                Q 380 180 380 270
-                Q 380 400 200 440
-                Q 20 400 20 270
-                Q 20 180 90 120
-                Z
-              "
-              fill="none"
-              stroke={p.accent}
-              strokeWidth="6"
-              strokeLinejoin="round"
-            />
-
-            {/* whiskers / cheeks */}
-            <circle cx="120" cy="330" r="14" fill={`${p.accent}44`} />
-            <circle cx="280" cy="330" r="14" fill={`${p.accent}44`} />
-
-            {/* little bow on left ear */}
-            <g transform="translate(110, 60) rotate(-15)">
-              <path d="M -18 0 L 0 -8 L 0 8 Z" fill={p.accent} stroke={p.ink} strokeWidth="2" />
-              <path d="M 18 0 L 0 -8 L 0 8 Z" fill={p.accent} stroke={p.ink} strokeWidth="2" />
-              <circle cx="0" cy="0" r="4" fill={p.ink} />
-            </g>
-          </svg>
-        </div>
+      {/* ~~~ scattered paw stamps as poster accents (off-grid, deliberate) ~~~ */}
+      <div className="absolute" style={{ top: 470, left: 60, zIndex: 4, opacity: 0.85 }}>
+        <PawStamp size={46} color={p.accent} rotate={-24} />
+      </div>
+      <div className="absolute" style={{ top: 78, right: 120, zIndex: 7 }}>
+        <PawStamp size={54} color={p.ink} opacity={0.18} rotate={22} />
+      </div>
+      <div className="absolute" style={{ bottom: 260, left: "48%", zIndex: 4 }}>
+        <PawStamp size={30} color={p.accent} opacity={0.6} rotate={40} />
       </div>
 
-
-      {/* ============ FOOTER ============ */}
-      <div
-        className="absolute flex items-center justify-between"
-        style={{ left: 80, right: 80, bottom: 50, zIndex: 6, gap: 16 }}
-      >
-        <div className="flex items-center" style={{ gap: 12 }}>
-          {dateRange && (
-            <div
-              style={{
-                background: "#ffffff",
-                border: `2.5px dashed ${p.accent}`,
-                borderRadius: 999,
-                padding: "8px 22px",
-                fontSize: 16, fontWeight: 800,
-                color: p.accent, letterSpacing: "0.08em",
-              }}
-            >
-              {dateRange}
-            </div>
-          )}
-          {artBy && (
-            <div
-              style={{
-                background: `${p.accent}22`,
-                border: `2px solid ${p.accent}55`,
-                borderRadius: 999,
-                padding: "8px 18px",
-                fontSize: 14, fontWeight: 700, color: p.ink,
-              }}
-            >
-              {artBy}
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center" style={{ gap: 10 }}>
-          {youtubeHandle && (
-            <div
-              className="flex items-center"
-              style={{
-                background: "#ffffff",
-                border: `2px solid ${p.dot}`,
-                borderRadius: 999,
-                padding: "6px 14px 6px 8px",
-                gap: 8,
-                fontSize: 13, fontWeight: 700, color: p.ink,
-              }}
-            >
-              <span style={{ width: 24, height: 24, background: "#FF0033", borderRadius: 8, display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
-                <Youtube size={14} />
+      {/* ~~~ FOOTER — colophon strip, poster-style ~~~ */}
+      <div className="absolute" style={{ left: 96, right: 96, bottom: 88, zIndex: 8 }}>
+        <div style={{ height: 1, background: p.ink, opacity: 0.6, marginBottom: 18 }} />
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 13, letterSpacing: "0.22em", textTransform: "uppercase",
+          color: p.sub,
+        }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <PawStamp size={16} color={p.accent} />
+            {artBy ? <>Illustration — <span style={{ color: p.ink }}>{artBy}</span></> : "Illustration — —"}
+          </span>
+          <span style={{ color: p.ink, fontStyle: "italic", fontFamily: "'Fraunces', serif", textTransform: "none", letterSpacing: 0, fontSize: 18 }}>
+            a cozy weekly poster
+          </span>
+          <span style={{ display: "flex", alignItems: "center", gap: 18 }}>
+            {youtubeHandle && (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <Youtube size={13} /> {youtubeHandle}
               </span>
-              {youtubeHandle}
-            </div>
-          )}
-          {twitchHandle && (
-            <div
-              className="flex items-center"
-              style={{
-                background: "#ffffff",
-                border: `2px solid ${p.dot}`,
-                borderRadius: 999,
-                padding: "6px 14px 6px 8px",
-                gap: 8,
-                fontSize: 13, fontWeight: 700, color: p.ink,
-              }}
-            >
-              <span style={{ width: 24, height: 24, background: "#9146FF", borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
-                <Twitch size={14} />
+            )}
+            {twitchHandle && (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <Twitch size={13} /> {twitchHandle}
               </span>
-              {twitchHandle}
-            </div>
-          )}
+            )}
+          </span>
         </div>
       </div>
     </div>
   );
 };
+
 
