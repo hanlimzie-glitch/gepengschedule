@@ -1100,41 +1100,62 @@ const AnimalLayout = ({
     </svg>
   );
 
+  const Heart = ({ size = 20, color = p.accent, opacity = 1, rotate = 0 }: any) => (
+    <svg width={size} height={size} viewBox="0 0 24 24"
+         style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
+      <path d="M12 21s-7-4.5-9.5-9C.8 8.6 2.6 4.5 6.4 4.5c2 0 3.5 1 4.6 2.6C12.1 5.5 13.6 4.5 15.6 4.5c3.8 0 5.6 4.1 3.9 7.5C19 16.5 12 21 12 21z"
+            fill={color} />
+    </svg>
+  );
+
+  const Star = ({ size = 18, color = p.accent2, opacity = 1, rotate = 0 }: any) => (
+    <svg width={size} height={size} viewBox="0 0 24 24"
+         style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
+      <path d="M12 2l2.4 6.6L21 9.6l-5 4.6L17.5 21 12 17.4 6.5 21 8 14.2l-5-4.6 6.6-1z" fill={color} />
+    </svg>
+  );
+
   return (
     <div
       className="relative h-full w-full overflow-hidden"
       style={{
-        background: `linear-gradient(165deg, ${p.bg1} 0%, ${p.bg2} 100%)`,
+        background: `radial-gradient(1200px 900px at 15% 10%, ${p.bg3} 0%, transparent 55%), radial-gradient(1000px 800px at 90% 90%, ${p.bg3} 0%, transparent 55%), linear-gradient(165deg, ${p.bg1} 0%, ${p.bg2} 100%)`,
         color: p.ink,
-        fontFamily: "'Fraunces', 'Cormorant Garamond', 'Playfair Display', serif",
+        fontFamily: "'Quicksand', 'Nunito', 'Poppins', sans-serif",
       }}
     >
-      {/* ~~~ paper grain / halftone dust ~~~ */}
+      {/* ~~~ fluffy pastel blobs ~~~ */}
+      <div className="absolute pointer-events-none" style={{
+        top: -180, left: -160, width: 620, height: 620, borderRadius: "50%",
+        background: `radial-gradient(closest-side, ${p.accent}33, transparent 70%)`, filter: "blur(10px)",
+      }} />
+      <div className="absolute pointer-events-none" style={{
+        bottom: -220, right: -140, width: 700, height: 700, borderRadius: "50%",
+        background: `radial-gradient(closest-side, ${p.accent2}33, transparent 70%)`, filter: "blur(10px)",
+      }} />
+
+      {/* ~~~ polka dot backdrop ~~~ */}
       <div className="absolute inset-0 pointer-events-none"
            style={{
-             backgroundImage: `radial-gradient(${p.dot}55 1.2px, transparent 1.8px)`,
-             backgroundSize: "22px 22px",
-             opacity: 0.35,
+             backgroundImage: `radial-gradient(${p.dot}66 3px, transparent 4px)`,
+             backgroundSize: "38px 38px",
+             opacity: 0.5,
              mixBlendMode: "multiply",
            }}
       />
 
-      {/* ~~~ poster frame: thin double rule border ~~~ */}
+      {/* ~~~ kawaii frame: dashed rounded border ~~~ */}
       <div className="absolute pointer-events-none"
-           style={{ inset: 44, border: `1.5px solid ${p.ink}`, opacity: 0.55 }} />
+           style={{ inset: 40, border: `4px dashed ${p.accent}`, borderRadius: 42, opacity: 0.85 }} />
       <div className="absolute pointer-events-none"
-           style={{ inset: 54, border: `1px solid ${p.ink}`, opacity: 0.25 }} />
+           style={{ inset: 56, border: `2px solid ${p.accent2}`, borderRadius: 32, opacity: 0.55 }} />
 
-      {/* Corner marks (registration ticks — printer's poster feel) */}
-      {[
-        { top: 32, left: 32 }, { top: 32, right: 32 },
-        { bottom: 32, left: 32 }, { bottom: 32, right: 32 },
-      ].map((pos, i) => (
-        <div key={i} className="absolute pointer-events-none" style={{ ...pos, width: 22, height: 22 }}>
-          <div style={{ position: "absolute", top: 10, left: 0, right: 0, height: 1, background: p.ink, opacity: 0.6 }} />
-          <div style={{ position: "absolute", left: 10, top: 0, bottom: 0, width: 1, background: p.ink, opacity: 0.6 }} />
-        </div>
-      ))}
+      {/* corner cute stamps instead of registration ticks */}
+      <div className="absolute pointer-events-none" style={{ top: 28, left: 28 }}><Heart size={38} color={p.accent} rotate={-18} /></div>
+      <div className="absolute pointer-events-none" style={{ top: 28, right: 28 }}><Star size={38} color={p.accent2} rotate={12} /></div>
+      <div className="absolute pointer-events-none" style={{ bottom: 28, left: 28 }}><Star size={34} color={p.accent2} rotate={-8} /></div>
+      <div className="absolute pointer-events-none" style={{ bottom: 28, right: 28 }}><Heart size={34} color={p.accent} rotate={22} /></div>
+
 
       {/* ~~~ CHARACTER: full-bleed hero, right ~44%, bleeds off top & right ~~~ */}
       <div
