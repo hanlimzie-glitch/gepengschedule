@@ -1055,16 +1055,16 @@ const CelestialLayout = ({
      • Bottom footer: date range + art credit + socials
    ============================================================ */
 
-const ANIMAL_V2_PALETTES: Record<string, { bg1: string; bg2: string; dot: string; ink: string; sub: string; accent: string; chipInk: string }> = {
-  cute:      { bg1: "#fff2e0", bg2: "#ffe0ec", dot: "#f7c6a8", ink: "#6b3a24", sub: "#a67b60", accent: "#ef8fa8", chipInk: "#ffffff" },
-  sakura:    { bg1: "#fff0f5", bg2: "#ffe0ec", dot: "#f5b6c8", ink: "#7a2f4e", sub: "#a86a86", accent: "#ec7fa6", chipInk: "#ffffff" },
-  mint:      { bg1: "#e8f7ec", bg2: "#f2fbe6", dot: "#a8d6a8", ink: "#22523a", sub: "#5f8574", accent: "#7fbf8f", chipInk: "#ffffff" },
-  aesthetic: { bg1: "#efe8ff", bg2: "#e2ecff", dot: "#c0b0e8", ink: "#3b2a72", sub: "#7566a0", accent: "#9a7fd6", chipInk: "#ffffff" },
-  cyber:     { bg1: "#e2f9ff", bg2: "#ffe4f2", dot: "#a8dfe8", ink: "#154858", sub: "#557080", accent: "#5fb8d0", chipInk: "#ffffff" },
-  gothic:    { bg1: "#241a22", bg2: "#150c14", dot: "#5a4658", ink: "#f0e6e6", sub: "#a89696", accent: "#c04a66", chipInk: "#ffffff" },
-  royalred:  { bg1: "#fff5e2", bg2: "#ffe4d0", dot: "#e6c168", ink: "#5f101c", sub: "#946060", accent: "#b8843a", chipInk: "#ffffff" },
-  magic:     { bg1: "#efe4ff", bg2: "#fff0d8", dot: "#c8a3ff", ink: "#331862", sub: "#75669a", accent: "#a888ff", chipInk: "#ffffff" },
-  mono:      { bg1: "#fafafa", bg2: "#eeeeee", dot: "#cccccc", ink: "#0a0a0a", sub: "#5f5f5f", accent: "#1f1f1f", chipInk: "#ffffff" },
+const ANIMAL_V2_PALETTES: Record<string, { bg1: string; bg2: string; bg3: string; dot: string; ink: string; sub: string; accent: string; accent2: string; cream: string; chipInk: string }> = {
+  cute:      { bg1: "#ffe8f1", bg2: "#fff3e0", bg3: "#ffd9e8", dot: "#ffb4cf", ink: "#5b2a3e", sub: "#b07289", accent: "#ff6fa3", accent2: "#ffb84d", cream: "#fff8ef", chipInk: "#ffffff" },
+  sakura:    { bg1: "#ffe4ee", bg2: "#ffeef4", bg3: "#ffd0e0", dot: "#f7a5c0", ink: "#6e2340", sub: "#b56d8a", accent: "#ff5c94", accent2: "#ffc0d4", cream: "#fff5f8", chipInk: "#ffffff" },
+  mint:      { bg1: "#dff5e5", bg2: "#eefbe6", bg3: "#c9ecd3", dot: "#8fd3a5", ink: "#1f4a34", sub: "#5c8874", accent: "#57c48a", accent2: "#ffd66b", cream: "#f4fff2", chipInk: "#ffffff" },
+  aesthetic: { bg1: "#ece1ff", bg2: "#dbe6ff", bg3: "#d6c8ff", dot: "#b6a3ec", ink: "#2f1f66", sub: "#7566a0", accent: "#8f6cf0", accent2: "#f5c76e", cream: "#f6f0ff", chipInk: "#ffffff" },
+  cyber:     { bg1: "#d6f4ff", bg2: "#ffdaee", bg3: "#c7e8ff", dot: "#8fd0e2", ink: "#0f3a4a", sub: "#557080", accent: "#33a8c6", accent2: "#ff77b8", cream: "#eefaff", chipInk: "#ffffff" },
+  gothic:    { bg1: "#2a1e26", bg2: "#180f17", bg3: "#38222f", dot: "#7a5a70", ink: "#f6e6ec", sub: "#b898a8", accent: "#e05c7c", accent2: "#f0b8c8", cream: "#241820", chipInk: "#ffffff" },
+  royalred:  { bg1: "#fff0dc", bg2: "#ffddc4", bg3: "#ffe6cc", dot: "#e6b25c", ink: "#5c0f1a", sub: "#946060", accent: "#c2632e", accent2: "#e6b96a", cream: "#fff7ea", chipInk: "#ffffff" },
+  magic:     { bg1: "#eadfff", bg2: "#fff0d8", bg3: "#e0d0ff", dot: "#c1a3ff", ink: "#2b1656", sub: "#7566a0", accent: "#9a76ff", accent2: "#ffd580", cream: "#f6f0ff", chipInk: "#ffffff" },
+  mono:      { bg1: "#fafafa", bg2: "#efefef", bg3: "#f4f4f4", dot: "#cccccc", ink: "#0a0a0a", sub: "#5f5f5f", accent: "#1f1f1f", accent2: "#8a8a8a", cream: "#ffffff", chipInk: "#ffffff" },
 };
 
 const ANIMAL_V2_DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
