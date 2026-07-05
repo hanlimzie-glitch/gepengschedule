@@ -1244,9 +1244,10 @@ const AnimalLayout = ({
           {(subtitle || title) && (
             <span style={{
               fontStyle: "italic",
-              fontSize: 22,
+              fontSize: 24,
               color: p.sub,
-              fontFamily: "'Fraunces', 'Playfair Display', serif",
+              fontFamily: "'Caveat', 'Pacifico', cursive",
+              fontWeight: 700,
             }}>
               {subtitle || title}
             </span>
