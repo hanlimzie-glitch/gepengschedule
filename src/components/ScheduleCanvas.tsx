@@ -1204,12 +1204,12 @@ const AnimalLayout = ({
         <div style={{
           fontSize: 200,
           lineHeight: 0.86,
-          fontWeight: 900,
-          fontFamily: "'Fraunces', 'Playfair Display', serif",
-          fontStyle: "italic",
-          letterSpacing: "-0.045em",
-          color: p.ink,
-          transform: "translateX(-6px)",
+          fontWeight: 400,
+          fontFamily: "'Fredoka One', 'Pacifico', 'Quicksand', cursive",
+          letterSpacing: "-0.02em",
+          color: p.accent,
+          textShadow: `4px 4px 0 ${p.ink}, 8px 8px 0 ${p.accent2}55`,
+          transform: "translateX(-6px) rotate(-2deg)",
         }}>
           Stream
         </div>
@@ -1217,16 +1217,19 @@ const AnimalLayout = ({
           fontSize: 200,
           lineHeight: 0.86,
           fontWeight: 400,
-          fontFamily: "'Fraunces', 'Playfair Display', serif",
-          letterSpacing: "-0.045em",
-          color: "transparent",
-          WebkitTextStroke: `2px ${p.ink}`,
+          fontFamily: "'Fredoka One', 'Pacifico', 'Quicksand', cursive",
+          letterSpacing: "-0.02em",
+          color: p.cream,
+          WebkitTextStroke: `4px ${p.ink}`,
+          textShadow: `6px 6px 0 ${p.accent}66`,
           marginTop: -4,
           display: "flex", alignItems: "center", gap: 28,
+          transform: "rotate(-1deg)",
         }}>
           <span>Schedule</span>
           <PawStamp size={72} color={p.accent} rotate={18} />
         </div>
+
 
         {/* sub-line: date range + issue tagline */}
         <div style={{ marginTop: 26, display: "flex", alignItems: "center", gap: 22 }}>
