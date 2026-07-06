@@ -1121,7 +1121,16 @@ const AnimalLayout = ({
   const titleLine1 = titleWords[0];
   const titleLine2 = titleWords.slice(1).join(" ");
   const longest = Math.max(titleLine1.length, titleLine2.length || 0);
-  const titleSize = longest <= 6 ? 190 : longest <= 9 ? 156 : longest <= 12 ? 128 : 104;
+  const baseTitleSize = longest <= 6 ? 190 : longest <= 9 ? 156 : longest <= 12 ? 128 : 104;
+  // If title wraps to 2 lines, shrink the font only — schedule Y stays fixed.
+  const titleSize = titleLine2 ? Math.min(baseTitleSize, 148) : baseTitleSize;
+
+  // ── Fixed vertical zones so the schedule never drifts ──────────────
+  const TITLE_TOP = 120;
+  const TITLE_AREA_H = 420;          // reserved for eyebrow + title + subline
+  const SCHEDULE_TOP = TITLE_TOP + TITLE_AREA_H;  // 540 — schedule always starts here
+  const SCHEDULE_BOTTOM = 180;       // clears the footer at bottom:88
+
 
   return (
     <div
