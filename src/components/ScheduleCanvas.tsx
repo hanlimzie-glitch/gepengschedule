@@ -1202,7 +1202,7 @@ const AnimalLayout = ({
       </div>
 
       {/* HERO WORDMARK — editable title */}
-      <div className="absolute" style={{ top: 120, left: 110, zIndex: 6, width: 1000 }}>
+      <div className="absolute" style={{ top: TITLE_TOP, left: 110, zIndex: 6, width: 1000, height: TITLE_AREA_H, overflow: "hidden" }}>
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 14,
           fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace",
