@@ -1121,7 +1121,16 @@ const AnimalLayout = ({
   const titleLine1 = titleWords[0];
   const titleLine2 = titleWords.slice(1).join(" ");
   const longest = Math.max(titleLine1.length, titleLine2.length || 0);
-  const titleSize = longest <= 6 ? 190 : longest <= 9 ? 156 : longest <= 12 ? 128 : 104;
+  const baseTitleSize = longest <= 6 ? 190 : longest <= 9 ? 156 : longest <= 12 ? 128 : 104;
+  // If title wraps to 2 lines, shrink the font only — schedule Y stays fixed.
+  const titleSize = titleLine2 ? Math.min(baseTitleSize, 148) : baseTitleSize;
+
+  // ── Fixed vertical zones so the schedule never drifts ──────────────
+  const TITLE_TOP = 120;
+  const TITLE_AREA_H = 420;          // reserved for eyebrow + title + subline
+  const SCHEDULE_TOP = TITLE_TOP + TITLE_AREA_H;  // 540 — schedule always starts here
+  const SCHEDULE_BOTTOM = 180;       // clears the footer at bottom:88
+
 
   return (
     <div
@@ -1193,7 +1202,7 @@ const AnimalLayout = ({
       </div>
 
       {/* HERO WORDMARK — editable title */}
-      <div className="absolute" style={{ top: 120, left: 110, zIndex: 6, width: 1000 }}>
+      <div className="absolute" style={{ top: TITLE_TOP, left: 110, zIndex: 6, width: 1000, height: TITLE_AREA_H, overflow: "hidden" }}>
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 14,
           fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace",
@@ -1263,9 +1272,10 @@ const AnimalLayout = ({
         </div>
       </div>
 
-      {/* EDITORIAL DAY LIST */}
+      {/* EDITORIAL DAY LIST — fixed height, 7 equal rows via flex column */}
       <div className="absolute" style={{
-        left: 110, top: 640, width: 940, zIndex: 5,
+        left: 110, top: SCHEDULE_TOP, bottom: SCHEDULE_BOTTOM, width: 940, zIndex: 5,
+        display: "flex", flexDirection: "column",
       }}>
         {days.slice(0, 7).map((d: DayItem, i: number) => {
           const label = ANIMAL_V2_DAYS[i] || d.day.slice(0, 3).toLowerCase();
@@ -1274,15 +1284,18 @@ const AnimalLayout = ({
           const first = slots[0];
           const off = first.type === "offline";
           const idx = String(i + 1).padStart(2, "0");
+          const isLast = i === Math.min(6, days.length - 1);
 
           return (
             <div key={i} style={{
+              flex: "1 1 0",
+              minHeight: 0,
               display: "grid",
               gridTemplateColumns: "44px 120px 1fr auto",
               alignItems: "center",
               gap: 22,
-              padding: "10px 0",
-              borderBottom: `2px dashed ${p.accent}55`,
+              paddingInline: 0,
+              borderBottom: isLast ? "none" : `2px dashed ${p.accent}55`,
             }}>
               <span style={{
                 position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center",
@@ -1297,7 +1310,7 @@ const AnimalLayout = ({
                 }}>{idx}</span>
               </span>
 
-              <span style={{ display: "flex", alignItems: "baseline", gap: 8, lineHeight: 1 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 8, lineHeight: 1 }}>
                 <span style={{
                   fontFamily: "'Fredoka One', 'Quicksand', cursive",
                   fontSize: 30, fontWeight: 400, color: p.ink,
@@ -1326,7 +1339,7 @@ const AnimalLayout = ({
                 {off ? "— resting day —" : (first.title || "untitled broadcast")}
               </span>
 
-              <span style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 28, justifyContent: "flex-end" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "flex-end" }}>
                 {!off && first.time && (
                   <span style={{
                     fontFamily: "'Fredoka One', 'Quicksand', cursive",
@@ -1336,6 +1349,7 @@ const AnimalLayout = ({
                     border: `2px solid ${p.ink}`,
                     boxShadow: `2px 2px 0 ${p.ink}`,
                     whiteSpace: "nowrap",
+                    lineHeight: 1,
                   }}>{first.time}</span>
                 )}
                 {!off && first.platforms?.length > 0 && (
@@ -1350,6 +1364,8 @@ const AnimalLayout = ({
 
         })}
       </div>
+
+
 
 
       {/* subtle scattered accents (kept in margins to avoid overlap) */}
