@@ -1115,6 +1115,14 @@ const AnimalLayout = ({
     </svg>
   );
 
+  // Editable title — split into two display lines (first word / rest).
+  const rawTitle = (title && String(title).trim()) || "Stream Schedule";
+  const titleWords = rawTitle.split(/\s+/);
+  const titleLine1 = titleWords[0];
+  const titleLine2 = titleWords.slice(1).join(" ");
+  const longest = Math.max(titleLine1.length, titleLine2.length || 0);
+  const titleSize = longest <= 6 ? 190 : longest <= 9 ? 156 : longest <= 12 ? 128 : 104;
+
   return (
     <div
       className="relative h-full w-full overflow-hidden"
@@ -1124,7 +1132,7 @@ const AnimalLayout = ({
         fontFamily: "'Quicksand', 'Nunito', 'Poppins', sans-serif",
       }}
     >
-      {/* ~~~ fluffy pastel blobs ~~~ */}
+      {/* fluffy pastel blobs */}
       <div className="absolute pointer-events-none" style={{
         top: -180, left: -160, width: 620, height: 620, borderRadius: "50%",
         background: `radial-gradient(closest-side, ${p.accent}33, transparent 70%)`, filter: "blur(10px)",
@@ -1134,7 +1142,7 @@ const AnimalLayout = ({
         background: `radial-gradient(closest-side, ${p.accent2}33, transparent 70%)`, filter: "blur(10px)",
       }} />
 
-      {/* ~~~ polka dot backdrop ~~~ */}
+      {/* polka dot backdrop */}
       <div className="absolute inset-0 pointer-events-none"
            style={{
              backgroundImage: `radial-gradient(${p.dot}66 3px, transparent 4px)`,
@@ -1144,30 +1152,28 @@ const AnimalLayout = ({
            }}
       />
 
-      {/* ~~~ kawaii frame: dashed rounded border ~~~ */}
+      {/* dashed kawaii frame */}
       <div className="absolute pointer-events-none"
            style={{ inset: 40, border: `4px dashed ${p.accent}`, borderRadius: 42, opacity: 0.85 }} />
       <div className="absolute pointer-events-none"
            style={{ inset: 56, border: `2px solid ${p.accent2}`, borderRadius: 32, opacity: 0.55 }} />
 
-      {/* corner cute stamps instead of registration ticks */}
-      <div className="absolute pointer-events-none" style={{ top: 28, left: 28 }}><Heart size={38} color={p.accent} rotate={-18} /></div>
-      <div className="absolute pointer-events-none" style={{ top: 28, right: 28 }}><Star size={38} color={p.accent2} rotate={12} /></div>
-      <div className="absolute pointer-events-none" style={{ bottom: 28, left: 28 }}><Star size={34} color={p.accent2} rotate={-8} /></div>
-      <div className="absolute pointer-events-none" style={{ bottom: 28, right: 28 }}><Heart size={34} color={p.accent} rotate={22} /></div>
+      {/* corner stamps (inside frame, no more collisions) */}
+      <div className="absolute pointer-events-none" style={{ top: 72, left: 72 }}><Heart size={30} color={p.accent} rotate={-18} /></div>
+      <div className="absolute pointer-events-none" style={{ top: 72, right: 72 }}><Star size={30} color={p.accent2} rotate={12} /></div>
+      <div className="absolute pointer-events-none" style={{ bottom: 72, left: 72 }}><Star size={26} color={p.accent2} rotate={-8} /></div>
+      <div className="absolute pointer-events-none" style={{ bottom: 72, right: 72 }}><Heart size={26} color={p.accent} rotate={22} /></div>
 
-
-      {/* ~~~ CHARACTER: full-bleed hero, right ~44%, bleeds off top & right ~~~ */}
+      {/* CHARACTER — right column, safe area, no bleed off edge */}
       <div
         className="absolute overflow-hidden"
         style={{
-          top: -20, right: -40, bottom: 220, width: 900,
+          top: 100, right: 90, bottom: 210, width: 760,
           zIndex: 2,
         }}
       >
-        {/* soft radial halo behind character */}
         <div className="absolute" style={{
-          inset: 40,
+          inset: 20,
           background: `radial-gradient(closest-side, ${p.accent}33, transparent 70%)`,
           filter: "blur(20px)",
         }} />
@@ -1177,7 +1183,7 @@ const AnimalLayout = ({
           </div>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-3"
-               style={{ color: p.sub, border: `2px dashed ${p.accent}66`, borderRadius: 24, margin: 40 }}>
+               style={{ color: p.sub, border: `2px dashed ${p.accent}66`, borderRadius: 24 }}>
             <PawStamp size={80} />
             <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "'Quicksand', sans-serif" }}>
               upload your character
@@ -1186,62 +1192,64 @@ const AnimalLayout = ({
         )}
       </div>
 
-      {/* ~~~ HERO WORDMARK — oversized, rotated, off-center ~~~ */}
-      <div className="absolute" style={{ top: 96, left: 96, zIndex: 6, maxWidth: 1080 }}>
-        {/* micro eyebrow — issue no. */}
+      {/* HERO WORDMARK — editable title */}
+      <div className="absolute" style={{ top: 120, left: 110, zIndex: 6, width: 1000 }}>
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 14,
           fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace",
           fontSize: 13, letterSpacing: "0.32em", textTransform: "uppercase",
-          color: p.sub, marginBottom: 18,
+          color: p.sub, marginBottom: 20,
         }}>
           <span style={{ width: 42, height: 1, background: p.sub, display: "inline-block" }} />
           Vol. 01 — Weekly Broadcast
           <PawStamp size={18} color={p.sub} opacity={0.7} rotate={-12} />
         </div>
 
-        {/* huge display title */}
         <div style={{
-          fontSize: 200,
-          lineHeight: 0.86,
+          fontSize: titleSize,
+          lineHeight: 0.88,
           fontWeight: 400,
           fontFamily: "'Fredoka One', 'Pacifico', 'Quicksand', cursive",
           letterSpacing: "-0.02em",
           color: p.accent,
           textShadow: `4px 4px 0 ${p.ink}, 8px 8px 0 ${p.accent2}55`,
-          transform: "translateX(-6px) rotate(-2deg)",
+          transform: "rotate(-2deg)",
+          transformOrigin: "left center",
         }}>
-          Stream
+          {titleLine1}
         </div>
-        <div style={{
-          fontSize: 200,
-          lineHeight: 0.86,
-          fontWeight: 400,
-          fontFamily: "'Fredoka One', 'Pacifico', 'Quicksand', cursive",
-          letterSpacing: "-0.02em",
-          color: p.cream,
-          WebkitTextStroke: `4px ${p.ink}`,
-          textShadow: `6px 6px 0 ${p.accent}66`,
-          marginTop: -4,
-          display: "flex", alignItems: "center", gap: 28,
-          transform: "rotate(-1deg)",
-        }}>
-          <span>Schedule</span>
-          <PawStamp size={72} color={p.accent} rotate={18} />
-        </div>
+        {titleLine2 && (
+          <div style={{
+            fontSize: titleSize,
+            lineHeight: 0.88,
+            fontWeight: 400,
+            fontFamily: "'Fredoka One', 'Pacifico', 'Quicksand', cursive",
+            letterSpacing: "-0.02em",
+            color: p.cream,
+            WebkitTextStroke: `4px ${p.ink}`,
+            textShadow: `6px 6px 0 ${p.accent}66`,
+            marginTop: 10,
+            display: "flex", alignItems: "center", gap: 24,
+            transform: "rotate(-1deg)",
+            transformOrigin: "left center",
+          }}>
+            <span>{titleLine2}</span>
+            <PawStamp size={Math.round(titleSize * 0.36)} color={p.accent} rotate={18} />
+          </div>
+        )}
 
-
-        {/* sub-line: date range + issue tagline */}
-        <div style={{ marginTop: 26, display: "flex", alignItems: "center", gap: 22 }}>
+        <div style={{ marginTop: 28, display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
           {dateRange && (
             <span style={{
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 20, letterSpacing: "0.14em", textTransform: "uppercase",
+              fontSize: 18, letterSpacing: "0.14em", textTransform: "uppercase",
               color: p.ink,
             }}>{dateRange}</span>
           )}
-          <span style={{ flex: "0 0 60px", height: 1, background: p.ink, opacity: 0.5 }} />
-          {(subtitle || title) && (
+          {(dateRange && subtitle) && (
+            <span style={{ flex: "0 0 48px", height: 1, background: p.ink, opacity: 0.5 }} />
+          )}
+          {subtitle && (
             <span style={{
               fontStyle: "italic",
               fontSize: 24,
@@ -1249,15 +1257,15 @@ const AnimalLayout = ({
               fontFamily: "'Caveat', 'Pacifico', cursive",
               fontWeight: 700,
             }}>
-              {subtitle || title}
+              {subtitle}
             </span>
           )}
         </div>
       </div>
 
-      {/* ~~~ EDITORIAL DAY LIST — numbered, typographic, no card chrome ~~~ */}
+      {/* EDITORIAL DAY LIST */}
       <div className="absolute" style={{
-        left: 96, top: 600, width: 1000, zIndex: 5,
+        left: 110, top: 640, width: 940, zIndex: 5,
       }}>
         {days.slice(0, 7).map((d: DayItem, i: number) => {
           const label = ANIMAL_V2_DAYS[i] || d.day.slice(0, 3).toLowerCase();
@@ -1270,65 +1278,61 @@ const AnimalLayout = ({
           return (
             <div key={i} style={{
               display: "grid",
-              gridTemplateColumns: "56px 130px 1fr auto",
-              alignItems: "baseline",
-              gap: 28,
-              padding: "14px 0 14px 0",
+              gridTemplateColumns: "44px 120px 1fr auto",
+              alignItems: "center",
+              gap: 22,
+              padding: "10px 0",
               borderBottom: `2px dashed ${p.accent}55`,
             }}>
-              {/* index number in a heart */}
               <span style={{
                 position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center",
-                width: 44, height: 44,
+                width: 40, height: 40,
               }}>
-                <Heart size={44} color={`${p.accent}33`} rotate={-6} />
+                <Heart size={40} color={`${p.accent}33`} rotate={-6} />
                 <span style={{
                   position: "absolute",
                   fontFamily: "'Fredoka One', 'Quicksand', cursive",
-                  fontSize: 16, color: p.accent, letterSpacing: "0.02em",
+                  fontSize: 14, color: p.accent, letterSpacing: "0.02em",
                   lineHeight: 1,
                 }}>{idx}</span>
               </span>
 
-              {/* day + date */}
-              <span style={{ display: "flex", alignItems: "baseline", gap: 10, lineHeight: 1 }}>
+              <span style={{ display: "flex", alignItems: "baseline", gap: 8, lineHeight: 1 }}>
                 <span style={{
                   fontFamily: "'Fredoka One', 'Quicksand', cursive",
-                  fontSize: 36, fontWeight: 400, color: p.ink,
+                  fontSize: 30, fontWeight: 400, color: p.ink,
                   textTransform: "lowercase",
                 }}>{label}</span>
                 {num && (
                   <span style={{
                     fontFamily: "'Caveat', cursive",
-                    fontSize: 22, fontWeight: 700, color: p.accent, letterSpacing: "0.02em",
+                    fontSize: 20, fontWeight: 700, color: p.accent, letterSpacing: "0.02em",
                   }}>·{num}</span>
                 )}
               </span>
 
-              {/* title */}
               <span style={{
                 fontFamily: "'Quicksand', 'Nunito', sans-serif",
-                fontSize: off ? 26 : 28,
+                fontSize: off ? 22 : 24,
                 fontWeight: off ? 600 : 700,
                 fontStyle: off ? "italic" : "normal",
                 color: off ? p.sub : p.ink,
                 lineHeight: 1.15,
                 letterSpacing: "-0.005em",
                 whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                display: "inline-flex", alignItems: "center", gap: 10,
+                display: "inline-flex", alignItems: "center", gap: 10, minWidth: 0,
               }}>
-                {!off && <Heart size={14} color={p.accent} />}
+                {!off && <Heart size={13} color={p.accent} />}
                 {off ? "— resting day —" : (first.title || "untitled broadcast")}
               </span>
 
-              {/* right meta */}
-              <span style={{ display: "flex", alignItems: "center", gap: 12, minHeight: 28 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 28, justifyContent: "flex-end" }}>
                 {!off && first.time && (
                   <span style={{
                     fontFamily: "'Fredoka One', 'Quicksand', cursive",
-                    fontSize: 15, letterSpacing: "0.06em",
+                    fontSize: 14, letterSpacing: "0.06em",
                     color: p.cream, background: p.accent,
-                    padding: "6px 14px", borderRadius: 999,
+                    padding: "5px 12px", borderRadius: 999,
                     border: `2px solid ${p.ink}`,
                     boxShadow: `2px 2px 0 ${p.ink}`,
                     whiteSpace: "nowrap",
@@ -1338,7 +1342,7 @@ const AnimalLayout = ({
                   <PlatformBadges list={first.platforms} compact />
                 )}
                 {off && (
-                  <Star size={22} color={p.accent2} opacity={0.7} rotate={i * 17} />
+                  <Star size={20} color={p.accent2} opacity={0.7} rotate={i * 17} />
                 )}
               </span>
             </div>
@@ -1346,6 +1350,7 @@ const AnimalLayout = ({
 
         })}
       </div>
+
 
       {/* ~~~ scattered kawaii accents (off-grid, deliberate) ~~~ */}
       <div className="absolute" style={{ top: 470, left: 60, zIndex: 4 }}>
