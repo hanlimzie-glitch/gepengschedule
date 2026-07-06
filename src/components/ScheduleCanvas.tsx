@@ -1352,22 +1352,17 @@ const AnimalLayout = ({
       </div>
 
 
-      {/* ~~~ scattered kawaii accents (off-grid, deliberate) ~~~ */}
-      <div className="absolute" style={{ top: 470, left: 60, zIndex: 4 }}>
-        <PawStamp size={50} color={p.accent} rotate={-24} />
+      {/* subtle scattered accents (kept in margins to avoid overlap) */}
+      <div className="absolute" style={{ top: 96, left: 60, zIndex: 4 }}>
+        <PawStamp size={26} color={p.accent} opacity={0.55} rotate={-24} />
       </div>
-      <div className="absolute" style={{ top: 78, right: 120, zIndex: 7 }}>
-        <Star size={54} color={p.accent2} opacity={0.85} rotate={22} />
+      <div className="absolute" style={{ bottom: 220, right: 60, zIndex: 4 }}>
+        <PawStamp size={24} color={p.accent2} opacity={0.55} rotate={30} />
       </div>
-      <div className="absolute" style={{ bottom: 260, left: "48%", zIndex: 4 }}>
-        <Heart size={34} color={p.accent} opacity={0.75} rotate={20} />
+      <div className="absolute" style={{ top: 600, left: 62, zIndex: 4 }}>
+        <Star size={18} color={p.accent2} opacity={0.7} rotate={-10} />
       </div>
-      <div className="absolute" style={{ top: 340, left: 40, zIndex: 4 }}>
-        <Star size={22} color={p.accent2} opacity={0.85} rotate={-10} />
-      </div>
-      <div className="absolute" style={{ top: 560, right: 80, zIndex: 4 }}>
-        <PawStamp size={34} color={p.accent2} opacity={0.7} rotate={30} />
-      </div>
+
 
       {/* ~~~ FOOTER — kawaii ribbon strip ~~~ */}
       <div className="absolute" style={{ left: 96, right: 96, bottom: 88, zIndex: 8 }}>
