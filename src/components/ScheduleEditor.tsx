@@ -286,6 +286,33 @@ export const ScheduleEditor = () => {
     return () => { ro.disconnect(); window.removeEventListener("resize", update); if (raf) cancelAnimationFrame(raf); };
   }, [ratio]);
 
+  // ── Zoom via wheel ─────────────────────────────────────────────────
+  // React 17+ memasang handler onWheel sebagai passive listener →
+  // e.preventDefault() diabaikan & halaman ikut scroll. Solusinya:
+  // pasang listener native dengan { passive: false } + gate ref untuk kondisi terkini.
+  const wheelGateRef = useRef({ texEditing: false, charReady: false });
+  wheelGateRef.current = {
+    texEditing: Boolean(textureEdit && texture.url),
+    charReady: Boolean(characterUrl),
+  };
+  useEffect(() => {
+    const el = previewWrapRef.current;
+    if (!el) return;
+    const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+    const onWheelNative = (e: WheelEvent) => {
+      const gate = wheelGateRef.current;
+      if (gate.texEditing) {
+        e.preventDefault();
+        setTexture((t) => ({ ...t, rotation: clamp(t.rotation + (e.deltaY < 0 ? 2 : -2), -180, 180) }));
+      } else if (gate.charReady) {
+        e.preventDefault();
+        setCharScale((s) => clamp(s + (e.deltaY < 0 ? 0.05 : -0.05), 0.3, 3));
+      }
+    };
+    el.addEventListener("wheel", onWheelNative, { passive: false });
+    return () => el.removeEventListener("wheel", onWheelNative);
+  }, []);
+
   const downloadPng = async () => {
     if (!canvasRef.current) return;
     setBusy(true);
@@ -680,16 +707,6 @@ export const ScheduleEditor = () => {
             </div>
             <div ref={previewWrapRef} className="w-full overflow-hidden rounded-xl border border-border bg-black/30 relative"
               style={{ height: canvasH * scale, cursor: (textureEdit && texture.url) || characterUrl ? "grab" : "default" }}
-              onWheel={(e) => {
-                if (textureEdit && texture.url) {
-                  e.preventDefault();
-                  updateTexture("rotation", Math.max(-180, Math.min(180, texture.rotation + (e.deltaY < 0 ? 2 : -2))));
-                  return;
-                }
-                if (!characterUrl) return;
-                e.preventDefault();
-                setCharScale((s) => Math.max(0.3, Math.min(3, s + (e.deltaY < 0 ? 0.05 : -0.05))));
-              }}
               onPointerDown={(e) => {
                 const editingTex = textureEdit && texture.url;
                 if (!editingTex && !characterUrl) return;
