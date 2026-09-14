@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import appLogo from "@/assets/logo.svg";
 import { toPng } from "html-to-image";
-import { Upload, Download, Sparkles, ImageIcon, UserRound, UsersRound, CloudOff, Plus, Minus, Calendar as CalendarIcon, Twitch, Youtube, Music2 } from "lucide-react";
+import { Upload, Download, Sparkles, ImageIcon, UserRound, UsersRound, CloudOff, Plus, Minus, Calendar as CalendarIcon, CalendarClock, RotateCcw, Twitch, Youtube, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import type { DateRange } from "react-day-picker";
 import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentIconKey, type OrnamentLayer, type LayoutKey, type PlatformKey, type TextureSettings } from "./ScheduleCanvas";
+import { loadState, saveState, clearState, type SaveResult } from "@/lib/persistence";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -105,38 +106,46 @@ const ornamentIconOptions: { key: OrnamentIconKey; label: string; glyph: string 
 ];
 
 export const ScheduleEditor = () => {
-  const [title, setTitle] = useState("Huan Weekly Schedule");
-  const [subtitle, setSubtitle] = useState("powered by Huan");
-  const [dateRange, setDateRange] = useState(formatRange(CURRENT_MONDAY, CURRENT_SUNDAY));
-  const [dateRangeObj, setDateRangeObj] = useState<DateRange | undefined>({
-    from: CURRENT_MONDAY,
-    to: CURRENT_SUNDAY,
+  const [persisted] = useState(() => loadState());
+  const [title, setTitle] = useState(persisted?.title ?? "Huan Weekly Schedule");
+  const [subtitle, setSubtitle] = useState(persisted?.subtitle ?? "powered by Huan");
+  const [dateRange, setDateRange] = useState(persisted?.dateRange ?? formatRange(CURRENT_MONDAY, CURRENT_SUNDAY));
+  const [dateRangeObj, setDateRangeObj] = useState<DateRange | undefined>(() => {
+    if (persisted?.dateFrom) {
+      const from = new Date(persisted.dateFrom);
+      const to = persisted.dateTo ? new Date(persisted.dateTo) : undefined;
+      if (!isNaN(from.getTime())) return { from, to: to && !isNaN(to.getTime()) ? to : undefined };
+    }
+    return { from: CURRENT_MONDAY, to: CURRENT_SUNDAY };
   });
-  const [artBy, setArtBy] = useState("Art by @yourname");
-  const [youtubeHandle, setYoutubeHandle] = useState("@your youtube channel");
-  const [twitchHandle, setTwitchHandle] = useState("@your twitch channel");
-  const [days, setDays] = useState<DayItem[]>(initialDays);
-  const [characterUrl, setCharacterUrl] = useState<string | null>(null);
-  const [charFit, setCharFit] = useState<"cover" | "contain">("cover");
-  const [charScale, setCharScale] = useState(1);
-  const [charOffsetX, setCharOffsetX] = useState(0);
-  const [charOffsetY, setCharOffsetY] = useState(0);
-  const [theme, setTheme] = useState<ThemeKey>("cute");
-  const [ornaments, setOrnaments] = useState<OrnamentLayer[]>([makeLayer({ icon: "heart", count: 50, size: 36 })]);
+  const [artBy, setArtBy] = useState(persisted?.artBy ?? "Art by @yourname");
+  const [youtubeHandle, setYoutubeHandle] = useState(persisted?.youtubeHandle ?? "@your youtube channel");
+  const [twitchHandle, setTwitchHandle] = useState(persisted?.twitchHandle ?? "@your twitch channel");
+  const [days, setDays] = useState<DayItem[]>(persisted?.days?.length ? persisted.days : initialDays);
+  const [characterUrl, setCharacterUrl] = useState<string | null>(persisted?.characterUrl ?? null);
+  const [charFit, setCharFit] = useState<"cover" | "contain">(persisted?.charFit ?? "cover");
+  const [charScale, setCharScale] = useState(persisted?.charScale ?? 1);
+  const [charOffsetX, setCharOffsetX] = useState(persisted?.charOffsetX ?? 0);
+  const [charOffsetY, setCharOffsetY] = useState(persisted?.charOffsetY ?? 0);
+  const [theme, setTheme] = useState<ThemeKey>(persisted?.theme ?? "cute");
+  const [ornaments, setOrnaments] = useState<OrnamentLayer[]>(
+    persisted?.ornaments?.length ? persisted.ornaments : [makeLayer({ icon: "heart", count: 50, size: 36 })]
+  );
   const updateLayer = (i: number, patch: Partial<OrnamentLayer>) =>
     setOrnaments((prev) => prev.map((l, idx) => idx === i ? { ...l, ...patch } : l));
   const addLayer = () => setOrnaments((prev) => prev.length >= 3 ? prev : [...prev, makeLayer()]);
   const removeLayer = (i: number) => setOrnaments((prev) => prev.filter((_, idx) => idx !== i));
-  const [layout, setLayout] = useState<LayoutKey>("bubbles");
-  const [ratio, setRatio] = useState<"16:9" | "4:3">("16:9");
+  const [layout, setLayout] = useState<LayoutKey>(persisted?.layout ?? "bubbles");
+  const [ratio, setRatio] = useState<"16:9" | "4:3">(persisted?.ratio ?? "16:9");
   const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [scale, setScale] = useState(0.4);
-  const [texture, setTexture] = useState<TextureSettings>({
+  const [texture, setTexture] = useState<TextureSettings>(persisted?.texture ?? {
     url: null, blend: "overlay", opacity: 0.5, size: 100, repeat: true, scope: "all",
     offsetX: 0, offsetY: 0, rotation: 0,
   });
   const [textureEdit, setTextureEdit] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<{ status: SaveResult | "idle"; at: number | null }>({ status: "idle", at: null });
   const updateTexture = <K extends keyof TextureSettings>(k: K, v: TextureSettings[K]) =>
     setTexture((t) => ({ ...t, [k]: v }));
   const handleTextureFile = (file: File) => {
@@ -205,6 +214,60 @@ export const ScheduleEditor = () => {
     const f = e.dataTransfer.files?.[0]; if (f) handleFile(f);
   };
 
+  // ── Auto-save ke localStorage (debounce 400ms) ─────────────────────
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const res = saveState({
+        v: 1,
+        savedAt: Date.now(),
+        title, subtitle, dateRange,
+        dateFrom: dateRangeObj?.from ? dateRangeObj.from.toISOString() : null,
+        dateTo: dateRangeObj?.to ? dateRangeObj.to.toISOString() : null,
+        artBy, youtubeHandle, twitchHandle,
+        days, characterUrl, charFit, charScale, charOffsetX, charOffsetY,
+        theme, ornaments, layout, ratio, texture,
+      });
+      setSaveStatus({ status: res, at: Date.now() });
+    }, 400);
+    return () => clearTimeout(t);
+  }, [title, subtitle, dateRange, dateRangeObj, artBy, youtubeHandle, twitchHandle, days,
+      characterUrl, charFit, charScale, charOffsetX, charOffsetY, theme, ornaments, layout, ratio, texture]);
+
+  // Peringatan hanya saat status BERUBAH (tidak spam toast)
+  const lastToastStatus = useRef<string>("idle");
+  useEffect(() => {
+    if (saveStatus.status === "stripped" && lastToastStatus.current !== "stripped")
+      toast.warning("Gambar terlalu besar — tersimpan tanpa gambar karakter/texture.");
+    if (saveStatus.status === "error" && lastToastStatus.current !== "error")
+      toast.error("Auto-save gagal (localStorage penuh?)");
+    lastToastStatus.current = saveStatus.status;
+  }, [saveStatus]);
+
+  // Duplikat isi jadwal ke minggu berikutnya (konten sama, tanggal & label bergeser)
+  const shiftToNextWeek = () => {
+    const base = dateRangeObj?.from ?? CURRENT_MONDAY;
+    const from = new Date(base); from.setDate(from.getDate() + 7);
+    const to = new Date(from); to.setDate(from.getDate() + 6);
+    handleDateRange({ from, to });
+    toast.success("Jadwal digeser ke minggu depan — isi stream tetap sama 📅");
+  };
+
+  const resetAll = () => {
+    if (!window.confirm("Kembali ke default? Semua perubahan & data tersimpan akan hilang.")) return;
+    clearState();
+    setTitle("Huan Weekly Schedule"); setSubtitle("powered by Huan");
+    setDateRange(formatRange(CURRENT_MONDAY, CURRENT_SUNDAY));
+    setDateRangeObj({ from: CURRENT_MONDAY, to: CURRENT_SUNDAY });
+    setArtBy("Art by @yourname"); setYoutubeHandle("@your youtube channel"); setTwitchHandle("@your twitch channel");
+    setDays(buildDayLabels(CURRENT_MONDAY).map((d) => ({ day: d, slots: [makeSlot()] })));
+    setCharacterUrl(null); setCharFit("cover"); setCharScale(1); setCharOffsetX(0); setCharOffsetY(0);
+    setTheme("cute"); setOrnaments([makeLayer({ icon: "heart", count: 50, size: 36 })]);
+    setLayout("bubbles"); setRatio("16:9");
+    setTexture({ url: null, blend: "overlay", opacity: 0.5, size: 100, repeat: true, scope: "all", offsetX: 0, offsetY: 0, rotation: 0 });
+    setTextureEdit(false);
+    toast.success("Kembali ke default ✨");
+  };
+
   useEffect(() => {
     const wrap = previewWrapRef.current;
     if (!wrap) return;
@@ -252,6 +315,16 @@ export const ScheduleEditor = () => {
             <h1 className="text-3xl md:text-4xl font-black gradient-text leading-tight">VTuber Schedule Maker</h1>
             <p className="text-sm text-muted-foreground">Buat jadwal mingguan keren — export PNG kualitas tinggi</p>
           </div>
+        </div>
+        <div className="text-xs text-muted-foreground md:text-right" aria-live="polite">
+          {saveStatus.status === "saved" && saveStatus.at && (
+            <span>💾 Tersimpan otomatis • {new Date(saveStatus.at).toLocaleTimeString("id-ID")}</span>
+          )}
+          {saveStatus.status === "stripped" && (
+            <span className="text-amber-400">⚠️ Tersimpan tanpa gambar (file terlalu besar)</span>
+          )}
+          {saveStatus.status === "error" && <span className="text-red-400">⚠️ Auto-save gagal</span>}
+          {saveStatus.status === "idle" && <span>💾 Auto-save aktif</span>}
         </div>
       </header>
 
@@ -481,6 +554,16 @@ export const ScheduleEditor = () => {
                 </div>
               ))}
             </div>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <Button variant="outline" size="sm" onClick={shiftToNextWeek}
+                title="Duplikat isi jadwal ke minggu depan (konten sama, tanggal & label hari bergeser)">
+                <CalendarClock className="w-4 h-4 mr-1" />Minggu depan
+              </Button>
+              <Button variant="outline" size="sm" onClick={resetAll}
+                title="Hapus semua perubahan & data tersimpan di browser">
+                <RotateCcw className="w-4 h-4 mr-1" />Reset
+              </Button>
+            </div>
           </Section>
 
           <Section title="Texture Overlay">
@@ -577,7 +660,7 @@ export const ScheduleEditor = () => {
 
           <Section title="Export">
             <Field label="Rasio">
-              <Select value={ratio} onValueChange={(v) => setRatio(v as any)}>
+              <Select value={ratio} onValueChange={(v) => setRatio(v as "16:9" | "4:3")}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="16:9">16:9 (1920×1080)</SelectItem>
