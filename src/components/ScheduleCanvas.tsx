@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
-import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Cloud, Twitch, Youtube, Crown, Wand2, Feather, Star, PawPrint, Circle } from "lucide-react";
-import animalPawAsset from "@/assets/animal/paw-pink.png.asset.json";
+import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Twitch, Youtube, Crown, Wand2, Feather, Star, Circle } from "lucide-react";
+import { CELESTIAL_PALETTES, ANIMAL_V2_PALETTES } from "@/lib/palettes";
 
 export type PlatformKey = "twitch" | "youtube" | "tiktok";
 
@@ -67,6 +67,27 @@ export type ScheduleProps = {
   charOffsetX?: number;
   charOffsetY?: number;
   texture?: TextureSettings;
+};
+
+/**
+ * Props bersama untuk semua layout poster.
+ * Setiap layout cukup mendestrukturisasi field yang benar-benar dipakai.
+ */
+export type LayoutProps = {
+  title: string;
+  subtitle: string;
+  dateRange: string;
+  days: DayItem[];
+  characterUrl: string | null;
+  charFit: "cover" | "contain";
+  charScale: number;
+  charOffsetX: number;
+  charOffsetY: number;
+  artBy?: string;
+  youtubeHandle?: string;
+  twitchHandle?: string;
+  theme: ThemeKey;
+  ratio: "16:9" | "4:3";
 };
 
 export const CharImage = ({
@@ -266,15 +287,40 @@ const PlatformBadges = ({ list, compact }: { list: PlatformKey[]; compact?: bool
 };
 
 // Normalize legacy day items (with flat fields) into slot-based shape
-const normalize = (d: any): DayItem => {
-  const normSlot = (s: any): Slot => {
-    let platforms: PlatformKey[] = [];
-    if (Array.isArray(s.platforms)) platforms = s.platforms.filter((p: any) => p && p !== "none");
-    else if (s.platform && s.platform !== "none") platforms = [s.platform];
-    return { time: s.time || "", title: s.title || "", note: s.note || "", type: s.type || "solo", platforms };
+type LegacySlot = {
+  time?: unknown;
+  title?: unknown;
+  note?: unknown;
+  type?: unknown;
+  platforms?: unknown;
+  platform?: unknown;
+};
+type LegacyDay = LegacySlot & { day?: unknown; slots?: unknown };
+
+const VALID_PLATFORMS: readonly PlatformKey[] = ["twitch", "youtube", "tiktok"];
+const VALID_SLOT_TYPES: readonly Slot["type"][] = ["solo", "collab", "offline"];
+
+const isPlatform = (p: unknown): p is PlatformKey =>
+  typeof p === "string" && (VALID_PLATFORMS as readonly string[]).includes(p);
+const isSlotType = (t: unknown): t is Slot["type"] =>
+  typeof t === "string" && (VALID_SLOT_TYPES as readonly string[]).includes(t);
+
+const normalize = (d: LegacyDay): DayItem => {
+  const normSlot = (s: LegacySlot): Slot => ({
+    time: typeof s.time === "string" ? s.time : "",
+    title: typeof s.title === "string" ? s.title : "",
+    note: typeof s.note === "string" ? s.note : "",
+    type: isSlotType(s.type) ? s.type : "solo",
+    platforms: Array.isArray(s.platforms)
+      ? s.platforms.filter(isPlatform)
+      : isPlatform(s.platform)
+        ? [s.platform]
+        : [],
+  });
+  return {
+    day: typeof d.day === "string" ? d.day : "",
+    slots: Array.isArray(d.slots) && d.slots.length > 0 ? d.slots.map(normSlot) : [normSlot(d)],
   };
-  if (d.slots) return { day: d.day, slots: d.slots.map(normSlot) };
-  return { day: d.day, slots: [normSlot(d)] };
 };
 
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
@@ -286,7 +332,7 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
     const textureOverlay = texture?.url && (texture.scope === "all" || texture.scope === "background") ? (
       <div
         className="absolute inset-0 pointer-events-none overflow-hidden"
-        style={{ zIndex: 1, mixBlendMode: texture.blend as any, opacity: texture.opacity }}
+        style={{ zIndex: 1, mixBlendMode: texture.blend as React.CSSProperties["mixBlendMode"], opacity: texture.opacity }}
       >
         <div
           className="absolute"
@@ -332,12 +378,16 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
         {textureOverlay}
 
         {(() => {
-          const charProps = { characterUrl, charFit, charScale, charOffsetX, charOffsetY };
-          if (layout === "royal") return <RoyalLayout title={title} subtitle={subtitle} dateRange={dateRange} days={days} {...charProps} artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle} theme={theme} />;
-          if (layout === "celestial") return <CelestialLayout title={title} subtitle={subtitle} dateRange={dateRange} days={days} {...charProps} artBy={artBy} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle} theme={theme} />;
-          if (layout === "animal") return <AnimalLayout title={title} subtitle={subtitle} dateRange={dateRange} days={days} {...charProps} artBy={artBy} theme={theme} youtubeHandle={youtubeHandle} twitchHandle={twitchHandle} />;
-          if (layout === "bubbles") return <BubbleLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} artBy={artBy} />;
-          return <GridLayout title={title} subtitle={subtitle} dateRange={dateRange} ratio={ratio} days={days} {...charProps} theme={theme} artBy={artBy} />;
+          const layoutProps: LayoutProps = {
+            title, subtitle, dateRange, days, characterUrl, charFit,
+            charScale, charOffsetX, charOffsetY,
+            artBy, youtubeHandle, twitchHandle, theme, ratio,
+          };
+          if (layout === "royal") return <RoyalLayout {...layoutProps} />;
+          if (layout === "celestial") return <CelestialLayout {...layoutProps} />;
+          if (layout === "animal") return <AnimalLayout {...layoutProps} />;
+          if (layout === "bubbles") return <BubbleLayout {...layoutProps} />;
+          return <GridLayout {...layoutProps} />;
         })()}
       </div>
     );
@@ -377,10 +427,10 @@ const ROYAL_PALETTES: Record<ThemeKey, RoyalPalette> = {
 
 const RoyalLayout = ({
   title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, theme,
-  charScale = 1, charOffsetX = 0, charOffsetY = 0,
-}: any) => {
+  charScale, charOffsetX, charOffsetY,
+}: LayoutProps) => {
   const range = parseRange(dateRange) || { d1: "01", m1: "WEEK", d2: "07", m2: "OF" };
-  const p: RoyalPalette = ROYAL_PALETTES[(theme as ThemeKey)] || ROYAL_PALETTES.royalred;
+  const p: RoyalPalette = ROYAL_PALETTES[theme];
 
   return (
     <div className="relative h-full w-full" style={{
@@ -569,7 +619,7 @@ const DiamondBadge = ({ num, label, tag, accent, text }: { num: string; label: s
 /* ============================================================
    BUBBLE LAYOUT (existing, with multi-slot support)
    ============================================================ */
-const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, charFit, artBy, charScale = 1, charOffsetX = 0, charOffsetY = 0 }: any) => {
+const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, charFit, artBy, charScale, charOffsetX, charOffsetY }: LayoutProps) => {
 
   return (
     <div className="relative h-full flex" style={{ padding: 56, gap: 48 }}>
@@ -692,7 +742,7 @@ const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, c
 /* ============================================================
    GRID LAYOUT (existing, with multi-slot support)
    ============================================================ */
-const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, charFit, theme, artBy, charScale = 1, charOffsetX = 0, charOffsetY = 0 }: any) => (
+const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, charFit, theme, artBy, charScale, charOffsetX, charOffsetY }: LayoutProps) => (
   <div className="relative h-full flex flex-col" style={{ padding: 64 }}>
     <header className="flex items-end justify-between" style={{ marginBottom: 40 }}>
       <div>
@@ -703,9 +753,9 @@ const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, cha
         backdropFilter: "blur(6px)",
       }}>
         <div className="flex items-center" style={{ gap: 12, marginBottom: 12, fontSize: 24, color: "hsl(var(--t-1))" }}>
-          {themeIcon[theme as ThemeKey]}
+          {themeIcon[theme]}
           <span style={{ textTransform: "uppercase", letterSpacing: "0.4em", fontWeight: 600 }}>Weekly Schedule</span>
-          {themeIcon[theme as ThemeKey]}
+          {themeIcon[theme]}
         </div>
         <h1 className="glow-text" style={{ fontSize: 96, fontWeight: 900, lineHeight: 1, color: "hsl(var(--t-text))", margin: 0 }}>
           {title || "VTuber Schedule"}
@@ -796,17 +846,6 @@ const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, cha
 /* ============================================================
    CELESTIAL LAYOUT — purple/gold magic, oval character + bubble rows
    ============================================================ */
-const CELESTIAL_PALETTES: Record<string, { from: string; to: string; bubble: string; bubbleBorder: string; gold: string; goldSoft: string; deep: string; text: string }> = {
-  magic:     { from: "#7a4ad9", to: "#f3c97a", bubble: "#1a0f3a", bubbleBorder: "#c9a4ff", gold: "#f5d97a", goldSoft: "#fef3c7", deep: "#2a1158", text: "#2a1158" },
-  cute:      { from: "#ffb3d1", to: "#ffd9b3", bubble: "#3a0a1f", bubbleBorder: "#ff8fb1", gold: "#ff8fb1", goldSoft: "#fff0f5", deep: "#7a1e3f", text: "#5a0e2e" },
-  aesthetic: { from: "#7c3aed", to: "#7dd3fc", bubble: "#1a0a2e", bubbleBorder: "#a78bfa", gold: "#a78bfa", goldSoft: "#ede9fe", deep: "#2e1065", text: "#2e1065" },
-  gothic:    { from: "#1a0000", to: "#dc2626", bubble: "#0a0a0a", bubbleBorder: "#dc2626", gold: "#dc2626", goldSoft: "#fee2e2", deep: "#7f1d1d", text: "#fff" },
-  sakura:    { from: "#f9a8d4", to: "#fce7f3", bubble: "#3a0a1f", bubbleBorder: "#f472b6", gold: "#f472b6", goldSoft: "#fff0f5", deep: "#831843", text: "#831843" },
-  cyber:     { from: "#0891b2", to: "#ec4899", bubble: "#0a1a2e", bubbleBorder: "#22d3ee", gold: "#22d3ee", goldSoft: "#cffafe", deep: "#0e7490", text: "#0a1a2e" },
-  mint:      { from: "#34d399", to: "#a7f3d0", bubble: "#0a1f1a", bubbleBorder: "#34d399", gold: "#fbbf24", goldSoft: "#fef3c7", deep: "#064e3b", text: "#064e3b" },
-  royalred:  { from: "#7a1e2c", to: "#e6c168", bubble: "#1a0a14", bubbleBorder: "#e6c168", gold: "#e6c168", goldSoft: "#f5e9c8", deep: "#3a0a14", text: "#3a0a14" },
-};
-
 const DayCircle = ({ abbr, num, color, border }: { abbr: string; num: string; color: string; border: string }) => (
   <div className="relative flex-shrink-0" style={{ width: 100, height: 100 }}>
     <svg width="100" height="100" viewBox="0 0 100 100" style={{ position: "absolute", inset: 0 }}>
@@ -839,8 +878,8 @@ const Constellation = ({ style }: { style: React.CSSProperties }) => (
 const CelestialLayout = ({
   title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, theme,
   charScale = 1, charOffsetX = 0, charOffsetY = 0,
-}: any) => {
-  const p = CELESTIAL_PALETTES[theme as string] || CELESTIAL_PALETTES.magic;
+}: LayoutProps) => {
+  const p = CELESTIAL_PALETTES[theme];
   const decoIcons = [Feather, Sparkles, Moon, Star, Wand2, Feather, Sparkles];
 
   return (
@@ -1055,18 +1094,6 @@ const CelestialLayout = ({
      • Bottom footer: date range + art credit + socials
    ============================================================ */
 
-const ANIMAL_V2_PALETTES: Record<string, { bg1: string; bg2: string; bg3: string; dot: string; ink: string; sub: string; accent: string; accent2: string; cream: string; chipInk: string }> = {
-  cute:      { bg1: "#ffe8f1", bg2: "#fff3e0", bg3: "#ffd9e8", dot: "#ffb4cf", ink: "#5b2a3e", sub: "#b07289", accent: "#ff6fa3", accent2: "#ffb84d", cream: "#fff8ef", chipInk: "#ffffff" },
-  sakura:    { bg1: "#ffe4ee", bg2: "#ffeef4", bg3: "#ffd0e0", dot: "#f7a5c0", ink: "#6e2340", sub: "#b56d8a", accent: "#ff5c94", accent2: "#ffc0d4", cream: "#fff5f8", chipInk: "#ffffff" },
-  mint:      { bg1: "#dff5e5", bg2: "#eefbe6", bg3: "#c9ecd3", dot: "#8fd3a5", ink: "#1f4a34", sub: "#5c8874", accent: "#57c48a", accent2: "#ffd66b", cream: "#f4fff2", chipInk: "#ffffff" },
-  aesthetic: { bg1: "#ece1ff", bg2: "#dbe6ff", bg3: "#d6c8ff", dot: "#b6a3ec", ink: "#2f1f66", sub: "#7566a0", accent: "#8f6cf0", accent2: "#f5c76e", cream: "#f6f0ff", chipInk: "#ffffff" },
-  cyber:     { bg1: "#d6f4ff", bg2: "#ffdaee", bg3: "#c7e8ff", dot: "#8fd0e2", ink: "#0f3a4a", sub: "#557080", accent: "#33a8c6", accent2: "#ff77b8", cream: "#eefaff", chipInk: "#ffffff" },
-  gothic:    { bg1: "#2a1e26", bg2: "#180f17", bg3: "#38222f", dot: "#7a5a70", ink: "#f6e6ec", sub: "#b898a8", accent: "#e05c7c", accent2: "#f0b8c8", cream: "#241820", chipInk: "#ffffff" },
-  royalred:  { bg1: "#fff0dc", bg2: "#ffddc4", bg3: "#ffe6cc", dot: "#e6b25c", ink: "#5c0f1a", sub: "#946060", accent: "#c2632e", accent2: "#e6b96a", cream: "#fff7ea", chipInk: "#ffffff" },
-  magic:     { bg1: "#eadfff", bg2: "#fff0d8", bg3: "#e0d0ff", dot: "#c1a3ff", ink: "#2b1656", sub: "#7566a0", accent: "#9a76ff", accent2: "#ffd580", cream: "#f6f0ff", chipInk: "#ffffff" },
-  mono:      { bg1: "#fafafa", bg2: "#efefef", bg3: "#f4f4f4", dot: "#cccccc", ink: "#0a0a0a", sub: "#5f5f5f", accent: "#1f1f1f", accent2: "#8a8a8a", cream: "#ffffff", chipInk: "#ffffff" },
-};
-
 const ANIMAL_V2_DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
 /* ============================================================
@@ -1083,11 +1110,13 @@ const AnimalLayout = ({
   characterUrl, charFit, artBy, theme,
   youtubeHandle, twitchHandle,
   charScale = 1, charOffsetX = 0, charOffsetY = 0,
-}: any) => {
-  const p = ANIMAL_V2_PALETTES[theme as string] || ANIMAL_V2_PALETTES.cute;
+}: LayoutProps) => {
+  const p = ANIMAL_V2_PALETTES[theme];
+
+  type StampProps = { size?: number; color?: string; opacity?: number; rotate?: number };
 
   // Tiny hand-drawn paw glyph (inline SVG mark used as poster stamp)
-  const PawStamp = ({ size = 40, color = p.accent, opacity = 1, rotate = 0 }: any) => (
+  const PawStamp = ({ size = 40, color = p.accent, opacity = 1, rotate = 0 }: StampProps) => (
     <svg width={size} height={size} viewBox="0 0 40 40"
          style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
       <g fill={color}>
@@ -1100,7 +1129,7 @@ const AnimalLayout = ({
     </svg>
   );
 
-  const Heart = ({ size = 20, color = p.accent, opacity = 1, rotate = 0 }: any) => (
+  const Heart = ({ size = 20, color = p.accent, opacity = 1, rotate = 0 }: StampProps) => (
     <svg width={size} height={size} viewBox="0 0 24 24"
          style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
       <path d="M12 21s-7-4.5-9.5-9C.8 8.6 2.6 4.5 6.4 4.5c2 0 3.5 1 4.6 2.6C12.1 5.5 13.6 4.5 15.6 4.5c3.8 0 5.6 4.1 3.9 7.5C19 16.5 12 21 12 21z"
@@ -1108,7 +1137,7 @@ const AnimalLayout = ({
     </svg>
   );
 
-  const Star = ({ size = 18, color = p.accent2, opacity = 1, rotate = 0 }: any) => (
+  const Star = ({ size = 18, color = p.accent2, opacity = 1, rotate = 0 }: StampProps) => (
     <svg width={size} height={size} viewBox="0 0 24 24"
          style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
       <path d="M12 2l2.4 6.6L21 9.6l-5 4.6L17.5 21 12 17.4 6.5 21 8 14.2l-5-4.6 6.6-1z" fill={color} />

@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import appLogo from "@/assets/logo.svg";
 import { toPng } from "html-to-image";
-import { Upload, Download, Sparkles, ImageIcon, UserRound, UsersRound, CloudOff, Plus, Minus, Calendar as CalendarIcon, CalendarClock, RotateCcw, Twitch, Youtube, Music2 } from "lucide-react";
+import { Upload, Download, ImageIcon, UserRound, UsersRound, CloudOff, Plus, Minus, Calendar as CalendarIcon, CalendarClock, RotateCcw, Twitch, Youtube, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
