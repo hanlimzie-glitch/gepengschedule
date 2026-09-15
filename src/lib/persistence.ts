@@ -5,9 +5,11 @@ import type {
   OrnamentLayer,
   PlatformKey,
   Slot,
+  SocialKey,
   TextureSettings,
   ThemeKey,
 } from "@/components/ScheduleCanvas";
+import { SOCIAL_KEYS } from "@/lib/palettes";
 
 export const STORAGE_KEY = "vsm.state.v1";
 
@@ -20,8 +22,11 @@ export interface PersistedState {
   dateFrom: string | null; // ISO string
   dateTo: string | null; // ISO string
   artBy: string;
-  youtubeHandle: string;
-  twitchHandle: string;
+  youtubeHandle: string;   // legacy — mirror dari socials.youtube
+  twitchHandle: string;    // legacy — mirror dari socials.twitch
+  /** handle per platform ("" = tidak tampil) + saklar tampil per platform */
+  socials: Record<SocialKey, string>;
+  socialEnabled: Record<SocialKey, boolean>;
   days: DayItem[];
   characterUrl: string | null;
   charFit: "cover" | "contain";
@@ -153,6 +158,27 @@ export function sanitizeState(raw: unknown): PersistedState | null {
     artBy: asStr(r.artBy),
     youtubeHandle: asStr(r.youtubeHandle),
     twitchHandle: asStr(r.twitchHandle),
+    // Sosial media — handle legacy youtubeHandle/twitchHandle ikut dimigrasi
+    socials: (() => {
+      const raw = (r.socials ?? {}) as Record<string, unknown>;
+      const pick = (k: SocialKey, legacy?: unknown): string => asStr(raw[k]) || asStr(legacy);
+      return {
+        youtube: pick("youtube", r.youtubeHandle),
+        twitch: pick("twitch", r.twitchHandle),
+        instagram: pick("instagram"),
+        x: pick("x"),
+        tiktok: pick("tiktok"),
+      } as Record<SocialKey, string>;
+    })(),
+    socialEnabled: (() => {
+      const raw = (r.socialEnabled ?? {}) as Record<string, unknown>;
+      const dflt: Record<SocialKey, boolean> = {
+        youtube: true, twitch: true, instagram: false, x: false, tiktok: false,
+      };
+      return Object.fromEntries(
+        SOCIAL_KEYS.map((k) => [k, asBool(raw[k], dflt[k])])
+      ) as Record<SocialKey, boolean>;
+    })(),
     days: sanitizeDays(r.days),
     characterUrl: asDataUrl(r.characterUrl),
     charFit: asPick(r.charFit, FITS, "cover"),

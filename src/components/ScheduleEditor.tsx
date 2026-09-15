@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import appLogo from "@/assets/logo.svg";
 import { toPng } from "html-to-image";
-import { Upload, Download, ImageIcon, UserRound, UsersRound, CloudOff, Plus, Minus, Calendar as CalendarIcon, CalendarClock, RotateCcw, Twitch, Youtube, Music2 } from "lucide-react";
+import { Upload, Download, ImageIcon, UserRound, UsersRound, CloudOff, Plus, Minus, Calendar as CalendarIcon, CalendarClock, RotateCcw, Twitch, Youtube, Music2, Instagram, X, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import type { DateRange } from "react-day-picker";
-import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentIconKey, type OrnamentLayer, type LayoutKey, type PlatformKey, type TextureSettings } from "./ScheduleCanvas";
+import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentIconKey, type OrnamentLayer, type LayoutKey, type PlatformKey, type SocialKey, type TextureSettings } from "./ScheduleCanvas";
 import { loadState, saveState, clearState, type SaveResult } from "@/lib/persistence";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -82,6 +82,30 @@ const platformOptions: { key: PlatformKey; label: string; icon: JSX.Element }[] 
   { key: "tiktok", label: "TikTok", icon: <Music2 className="w-3.5 h-3.5" /> },
 ];
 
+// Input media sosial di footer poster — masing-masing bisa di-cek/uncek (optional)
+const SOCIAL_FIELDS: { key: SocialKey; label: string; placeholder: string; Icon: LucideIcon }[] = [
+  { key: "youtube", label: "YouTube", placeholder: "@your youtube channel", Icon: Youtube },
+  { key: "twitch", label: "Twitch", placeholder: "@your twitch channel", Icon: Twitch },
+  { key: "instagram", label: "Instagram", placeholder: "@your instagram", Icon: Instagram },
+  { key: "x", label: "X (Twitter)", placeholder: "@your_x_handle", Icon: X },
+  { key: "tiktok", label: "TikTok", placeholder: "@your tiktok", Icon: Music2 },
+];
+
+// Navigasi cepat antar-section — tampil di toolbar sticky di bawah header
+const NAV_ITEMS = [
+  { id: "sec-judul", label: "Judul" },
+  { id: "sec-layout", label: "Layout" },
+  { id: "sec-color", label: "Color" },
+  { id: "sec-ornament", label: "Ornament" },
+  { id: "sec-karakter", label: "Karakter" },
+  { id: "sec-jadwal", label: "Jadwal" },
+  { id: "sec-texture", label: "Texture" },
+  { id: "sec-export", label: "Export" },
+] as const;
+
+const scrollToSection = (id: string) =>
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+
 const formatRange = (from?: Date, to?: Date) => {
   if (!from) return "";
   if (!to || from.getTime() === to.getTime()) return format(from, "d MMMM yyyy", { locale: idLocale });
@@ -119,8 +143,21 @@ export const ScheduleEditor = () => {
     return { from: CURRENT_MONDAY, to: CURRENT_SUNDAY };
   });
   const [artBy, setArtBy] = useState(persisted?.artBy ?? "Art by @yourname");
-  const [youtubeHandle, setYoutubeHandle] = useState(persisted?.youtubeHandle ?? "@your youtube channel");
-  const [twitchHandle, setTwitchHandle] = useState(persisted?.twitchHandle ?? "@your twitch channel");
+  // Sosial media — handle + saklar tampil per platform (centang = tampil di poster)
+  const [socials, setSocials] = useState<Record<SocialKey, string>>(
+    persisted?.socials ?? {
+      youtube: "@your youtube channel",
+      twitch: "@your twitch channel",
+      instagram: "@your instagram",
+      x: "@your_x_handle",
+      tiktok: "@your tiktok",
+    }
+  );
+  const [socialEnabled, setSocialEnabled] = useState<Record<SocialKey, boolean>>(
+    persisted?.socialEnabled ?? { youtube: true, twitch: true, instagram: false, x: false, tiktok: false }
+  );
+  const setSocialHandle = (key: SocialKey, val: string) => setSocials((s) => ({ ...s, [key]: val }));
+  const setSocialOn = (key: SocialKey, on: boolean) => setSocialEnabled((s) => ({ ...s, [key]: on }));
   const [days, setDays] = useState<DayItem[]>(persisted?.days?.length ? persisted.days : initialDays);
   const [characterUrl, setCharacterUrl] = useState<string | null>(persisted?.characterUrl ?? null);
   const [charFit, setCharFit] = useState<"cover" | "contain">(persisted?.charFit ?? "cover");
@@ -223,14 +260,17 @@ export const ScheduleEditor = () => {
         title, subtitle, dateRange,
         dateFrom: dateRangeObj?.from ? dateRangeObj.from.toISOString() : null,
         dateTo: dateRangeObj?.to ? dateRangeObj.to.toISOString() : null,
-        artBy, youtubeHandle, twitchHandle,
+        artBy,
+        youtubeHandle: socials.youtube,
+        twitchHandle: socials.twitch,
+        socials, socialEnabled,
         days, characterUrl, charFit, charScale, charOffsetX, charOffsetY,
         theme, ornaments, layout, ratio, texture,
       });
       setSaveStatus({ status: res, at: Date.now() });
     }, 400);
     return () => clearTimeout(t);
-  }, [title, subtitle, dateRange, dateRangeObj, artBy, youtubeHandle, twitchHandle, days,
+  }, [title, subtitle, dateRange, dateRangeObj, artBy, socials, socialEnabled, days,
       characterUrl, charFit, charScale, charOffsetX, charOffsetY, theme, ornaments, layout, ratio, texture]);
 
   // Peringatan hanya saat status BERUBAH (tidak spam toast)
@@ -258,7 +298,12 @@ export const ScheduleEditor = () => {
     setTitle("Huan Weekly Schedule"); setSubtitle("powered by Huan");
     setDateRange(formatRange(CURRENT_MONDAY, CURRENT_SUNDAY));
     setDateRangeObj({ from: CURRENT_MONDAY, to: CURRENT_SUNDAY });
-    setArtBy("Art by @yourname"); setYoutubeHandle("@your youtube channel"); setTwitchHandle("@your twitch channel");
+    setArtBy("Art by @yourname");
+    setSocials({
+      youtube: "@your youtube channel", twitch: "@your twitch channel",
+      instagram: "@your instagram", x: "@your_x_handle", tiktok: "@your tiktok",
+    });
+    setSocialEnabled({ youtube: true, twitch: true, instagram: false, x: false, tiktok: false });
     setDays(buildDayLabels(CURRENT_MONDAY).map((d) => ({ day: d, slots: [makeSlot()] })));
     setCharacterUrl(null); setCharFit("cover"); setCharScale(1); setCharOffsetX(0); setCharOffsetY(0);
     setTheme("cute"); setOrnaments([makeLayer({ icon: "heart", count: 50, size: 36 })]);
@@ -355,9 +400,32 @@ export const ScheduleEditor = () => {
         </div>
       </header>
 
-      <div className="max-w-[1800px] mx-auto grid grid-cols-1 xl:grid-cols-[380px_1fr] gap-6">
-        <aside className="space-y-5 animate-fade-in">
-          <Section title="Judul">
+      {/* Toolbar navigasi section — sticky; tidak perlu scroll bolak-balik */}
+      <nav aria-label="Navigasi section" className="sticky top-2 z-40 max-w-[1800px] mx-auto mb-6">
+        <div className="glass rounded-2xl px-2 py-1.5 flex items-center gap-1 overflow-x-auto">
+          {NAV_ITEMS.map((it) => (
+            <button key={it.id} type="button" onClick={() => scrollToSection(it.id)}
+              className="px-3 h-8 rounded-lg text-xs font-semibold whitespace-nowrap text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors">
+              {it.label}
+            </button>
+          ))}
+          <div className="ml-auto pl-2 shrink-0">
+            <Button size="sm" onClick={downloadPng} disabled={busy}
+              className="h-8 rounded-lg text-xs font-bold gap-1.5"
+              style={{ background: "var(--gradient-accent)", color: "hsl(var(--primary-foreground))" }}>
+              <Download className="w-3.5 h-3.5" />{busy ? "Rendering..." : "Export"}
+            </Button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Breakpoint UX:
+          <md (HP)      : 1 kolom — preview di atas & sticky mengikuti scroll
+          md–lg (Tablet): 1 kolom — preview di atas, TIDAK sticky (tidak menutupi layar)
+          >=lg (Desktop): 2 kolom — form kiri, preview kanan sticky di kolomnya */}
+      <div className="max-w-[1800px] mx-auto flex flex-col gap-6 lg:grid lg:grid-cols-[380px_1fr]">
+        <aside className="space-y-5 animate-fade-in order-2 lg:order-none lg:col-start-1 lg:row-start-1">
+          <Section title="Judul" id="sec-judul">
             <div className="space-y-3">
               <Field label="Judul utama"><Input value={title} onChange={(e) => setTitle(e.target.value)} /></Field>
               <Field label="Subtitle (opsional)"><Input value={subtitle} onChange={(e) => setSubtitle(e.target.value)} /></Field>
@@ -375,12 +443,32 @@ export const ScheduleEditor = () => {
                 </Popover>
               </Field>
               <Field label="Art credit (di bawah karakter)"><Input value={artBy} onChange={(e) => setArtBy(e.target.value)} placeholder="Art by @yourname" /></Field>
-              <Field label="YouTube handle (Royal layout)"><Input value={youtubeHandle} onChange={(e) => setYoutubeHandle(e.target.value)} placeholder="@your youtube channel" /></Field>
-              <Field label="Twitch handle (Royal layout)"><Input value={twitchHandle} onChange={(e) => setTwitchHandle(e.target.value)} placeholder="@your twitch channel" /></Field>
+              <Field label="Media sosial — centang yang ingin ditampilkan">
+                <div className="space-y-1.5 pt-0.5">
+                  {SOCIAL_FIELDS.map(({ key, label, placeholder, Icon }) => (
+                    <div key={key} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`social-${key}`}
+                        checked={socialEnabled[key]}
+                        onCheckedChange={(v) => setSocialOn(key, v === true)}
+                        aria-label={`Tampilkan ${label}`}
+                      />
+                      <Icon className="w-4 h-4 shrink-0 text-muted-foreground" />
+                      <Input
+                        value={socials[key]}
+                        onChange={(e) => setSocialHandle(key, e.target.value)}
+                        placeholder={placeholder}
+                        disabled={!socialEnabled[key]}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </Field>
             </div>
           </Section>
 
-          <Section title="Layout">
+          <Section title="Layout" id="sec-layout">
             <div className="grid grid-cols-2 gap-2">
               {([
                 { key: "bubbles", label: "Bubbles", desc: "Polaroid + chat" },
@@ -399,7 +487,7 @@ export const ScheduleEditor = () => {
             </div>
           </Section>
 
-          <Section title="Color">
+          <Section title="Color" id="sec-color">
             <div className="grid grid-cols-2 gap-3">
               {themes.map((t) => (
                 <button type="button" key={t.key} onClick={() => pickTheme(t.key)}
@@ -413,7 +501,7 @@ export const ScheduleEditor = () => {
             </div>
           </Section>
 
-          <Section title="Ornament Layers">
+          <Section title="Ornament Layers" id="sec-ornament">
             <p className="text-[11px] text-muted-foreground mb-3">
               Max 3 layer. Setiap layer bisa custom icon, jumlah (1-200), jarak, ukuran, posisi, rotasi, & opacity.
             </p>
@@ -476,7 +564,7 @@ export const ScheduleEditor = () => {
           </Section>
 
 
-          <Section title="Karakter VTuber">
+          <Section title="Karakter VTuber" id="sec-karakter">
             <div onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)} onDrop={onDrop}
               className={cn("border-2 border-dashed rounded-xl p-5 text-center transition-colors cursor-pointer",
@@ -531,7 +619,7 @@ export const ScheduleEditor = () => {
             )}
           </Section>
 
-          <Section title="Jadwal Mingguan">
+          <Section title="Jadwal Mingguan" id="sec-jadwal">
             <div className="space-y-3 max-h-[560px] overflow-y-auto pr-1">
               {days.map((d, i) => (
                 <div key={i} className="rounded-xl p-3 border border-border bg-card/60 space-y-2">
@@ -593,7 +681,7 @@ export const ScheduleEditor = () => {
             </div>
           </Section>
 
-          <Section title="Texture Overlay">
+          <Section title="Texture Overlay" id="sec-texture">
             <div
               className="border-2 border-dashed rounded-xl p-4 text-center cursor-pointer hover:border-primary/60 transition-colors"
               onClick={() => document.getElementById("tex-upload")?.click()}
@@ -685,7 +773,7 @@ export const ScheduleEditor = () => {
 
 
 
-          <Section title="Export">
+          <Section title="Export" id="sec-export">
             <Field label="Rasio">
               <Select value={ratio} onValueChange={(v) => setRatio(v as "16:9" | "4:3")}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
@@ -699,8 +787,11 @@ export const ScheduleEditor = () => {
           </Section>
         </aside>
 
-        <main className="animate-fade-in">
-          <div className="glass rounded-2xl p-4 sticky top-4">
+        {/* Sticky hanya di HP (<md): <main> sebagai flex item bisa bergerak mengikuti
+            container tinggi. Di tablet static (supaya tidak menutupi layar).
+            Di desktop (lg+): grid item kanan, sticky-nya ada di div batin. */}
+        <main className="animate-fade-in order-1 lg:order-none lg:col-start-2 lg:row-start-1 sticky top-[76px] z-30 w-full md:static">
+          <div className="glass rounded-2xl p-4 lg:sticky lg:top-4">
             <div className="flex items-center justify-between mb-3 px-2">
               <span className="text-sm text-muted-foreground">Preview ({ratio})</span>
               <span className="text-xs text-muted-foreground">Output: {ratio === "16:9" ? "3840×2160" : "3840×2880"} (HD)</span>
@@ -743,7 +834,11 @@ export const ScheduleEditor = () => {
                 <ScheduleCanvas ref={canvasRef} title={title} subtitle={subtitle} dateRange={dateRange}
                   days={days} characterUrl={characterUrl} charFit={charFit} theme={theme} ratio={ratio}
                   ornaments={ornaments} layout={layout} artBy={artBy}
-                  youtubeHandle={youtubeHandle} twitchHandle={twitchHandle}
+                  youtubeHandle={socialEnabled.youtube ? socials.youtube : ""}
+                  twitchHandle={socialEnabled.twitch ? socials.twitch : ""}
+                  instagramHandle={socialEnabled.instagram ? socials.instagram : ""}
+                  xHandle={socialEnabled.x ? socials.x : ""}
+                  tiktokHandle={socialEnabled.tiktok ? socials.tiktok : ""}
                   charScale={charScale} charOffsetX={charOffsetX} charOffsetY={charOffsetY}
                   texture={texture} />
               </div>
@@ -760,8 +855,8 @@ export const ScheduleEditor = () => {
   );
 };
 
-const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="glass rounded-2xl p-5">
+const Section = ({ title, id, children }: { title: string; id?: string; children: React.ReactNode }) => (
+  <div id={id} className="glass rounded-2xl p-5 scroll-mt-[380px] md:scroll-mt-24">
     <h2 className="text-sm font-bold uppercase tracking-widest mb-4 text-primary">{title}</h2>
     {children}
   </div>

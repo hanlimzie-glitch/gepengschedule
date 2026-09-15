@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
-import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Twitch, Youtube, Crown, Wand2, Feather, Star, Circle } from "lucide-react";
-import { CELESTIAL_PALETTES, ANIMAL_V2_PALETTES } from "@/lib/palettes";
+import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Twitch, Youtube, Crown, Wand2, Feather, Star, Circle, Instagram, X, Music2, type LucideIcon } from "lucide-react";
+import { CELESTIAL_PALETTES, ANIMAL_V2_PALETTES, SOCIAL_KEYS, type SocialKey } from "@/lib/palettes";
+import pawSvgUrl from "../assets/paw.svg";
 
 export type PlatformKey = "twitch" | "youtube" | "tiktok";
 
@@ -63,6 +64,9 @@ export type ScheduleProps = {
   layout?: LayoutKey;
   youtubeHandle?: string;
   twitchHandle?: string;
+  instagramHandle?: string;
+  xHandle?: string;
+  tiktokHandle?: string;
   charScale?: number;
   charOffsetX?: number;
   charOffsetY?: number;
@@ -86,6 +90,9 @@ export type LayoutProps = {
   artBy?: string;
   youtubeHandle?: string;
   twitchHandle?: string;
+  instagramHandle?: string;
+  xHandle?: string;
+  tiktokHandle?: string;
   theme: ThemeKey;
   ratio: "16:9" | "4:3";
 };
@@ -286,6 +293,28 @@ const PlatformBadges = ({ list, compact }: { list: PlatformKey[]; compact?: bool
   );
 };
 
+/* ---------- sosial media (handle YouTube/Twitch/Instagram/X/TikTok) ---------- */
+export type { SocialKey } from "@/lib/palettes";
+
+type SocialStyle = {
+  Icon: LucideIcon;
+  tint: string;
+};
+
+const SOCIAL_STYLE: Record<SocialKey, SocialStyle> = {
+  youtube:   { Icon: Youtube,   tint: "#FF0033" },
+  twitch:    { Icon: Twitch,    tint: "#9146FF" },
+  instagram: { Icon: Instagram, tint: "#E1306C" },
+  x:         { Icon: X,         tint: "#111111" },
+  tiktok:    { Icon: Music2,    tint: "#111111" },
+};
+
+/** Susun daftar sosial yang akan ditampilkan — hanya handle terisi (urutan tetap). */
+const buildSocials = (h: Partial<Record<SocialKey, string | undefined>>): { key: SocialKey; handle: string }[] =>
+  SOCIAL_KEYS
+    .map((key) => ({ key, handle: (h[key] ?? "").trim() }))
+    .filter((s) => s.handle.length > 0);
+
 // Normalize legacy day items (with flat fields) into slot-based shape
 type LegacySlot = {
   time?: unknown;
@@ -324,7 +353,7 @@ const normalize = (d: LegacyDay): DayItem => {
 };
 
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
-  ({ title, subtitle, dateRange, days: rawDays, characterUrl, charFit, theme, ratio, ornaments, artBy, layout = "grid", youtubeHandle, twitchHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0, texture }, ref) => {
+  ({ title, subtitle, dateRange, days: rawDays, characterUrl, charFit, theme, ratio, ornaments, artBy, layout = "grid", youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0, texture }, ref) => {
     const w = 1920;
     const h = ratio === "16:9" ? 1080 : 1440;
     const days = rawDays.map(normalize);
@@ -381,7 +410,7 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           const layoutProps: LayoutProps = {
             title, subtitle, dateRange, days, characterUrl, charFit,
             charScale, charOffsetX, charOffsetY,
-            artBy, youtubeHandle, twitchHandle, theme, ratio,
+            artBy, youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle, theme, ratio,
           };
           if (layout === "royal") return <RoyalLayout {...layoutProps} />;
           if (layout === "celestial") return <CelestialLayout {...layoutProps} />;
@@ -426,7 +455,7 @@ const ROYAL_PALETTES: Record<ThemeKey, RoyalPalette> = {
 };
 
 const RoyalLayout = ({
-  title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, theme,
+  title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle, theme,
   charScale, charOffsetX, charOffsetY,
 }: LayoutProps) => {
   const range = parseRange(dateRange) || { d1: "01", m1: "WEEK", d2: "07", m2: "OF" };
@@ -508,26 +537,19 @@ const RoyalLayout = ({
             {subtitle && <div style={{ marginTop: 8, fontSize: 18, fontWeight: 500, color: p.textOnLight, opacity: 0.8, fontFamily: "'Inter', sans-serif", letterSpacing: "0.15em" }}>{subtitle}</div>}
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {youtubeHandle && (
-              <div style={{
-                background: "#fff", borderRadius: 999, padding: "8px 18px",
-                display: "flex", alignItems: "center", gap: 10,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.15)", fontFamily: "'Inter', sans-serif",
-              }}>
-                <Youtube size={20} color="#FF0033" />
-                <span style={{ fontSize: 16, fontWeight: 600, color: p.textOnLight }}>{youtubeHandle}</span>
-              </div>
-            )}
-            {twitchHandle && (
-              <div style={{
-                background: "#fff", borderRadius: 999, padding: "8px 18px",
-                display: "flex", alignItems: "center", gap: 10,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.15)", fontFamily: "'Inter', sans-serif",
-              }}>
-                <Twitch size={20} color="#9146FF" />
-                <span style={{ fontSize: 16, fontWeight: 600, color: p.textOnLight }}>{twitchHandle}</span>
-              </div>
-            )}
+            {buildSocials({ youtube: youtubeHandle, twitch: twitchHandle, instagram: instagramHandle, x: xHandle, tiktok: tiktokHandle }).map(({ key, handle }) => {
+              const { Icon, tint } = SOCIAL_STYLE[key];
+              return (
+                <div key={key} style={{
+                  background: "#fff", borderRadius: 999, padding: "8px 18px",
+                  display: "flex", alignItems: "center", gap: 10,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)", fontFamily: "'Inter', sans-serif",
+                }}>
+                  <Icon size={20} color={tint} />
+                  <span style={{ fontSize: 16, fontWeight: 600, color: p.textOnLight }}>{handle}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -876,10 +898,11 @@ const Constellation = ({ style }: { style: React.CSSProperties }) => (
 );
 
 const CelestialLayout = ({
-  title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, theme,
+  title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle, theme,
   charScale = 1, charOffsetX = 0, charOffsetY = 0,
 }: LayoutProps) => {
   const p = CELESTIAL_PALETTES[theme];
+  const socials = buildSocials({ youtube: youtubeHandle, twitch: twitchHandle, instagram: instagramHandle, x: xHandle, tiktok: tiktokHandle });
   const decoIcons = [Feather, Sparkles, Moon, Star, Wand2, Feather, Sparkles];
 
   return (
@@ -1071,10 +1094,12 @@ const CelestialLayout = ({
                 )}
               </div>
             </div>
-            {(twitchHandle || youtubeHandle) && (
+            {socials.length > 0 && (
               <div className="flex items-center justify-end" style={{ gap: 14, marginTop: 10, color: p.text, fontFamily: "'Inter', sans-serif", fontSize: 13 }}>
-                {twitchHandle && <span className="flex items-center" style={{ gap: 6 }}><Twitch size={14} />{twitchHandle}</span>}
-                {youtubeHandle && <span className="flex items-center" style={{ gap: 6 }}><Youtube size={14} />{youtubeHandle}</span>}
+                {socials.map(({ key, handle }) => {
+                  const { Icon } = SOCIAL_STYLE[key];
+                  return <span key={key} className="flex items-center" style={{ gap: 6 }}><Icon size={14} />{handle}</span>;
+                })}
               </div>
             )}
           </div>
@@ -1085,80 +1110,124 @@ const CelestialLayout = ({
 };
 
 /* ============================================================
-   ANIMAL LAYOUT v2 — fresh rebuild
-   Uses ONLY: paw-pink.png, cat-frame.png, pill-bar.png
-   Structure:
-     • Top-center banner: title inside a pill-bar with paw badges on sides
-     • Left column: 7 day rows (paw badge circle + pill-bar with slot info)
-     • Right column: character portrait framed by cat-frame.png
-     • Bottom footer: date range + art credit + socials
+   ANIMAL LAYOUT v3 — cozy animal poster
+   Fundamentally animal-themed: paw corner stamps, cat ears clipped
+   onto the wordmark, fish & speech-paw icons, a soft cloud band
+   along the bottom, and a paw DATE badge on every day row.
    ============================================================ */
-
 const ANIMAL_V2_DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
-/* ============================================================
-   POSTER COMPOSITION — not a dashboard.
-   Full-bleed 1920×{1080|1440} art object.
-   Asymmetric split: LEFT ~58% editorial column, RIGHT ~42% hero character silhouette
-   bleeding off top & right edges. Oversized rotated wordmark, hand-drawn paw stamps,
-   thin rule lines, numbered day list (01→07) with generous leading. No cards, no
-   pills-in-a-row grid, no dashboard bars.
-   ============================================================ */
+type AnimalDecoProps = { size?: number; color: string; opacity?: number; rotate?: number };
+
+// Paw glyph — classic cute silhouette (sesuai referensi):
+// wide rounded mound pad + 4 vertical toe beans, dua jari tengah paling tinggi
+{/* paw = file SVG resmi Font Awesome Free 6.7.2 (CC BY 4.0) — src/assets/paw.svg.
+    Di-render lewat CSS mask supaya transparan & warnanya tetap mengikuti palet tema */}
+const PawStamp = ({ size = 40, color, opacity = 1, rotate = 0 }: AnimalDecoProps) => (
+  <div
+    aria-hidden="true"
+    style={{
+      width: size,
+      height: size,
+      flexShrink: 0,
+      backgroundColor: color,
+      WebkitMaskImage: `url(${pawSvgUrl})`,
+      maskImage: `url(${pawSvgUrl})`,
+      WebkitMaskSize: "contain",
+      maskSize: "contain",
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat",
+      WebkitMaskPosition: "center",
+      maskPosition: "center",
+      opacity,
+      transform: `rotate(${rotate}deg)`,
+    }}
+  />
+);
+
+const HeartStamp = ({ size = 20, color, opacity = 1, rotate = 0 }: AnimalDecoProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24"
+       style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
+    <path d="M12 21s-7-4.5-9.5-9C.8 8.6 2.6 4.5 6.4 4.5c2 0 3.5 1 4.6 2.6C12.1 5.5 13.6 4.5 15.6 4.5c3.8 0 5.6 4.1 3.9 7.5C19 16.5 12 21 12 21z"
+          fill={color} />
+  </svg>
+);
+
+const StarStamp = ({ size = 18, color, opacity = 1, rotate = 0 }: AnimalDecoProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24"
+       style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
+    <path d="M12 2l2.4 6.6L21 9.6l-5 4.6L17.5 21 12 17.4 6.5 21 8 14.2l-5-4.6 6.6-1z" fill={color} />
+  </svg>
+);
+
+// Line-art fish — clear animal cue without needing an image asset
+const FishStamp = ({ size = 34, color, opacity = 1, rotate = 0 }: AnimalDecoProps) => (
+  <svg width={size} height={Math.round(size * 0.625)} viewBox="0 0 32 20"
+       style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
+    <g stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <ellipse cx="13" cy="10" rx="10" ry="6.5" />
+      <path d="M23 10 L30 4.5 L30 15.5 Z" />
+    </g>
+    <circle cx="8" cy="9" r="1.3" fill={color} />
+  </svg>
+);
+
+
+// Cat ears clipped onto the wordmark
+const CatEars = ({ width = 92, outer, inner, ink, rotate = 0 }:
+  { width?: number; outer: string; inner: string; ink: string; rotate?: number }) => (
+  <svg width={width} height={Math.round(width * 0.42)} viewBox="0 0 96 40"
+       style={{ transform: `rotate(${rotate}deg)`, display: "block" }}>
+    <path d="M14 38 L22 4 L46 30 Z"  fill={outer} stroke={ink} strokeWidth="3" strokeLinejoin="round" />
+    <path d="M50 30 L74 4 L82 38 Z" fill={outer} stroke={ink} strokeWidth="3" strokeLinejoin="round" />
+    <path d="M22 32 L26 15 L37 27 Z" fill={inner} />
+    <path d="M59 27 L70 15 L74 32 Z" fill={inner} />
+  </svg>
+);
+
+// Soft cloud band anchored to the bottom edge of the poster
+const CloudBand = ({ color }: { color: string }) => (
+  <svg className="absolute pointer-events-none" style={{ left: 0, bottom: 0 }}
+       width="1920" height="200" viewBox="0 0 1920 200" preserveAspectRatio="none">
+    <g fill={color}>
+      {[
+        [-60, 170], [140, 120], [330, 155], [540, 110], [720, 145],
+        [910, 105], [1080, 150], [1270, 115], [1450, 150], [1650, 120], [1830, 150], [1980, 165],
+      ].map(([x, r], i) => (
+        <ellipse key={i} cx={x} cy={200} rx={r} ry={Math.round(r * 0.78)} />
+      ))}
+    </g>
+  </svg>
+);
 
 const AnimalLayout = ({
   title, subtitle, dateRange, days,
   characterUrl, charFit, artBy, theme,
-  youtubeHandle, twitchHandle,
+  youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle,
   charScale = 1, charOffsetX = 0, charOffsetY = 0,
 }: LayoutProps) => {
   const p = ANIMAL_V2_PALETTES[theme];
-
-  type StampProps = { size?: number; color?: string; opacity?: number; rotate?: number };
-
-  // Tiny hand-drawn paw glyph (inline SVG mark used as poster stamp)
-  const PawStamp = ({ size = 40, color = p.accent, opacity = 1, rotate = 0 }: StampProps) => (
-    <svg width={size} height={size} viewBox="0 0 40 40"
-         style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
-      <g fill={color}>
-        <ellipse cx="20" cy="26" rx="9" ry="7.5" />
-        <ellipse cx="8"  cy="16" rx="3.6" ry="4.6" />
-        <ellipse cx="32" cy="16" rx="3.6" ry="4.6" />
-        <ellipse cx="14" cy="8"  rx="3"   ry="4"   />
-        <ellipse cx="26" cy="8"  rx="3"   ry="4"   />
-      </g>
-    </svg>
-  );
-
-  const Heart = ({ size = 20, color = p.accent, opacity = 1, rotate = 0 }: StampProps) => (
-    <svg width={size} height={size} viewBox="0 0 24 24"
-         style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
-      <path d="M12 21s-7-4.5-9.5-9C.8 8.6 2.6 4.5 6.4 4.5c2 0 3.5 1 4.6 2.6C12.1 5.5 13.6 4.5 15.6 4.5c3.8 0 5.6 4.1 3.9 7.5C19 16.5 12 21 12 21z"
-            fill={color} />
-    </svg>
-  );
-
-  const Star = ({ size = 18, color = p.accent2, opacity = 1, rotate = 0 }: StampProps) => (
-    <svg width={size} height={size} viewBox="0 0 24 24"
-         style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
-      <path d="M12 2l2.4 6.6L21 9.6l-5 4.6L17.5 21 12 17.4 6.5 21 8 14.2l-5-4.6 6.6-1z" fill={color} />
-    </svg>
-  );
-
-  // Editable title — split into two display lines (first word / rest).
+  const socials = buildSocials({ youtube: youtubeHandle, twitch: twitchHandle, instagram: instagramHandle, x: xHandle, tiktok: tiktokHandle });
+  // Editable title — satu baris melebar KE SAMPING (tidak ditumpuk ke bawah)
+  // supaya area jadwal dapat ruang vertikal lebih banyak.
   const rawTitle = (title && String(title).trim()) || "Stream Schedule";
   const titleWords = rawTitle.split(/\s+/);
-  const titleLine1 = titleWords[0];
-  const titleLine2 = titleWords.slice(1).join(" ");
-  const longest = Math.max(titleLine1.length, titleLine2.length || 0);
-  const baseTitleSize = longest <= 6 ? 190 : longest <= 9 ? 156 : longest <= 12 ? 128 : 104;
-  // If title wraps to 2 lines, shrink the font only — schedule Y stays fixed.
-  const titleSize = titleLine2 ? Math.min(baseTitleSize, 148) : baseTitleSize;
+  const titleWord1 = titleWords[0];
+  const titleRest = titleWords.slice(1).join(" ");
+  const titleLen = rawTitle.length;
+  const titleSize =
+    titleLen <= 6 ? 168 :
+    titleLen <= 10 ? 148 :
+    titleLen <= 14 ? 124 :
+    titleLen <= 18 ? 102 :
+    titleLen <= 22 ? 88 :
+    titleLen <= 28 ? 72 : 60;
 
   // ── Fixed vertical zones so the schedule never drifts ──────────────
   const TITLE_TOP = 120;
-  const TITLE_AREA_H = 420;          // reserved for eyebrow + title + subline
-  const SCHEDULE_TOP = TITLE_TOP + TITLE_AREA_H;  // 540 — schedule always starts here
-  const SCHEDULE_BOTTOM = 180;       // clears the footer at bottom:88
+  const TITLE_AREA_H = 280;          // date row + judul satu baris + subline
+  const SCHEDULE_TOP = TITLE_TOP + TITLE_AREA_H;  // 400 — schedule always starts here
+  const SCHEDULE_BOTTOM = 158;       // clears the footer at bottom:88
 
 
   return (
@@ -1190,17 +1259,18 @@ const AnimalLayout = ({
            }}
       />
 
-      {/* dashed kawaii frame */}
+      {/* soft clouds along the bottom */}
+      <CloudBand color={`${p.cream}cc`} />
+
+      {/* single dashed kawaii frame */}
       <div className="absolute pointer-events-none"
            style={{ inset: 40, border: `4px dashed ${p.accent}`, borderRadius: 42, opacity: 0.85 }} />
-      <div className="absolute pointer-events-none"
-           style={{ inset: 56, border: `2px solid ${p.accent2}`, borderRadius: 32, opacity: 0.55 }} />
 
-      {/* corner stamps (inside frame, no more collisions) */}
-      <div className="absolute pointer-events-none" style={{ top: 72, left: 72 }}><Heart size={30} color={p.accent} rotate={-18} /></div>
-      <div className="absolute pointer-events-none" style={{ top: 72, right: 72 }}><Star size={30} color={p.accent2} rotate={12} /></div>
-      <div className="absolute pointer-events-none" style={{ bottom: 72, left: 72 }}><Star size={26} color={p.accent2} rotate={-8} /></div>
-      <div className="absolute pointer-events-none" style={{ bottom: 72, right: 72 }}><Heart size={26} color={p.accent} rotate={22} /></div>
+      {/* paw stamps — simetris (mirror ±45°), straddling the frame corners */}
+      <div className="absolute pointer-events-none" style={{ top: 12, left: 12 }}><PawStamp size={56} color={p.accent} rotate={-45} /></div>
+      <div className="absolute pointer-events-none" style={{ top: 12, right: 12 }}><PawStamp size={56} color={p.accent} rotate={45} /></div>
+      <div className="absolute pointer-events-none" style={{ bottom: 12, left: 12 }}><PawStamp size={56} color={p.accent} rotate={-135} /></div>
+      <div className="absolute pointer-events-none" style={{ bottom: 12, right: 12 }}><PawStamp size={56} color={p.accent} rotate={135} /></div>
 
       {/* CHARACTER — right column, safe area, no bleed off edge */}
       <div
@@ -1221,8 +1291,8 @@ const AnimalLayout = ({
           </div>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-3"
-               style={{ color: p.sub, border: `2px dashed ${p.accent}66`, borderRadius: 24 }}>
-            <PawStamp size={80} />
+               style={{ color: p.sub }}>
+            <PawStamp size={80} color={p.sub} opacity={0.6} />
             <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "'Quicksand', sans-serif" }}>
               upload your character
             </div>
@@ -1232,73 +1302,66 @@ const AnimalLayout = ({
 
       {/* HERO WORDMARK — editable title */}
       <div className="absolute" style={{ top: TITLE_TOP, left: 110, zIndex: 6, width: 1000, height: TITLE_AREA_H, overflow: "hidden" }}>
-        <div style={{
-          display: "inline-flex", alignItems: "center", gap: 14,
-          fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace",
-          fontSize: 13, letterSpacing: "0.32em", textTransform: "uppercase",
-          color: p.sub, marginBottom: 20,
-        }}>
-          <span style={{ width: 42, height: 1, background: p.sub, display: "inline-block" }} />
-          Vol. 01 — Weekly Broadcast
-          <PawStamp size={18} color={p.sub} opacity={0.7} rotate={-12} />
+        {/* cat ears clipped onto the first line of the title */}
+        <div className="absolute pointer-events-none" style={{ top: 28, left: 10, zIndex: 7 }}>
+          <CatEars width={96} outer={p.cream} inner={p.accent} ink={p.ink} rotate={-3} />
         </div>
-
-        <div style={{
-          fontSize: titleSize,
-          lineHeight: 0.88,
-          fontWeight: 400,
-          fontFamily: "'Fredoka One', 'Pacifico', 'Quicksand', cursive",
-          letterSpacing: "-0.02em",
-          color: p.accent,
-          textShadow: `4px 4px 0 ${p.ink}, 8px 8px 0 ${p.accent2}55`,
-          transform: "rotate(-2deg)",
-          transformOrigin: "left center",
-        }}>
-          {titleLine1}
-        </div>
-        {titleLine2 && (
+        {/* tanggal schedule — di atas judul (menggantikan eyebrow "Vol. 01") */}
+        {dateRange && (
           <div style={{
-            fontSize: titleSize,
-            lineHeight: 0.88,
-            fontWeight: 400,
-            fontFamily: "'Fredoka One', 'Pacifico', 'Quicksand', cursive",
-            letterSpacing: "-0.02em",
-            color: p.cream,
-            WebkitTextStroke: `4px ${p.ink}`,
-            textShadow: `6px 6px 0 ${p.accent}66`,
-            marginTop: 10,
-            display: "flex", alignItems: "center", gap: 24,
-            transform: "rotate(-1deg)",
-            transformOrigin: "left center",
+            display: "inline-flex", alignItems: "center", gap: 14,
+            fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace",
+            fontSize: 16, letterSpacing: "0.3em", textTransform: "uppercase",
+            color: p.ink, marginBottom: 20, fontWeight: 700,
           }}>
-            <span>{titleLine2}</span>
-            <PawStamp size={Math.round(titleSize * 0.36)} color={p.accent} rotate={18} />
+            <span style={{ width: 42, height: 1, background: p.ink, opacity: 0.6, display: "inline-block" }} />
+            {dateRange}
+            <HeartStamp size={16} color={p.accent} rotate={8} />
           </div>
         )}
 
-        <div style={{ marginTop: 28, display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
-          {dateRange && (
+        {/* judul — SATU baris horizontal dua warna (kata pertama aksen, sisanya cream stroke) */}
+        <div style={{
+          fontSize: titleSize,
+          lineHeight: 0.95,
+          fontWeight: 400,
+          fontFamily: "'Fredoka One', 'Pacifico', 'Quicksand', cursive",
+          letterSpacing: "-0.02em",
+          display: "flex", alignItems: "center", gap: 18,
+          whiteSpace: "nowrap",
+          transform: "rotate(-2deg)",
+          transformOrigin: "left center",
+        }}>
+          <span style={{
+            color: p.accent,
+            textShadow: `4px 4px 0 ${p.ink}, 8px 8px 0 ${p.accent2}55`,
+          }}>{titleWord1}</span>
+          {titleRest && (
             <span style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 18, letterSpacing: "0.14em", textTransform: "uppercase",
-              color: p.ink,
-            }}>{dateRange}</span>
+              color: p.cream,
+              WebkitTextStroke: `4px ${p.ink}`,
+              textShadow: `6px 6px 0 ${p.accent}66`,
+            }}>{titleRest}</span>
           )}
-          {(dateRange && subtitle) && (
-            <span style={{ flex: "0 0 48px", height: 1, background: p.ink, opacity: 0.5 }} />
-          )}
-          {subtitle && (
-            <span style={{
-              fontStyle: "italic",
-              fontSize: 24,
-              color: p.sub,
-              fontFamily: "'Caveat', 'Pacifico', cursive",
-              fontWeight: 700,
-            }}>
-              {subtitle}
-            </span>
-          )}
+          <PawStamp size={Math.round(titleSize * 0.3)} color={p.accent2} rotate={14} />
         </div>
+
+        {/* subtitle — handwritten signature neatly under the title */}
+        {subtitle && (
+          <div style={{
+            marginTop: 16,
+            fontFamily: "'Caveat', 'Pacifico', cursive",
+            fontStyle: "italic",
+            fontSize: 30,
+            fontWeight: 700,
+            color: p.sub,
+            lineHeight: 1.1,
+            display: "flex", alignItems: "center", gap: 12,
+          }}>
+            {subtitle}
+            <HeartStamp size={16} color={p.accent} rotate={8} />
+          </div>
+        )}
       </div>
 
       {/* EDITORIAL DAY LIST — fixed height, 7 equal rows via flex column */}
@@ -1312,7 +1375,8 @@ const AnimalLayout = ({
           const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platforms: [] } as Slot];
           const first = slots[0];
           const off = first.type === "offline";
-          const idx = String(i + 1).padStart(2, "0");
+          // "Jadwal kedua" — slot kedua ikut dirender (sebelumnya diam-diam diabaikan)
+          const second = !off && slots.length > 1 && slots[1].type !== "offline" ? slots[1] : null;
           const isLast = i === Math.min(6, days.length - 1);
 
           return (
@@ -1320,72 +1384,107 @@ const AnimalLayout = ({
               flex: "1 1 0",
               minHeight: 0,
               display: "grid",
-              gridTemplateColumns: "44px 120px 1fr auto",
+              gridTemplateColumns: "78px 120px 1fr auto",
               alignItems: "center",
-              gap: 22,
+              gap: 24,
               paddingInline: 0,
               borderBottom: isLast ? "none" : `2px dashed ${p.accent}55`,
             }}>
+              {/* paw badge GELAP berisi TANGGAL — angka mono tipis warna cream biar kontras
+                  (ink vs cream selalu berseberangan: terang di tema gothic, gelap di tema lain) */}
               <span style={{
                 position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center",
-                width: 40, height: 40,
+                width: 66, height: 64, flexShrink: 0,
               }}>
-                <Heart size={40} color={`${p.accent}33`} rotate={-6} />
+                <PawStamp size={66} color={p.ink} rotate={-6} />
                 <span style={{
-                  position: "absolute",
-                  fontFamily: "'Fredoka One', 'Quicksand', cursive",
-                  fontSize: 14, color: p.accent, letterSpacing: "0.02em",
-                  lineHeight: 1,
-                }}>{idx}</span>
+                  position: "absolute", top: "68%", left: "50%", transform: "translate(-50%,-50%)",
+                  fontFamily: "'JetBrains Mono', 'IBM Plex Mono', monospace",
+                  fontSize: 17, fontWeight: 600, color: p.cream, letterSpacing: "-0.04em", lineHeight: 1,
+                }}>{num || String(i + 1)}</span>
               </span>
 
               <span style={{ display: "flex", alignItems: "center", gap: 8, lineHeight: 1 }}>
                 <span style={{
                   fontFamily: "'Fredoka One', 'Quicksand', cursive",
-                  fontSize: 30, fontWeight: 400, color: p.ink,
+                  fontSize: 34, fontWeight: 400, color: p.ink,
                   textTransform: "lowercase",
                 }}>{label}</span>
-                {num && (
-                  <span style={{
-                    fontFamily: "'Caveat', cursive",
-                    fontSize: 20, fontWeight: 700, color: p.accent, letterSpacing: "0.02em",
-                  }}>·{num}</span>
-                )}
               </span>
 
               <span style={{
                 fontFamily: "'Quicksand', 'Nunito', sans-serif",
-                fontSize: off ? 22 : 24,
-                fontWeight: off ? 600 : 700,
-                fontStyle: off ? "italic" : "normal",
-                color: off ? p.sub : p.ink,
                 lineHeight: 1.15,
                 letterSpacing: "-0.005em",
-                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                display: "inline-flex", alignItems: "center", gap: 10, minWidth: 0,
+                display: "flex", flexDirection: "column", justifyContent: "center", gap: 8,
+                minWidth: 0, overflow: "hidden",
+                fontStyle: off ? "italic" : "normal",
               }}>
-                {!off && <Heart size={13} color={p.accent} />}
-                {off ? "— resting day —" : (first.title || "untitled broadcast")}
+                {off ? (
+                  <span style={{ fontSize: 22, fontWeight: 600, color: p.sub }}>— resting day —</span>
+                ) : (
+                  <>
+                    <span style={{
+                      fontSize: 26, fontWeight: 700, color: p.ink,
+                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                      display: "inline-flex", alignItems: "center", gap: 10,
+                    }}>
+                      <HeartStamp size={14} color={p.accent} />
+                      {first.title || "untitled broadcast"}
+                    </span>
+                    {second && (
+                      <span style={{
+                        fontSize: 21, fontWeight: 700, color: p.sub,
+                        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                        display: "inline-flex", alignItems: "center", gap: 10,
+                      }}>
+                        <HeartStamp size={12} color={p.accent2} />
+                        {second.title || "untitled broadcast"}
+                      </span>
+                    )}
+                  </>
+                )}
               </span>
 
-              <span style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "flex-end" }}>
-                {!off && first.time && (
-                  <span style={{
-                    fontFamily: "'Fredoka One', 'Quicksand', cursive",
-                    fontSize: 14, letterSpacing: "0.06em",
-                    color: p.cream, background: p.accent,
-                    padding: "5px 12px", borderRadius: 999,
-                    border: `2px solid ${p.ink}`,
-                    boxShadow: `2px 2px 0 ${p.ink}`,
-                    whiteSpace: "nowrap",
-                    lineHeight: 1,
-                  }}>{first.time}</span>
-                )}
-                {!off && first.platforms?.length > 0 && (
-                  <PlatformBadges list={first.platforms} compact />
+              <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", justifyContent: "center", gap: 8 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  {!off && first.time && (
+                    <span style={{
+                      fontFamily: "'Fredoka One', 'Quicksand', cursive",
+                      fontSize: 15, letterSpacing: "0.06em",
+                      color: p.cream, background: p.accent,
+                      padding: "6px 13px", borderRadius: 999,
+                      border: `2px solid ${p.ink}`,
+                      boxShadow: `2px 2px 0 ${p.ink}`,
+                      whiteSpace: "nowrap",
+                      lineHeight: 1,
+                    }}>{first.time}</span>
+                  )}
+                  {!off && first.platforms?.length > 0 && (
+                    <PlatformBadges list={first.platforms} compact />
+                  )}
+                </span>
+                {second && (second.time || second.platforms?.length > 0) && (
+                  <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    {second.time && (
+                      <span style={{
+                        fontFamily: "'Fredoka One', 'Quicksand', cursive",
+                        fontSize: 13, letterSpacing: "0.06em",
+                        color: p.cream, background: p.accent,
+                        padding: "4px 11px", borderRadius: 999,
+                        border: `2px solid ${p.ink}`,
+                        boxShadow: `2px 2px 0 ${p.ink}`,
+                        whiteSpace: "nowrap",
+                        lineHeight: 1,
+                      }}>{second.time}</span>
+                    )}
+                    {second.platforms?.length > 0 && (
+                      <PlatformBadges list={second.platforms} compact />
+                    )}
+                  </span>
                 )}
                 {off && (
-                  <Star size={20} color={p.accent2} opacity={0.7} rotate={i * 17} />
+                  <StarStamp size={20} color={p.accent2} opacity={0.7} rotate={i * 17} />
                 )}
               </span>
             </div>
@@ -1397,15 +1496,21 @@ const AnimalLayout = ({
 
 
 
-      {/* subtle scattered accents (kept in margins to avoid overlap) */}
+      {/* scattered animal ornaments — evenly spaced in the side margins, no collisions */}
       <div className="absolute" style={{ top: 96, left: 60, zIndex: 4 }}>
         <PawStamp size={26} color={p.accent} opacity={0.55} rotate={-24} />
       </div>
-      <div className="absolute" style={{ bottom: 220, right: 60, zIndex: 4 }}>
-        <PawStamp size={24} color={p.accent2} opacity={0.55} rotate={30} />
-      </div>
       <div className="absolute" style={{ top: 600, left: 62, zIndex: 4 }}>
-        <Star size={18} color={p.accent2} opacity={0.7} rotate={-10} />
+        <StarStamp size={18} color={p.accent2} opacity={0.7} rotate={-10} />
+      </div>
+      <div className="absolute" style={{ top: 340, right: 48, zIndex: 4 }}>
+        <HeartStamp size={24} color={p.accent} opacity={0.75} rotate={10} />
+      </div>
+      <div className="absolute" style={{ top: 445, right: 52, zIndex: 4 }}>
+        <PawStamp size={26} color={p.accent2} opacity={0.6} rotate={20} />
+      </div>
+      <div className="absolute" style={{ top: 550, right: 48, zIndex: 4 }}>
+        <FishStamp size={42} color={p.sub} opacity={0.8} rotate={-12} />
       </div>
 
 
@@ -1418,24 +1523,23 @@ const AnimalLayout = ({
           fontSize: 14, letterSpacing: "0.16em", textTransform: "uppercase",
           color: p.sub, fontWeight: 700,
         }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <Heart size={16} color={p.accent} />
-            {artBy ? <>Illust — <span style={{ color: p.ink }}>{artBy}</span></> : "Illust — —"}
+          {/* SOSIAL MEDIA di kiri (ditukar dengan Illust), ILLUST di kanan */}
+          <span style={{ display: "flex", alignItems: "center", gap: 18 }}>
+            {socials.map(({ key, handle }) => {
+              const { Icon } = SOCIAL_STYLE[key];
+              return (
+                <span key={key} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <Icon size={14} /> {handle}
+                </span>
+              );
+            })}
           </span>
           <span style={{ color: p.accent, fontFamily: "'Caveat', 'Pacifico', cursive", textTransform: "none", letterSpacing: 0, fontSize: 26, fontWeight: 700 }}>
             a cozy weekly poster ♡
           </span>
-          <span style={{ display: "flex", alignItems: "center", gap: 18 }}>
-            {youtubeHandle && (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <Youtube size={14} /> {youtubeHandle}
-              </span>
-            )}
-            {twitchHandle && (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <Twitch size={14} /> {twitchHandle}
-              </span>
-            )}
+          <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <HeartStamp size={16} color={p.accent} />
+            {artBy ? <>Illust — <span style={{ color: p.ink }}>{artBy}</span></> : "Illust — —"}
           </span>
         </div>
       </div>

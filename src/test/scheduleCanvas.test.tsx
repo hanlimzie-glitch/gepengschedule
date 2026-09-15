@@ -66,4 +66,42 @@ describe("ScheduleCanvas", () => {
     expect(container.innerHTML).toContain(CELESTIAL_PALETTES.mono.bubbleBorder);
     expect(container.innerHTML).not.toContain(CELESTIAL_PALETTES.magic.bubbleBorder);
   });
+
+  it("animal v3: paw badge berisi tanggal; tanggal di samping nama hari dihapus", () => {
+    const { container } = renderCanvas({ layout: "animal" });
+    const text = container.textContent ?? "";
+    expect(text).toContain("14"); // tanggal hari terakhir ("Minggu 14") tampil di badge
+    expect(text).not.toContain("07"); // nomor urut lama (01-07) sudah tidak dipakai
+    expect(text).not.toMatch(/·\d/); // tidak ada tanggal di samping nama hari ("mon ·14")
+  });
+
+  it('animal v3: eyebrow "Vol. 01" dihapus, tanggal tampil di atas judul', () => {
+    const { container } = renderCanvas({ layout: "animal" });
+    const text = container.textContent ?? "";
+    expect(text).not.toContain("Weekly Broadcast");
+    expect(text).toContain("8 - 14 September 2026"); // dateRange tetap tampil
+  });
+
+  it("animal: handle Instagram/X/TikTok tampil di footer; kosong = tidak tampil", () => {
+    const { container } = renderCanvas({
+      layout: "animal",
+      youtubeHandle: "", twitchHandle: "", // editor mengirim "" saat platform di-uncek
+      instagramHandle: "@igku", xHandle: "@xku", tiktokHandle: "@ttku",
+    });
+    const text = container.textContent ?? "";
+    expect(text).toContain("@igku");
+    expect(text).toContain("@xku");
+    expect(text).toContain("@ttku");
+  });
+
+  it('animal: "jadwal kedua" (slot ke-2) ikut dirender di baris hari', () => {
+    const twoSlotDays = days.map((d, i) =>
+      i === 0 ? { ...d, slots: [...d.slots, { time: "22:00 WIB", title: "Stream Kedua", note: "", type: "solo" as const, platforms: ["youtube" as const] }] } : d
+    );
+    const { container } = renderCanvas({ layout: "animal", days: twoSlotDays });
+    const text = container.textContent ?? "";
+    expect(text).toContain("Just Chatting"); // slot pertama tetap tampil
+    expect(text).toContain("Stream Kedua");  // slot kedua kini tampil
+    expect(text).toContain("22:00 WIB");     // beserta jamnya
+  });
 });
