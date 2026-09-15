@@ -37,3 +37,8 @@ export const ANIMAL_V2_PALETTES: Record<ThemeKey, AnimalPalette> = {
   magic:     { bg1: "#eadfff", bg2: "#fff0d8", bg3: "#e0d0ff", dot: "#c1a3ff", ink: "#2b1656", sub: "#7566a0", accent: "#9a76ff", accent2: "#ffd580", cream: "#f6f0ff", chipInk: "#ffffff" },
   mono:      { bg1: "#fafafa", bg2: "#efefef", bg3: "#f4f4f4", dot: "#cccccc", ink: "#0a0a0a", sub: "#5f5f5f", accent: "#1f1f1f", accent2: "#8a8a8a", cream: "#ffffff", chipInk: "#ffffff" },
 };
+
+/* ---------- media sosial di footer poster ---------- */
+export type SocialKey = "youtube" | "twitch" | "instagram" | "x" | "tiktok";
+
+export const SOCIAL_KEYS: readonly SocialKey[] = ["youtube", "twitch", "instagram", "x", "tiktok"];

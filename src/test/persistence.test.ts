@@ -19,6 +19,8 @@ const sampleState = (): PersistedState => ({
   artBy: "Art by @me",
   youtubeHandle: "@yt",
   twitchHandle: "@tw",
+  socials: { youtube: "@yt", twitch: "@tw", instagram: "@ig", x: "@x", tiktok: "@tt" },
+  socialEnabled: { youtube: true, twitch: true, instagram: true, x: false, tiktok: true },
   days: [
     {
       day: "Senin 14",
@@ -50,6 +52,22 @@ describe("persistence", () => {
   it("round-trips penuh: save → load menghasilkan state yang sama", () => {
     expect(saveState(sampleState())).toBe("saved");
     expect(loadState()).toEqual(sampleState());
+  });
+
+  it("migrasi: state lama tanpa field sosial → default + handle legacy ikut", () => {
+    const raw = { ...sampleState() } as Record<string, unknown>;
+    delete raw.socials;
+    delete raw.socialEnabled;
+    const parsed = sanitizeState(raw);
+    expect(parsed).not.toBeNull();
+    expect(parsed!.socials.youtube).toBe("@yt"); // dari youtubeHandle legacy
+    expect(parsed!.socials.twitch).toBe("@tw");
+    expect(parsed!.socials.instagram).toBe("");
+    expect(parsed!.socials.x).toBe("");
+    expect(parsed!.socials.tiktok).toBe("");
+    expect(parsed!.socialEnabled).toEqual({
+      youtube: true, twitch: true, instagram: false, x: false, tiktok: false,
+    });
   });
 
   it("load mengembalikan null bila belum ada data", () => {
