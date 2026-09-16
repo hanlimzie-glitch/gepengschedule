@@ -472,7 +472,6 @@ export const ScheduleEditor = () => {
             <div className="grid grid-cols-2 gap-2">
               {([
                 { key: "bubbles", label: "Bubbles" },
-                { key: "bubbles", label: "Bubbles" },
                 { key: "grid", label: "Grid" },
                 { key: "royal", label: "Royal" },
                 { key: "celestial", label: "Celestial" },
