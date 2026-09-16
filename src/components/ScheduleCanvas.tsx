@@ -1,7 +1,6 @@
 import { forwardRef } from "react";
-import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Twitch, Youtube, Crown, Wand2, Feather, Star, Circle, Instagram, X, Music2, type LucideIcon } from "lucide-react";
-import { CELESTIAL_PALETTES, ANIMAL_V2_PALETTES, SOCIAL_KEYS, type SocialKey } from "@/lib/palettes";
-import pawSvgUrl from "../assets/paw.svg";
+import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Twitch, Youtube, Crown, Wand2, Feather, Fish, Star, Circle, Instagram, X, Music2, type LucideIcon } from "lucide-react";
+import { CELESTIAL_PALETTES, CAT_PALETTES, SOCIAL_KEYS, type SocialKey } from "@/lib/palettes";
 
 export type PlatformKey = "twitch" | "youtube" | "tiktok";
 
@@ -19,9 +18,11 @@ export type DayItem = {
 };
 
 export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint" | "royalred" | "magic" | "mono";
-export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial" | "animal";
+export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial" | "cat" | "animal" | "notebook"; // "notebook" = pastel diary (referensi screenshot), "animal"=legacy cat
+// Kurasi ornamen: hapus slash (diagonal) & yang jelek (square/cross/circuit) — ganti dengan ornamen dari layout lain (feather/fish)
+// Sekarang hanya ornamen estetik yang konsisten dengan tema cat/celestial/royal
 export type OrnamentIconKey =
-  | "dot" | "square" | "diagonal" | "star" | "sparkle" | "heart" | "sakura" | "cross" | "circuit" | "moon" | "paw";
+  | "dot" | "star" | "sparkle" | "heart" | "sakura" | "moon" | "paw" | "feather" | "fish";
 
 export type OrnamentLayer = {
   icon: OrnamentIconKey;
@@ -58,7 +59,7 @@ export type ScheduleProps = {
   characterUrl: string | null;
   charFit: "cover" | "contain";
   theme: ThemeKey;
-  ratio: "16:9" | "4:3";
+  ratio: "16:9"; // 4:3 dihapus — hanya 16:9
   ornaments: OrnamentLayer[];
   artBy?: string;
   layout?: LayoutKey;
@@ -94,7 +95,11 @@ export type LayoutProps = {
   xHandle?: string;
   tiktokHandle?: string;
   theme: ThemeKey;
-  ratio: "16:9" | "4:3";
+  ratio: "16:9"; // 4:3 dihapus
+  // ornaments diteruskan untuk layout opaque (cat/celestial/royal) agar "Tambah Layer" selalu terlihat
+  ornaments?: OrnamentLayer[];
+  W?: number;
+  H?: number;
 };
 
 export const CharImage = ({
@@ -155,10 +160,6 @@ const renderOrnamentIcon = (icon: OrnamentIconKey, size: number, color: string):
   switch (icon) {
     case "dot":
       return <svg width={size} height={size} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill={color} /></svg>;
-    case "square":
-      return <IconGlyph ch="◇" size={size} color={color} />;
-    case "diagonal":
-      return <IconGlyph ch="╱" size={size} color={color} />;
     case "star":
       return <IconGlyph ch="✦" size={size} color={color} />;
     case "sparkle":
@@ -176,15 +177,17 @@ const renderOrnamentIcon = (icon: OrnamentIconKey, size: number, color: string):
           <circle cx="12" cy="12" r="1.8" fill="#fff" opacity="0.9" />
         </svg>
       );
-    case "cross":
-      return <IconGlyph ch="✚" size={size} color={color} />;
-    case "circuit":
-      return <IconGlyph ch="⌁" size={size} color={color} />;
     case "moon":
       return <IconGlyph ch="☾" size={size} color={color} />;
     case "paw":
       return <IconSVG size={size} color={color}
         d="M12 13.5c-2.6 0-6 2.6-6 5 0 1.6 1.4 2.5 3 2.5 1 0 1.8-.4 3-.4s2 .4 3 .4c1.6 0 3-.9 3-2.5 0-2.4-3.4-5-6-5zM6 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm12 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM9.5 6.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm5 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />;
+    case "feather":
+      // Diambil dari layout Celestial (Feather) — ornamen elegan untuk tema magic/aesthetic
+      return <Feather size={size} color={color} style={{ display: "block" } as React.CSSProperties} />;
+    case "fish":
+      // SVG asli dari lucide-react (Fish) — bukan buatan, vektor rapi dari internet
+      return <Fish size={size} color={color} style={{ display: "block" } as React.CSSProperties} />;
   }
 };
 
@@ -355,7 +358,7 @@ const normalize = (d: LegacyDay): DayItem => {
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
   ({ title, subtitle, dateRange, days: rawDays, characterUrl, charFit, theme, ratio, ornaments, artBy, layout = "grid", youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0, texture }, ref) => {
     const w = 1920;
-    const h = ratio === "16:9" ? 1080 : 1440;
+    const h = 1080; // 4:3 dihapus — hanya 16:9
     const days = rawDays.map(normalize);
 
     const textureOverlay = texture?.url && (texture.scope === "all" || texture.scope === "background") ? (
@@ -390,13 +393,6 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           fontFamily: themeFont[theme],
         }}
       >
-        {ornaments && ornaments.length > 0 && (
-          <div className="absolute inset-0" style={{ pointerEvents: "none" }}>
-            {ornaments.slice(0, 3).map((ly, i) => (
-              <OrnamentLayerView key={i} idx={i} layer={ly} W={w} H={h} />
-            ))}
-          </div>
-        )}
         {layout !== "royal" && (
           <>
             <div className="absolute" style={{ top: -160, right: -160, width: 600, height: 600, borderRadius: "9999px", filter: "blur(80px)", opacity: 0.4, background: "var(--gradient-accent)" }} />
@@ -406,15 +402,27 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
 
         {textureOverlay}
 
+        {/* Ornaments global — dirender DI BELAKANG layout opaque? untuk grid/bubbles tetap terlihat di sela layout.
+            Untuk layout opaque (cat/celestial/royal) yang background-nya menutupi, ornaments juga dirender DI DALAM layout masing-masing (lihat CatLayout/CelestialLayout/RoyalLayout) di layer zIndex 1. */}
+        {ornaments && ornaments.length > 0 && layout !== "cat" && layout !== "animal" && layout !== "celestial" && layout !== "royal" && layout !== "notebook" && (
+          <div className="absolute inset-0" style={{ pointerEvents: "none" }}>
+            {ornaments.slice(0, 3).map((ly, i) => (
+              <OrnamentLayerView key={i} idx={i} layer={ly} W={w} H={h} />
+            ))}
+          </div>
+        )}
+
         {(() => {
           const layoutProps: LayoutProps = {
             title, subtitle, dateRange, days, characterUrl, charFit,
             charScale, charOffsetX, charOffsetY,
             artBy, youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle, theme, ratio,
+            ornaments, W: w, H: h,
           };
           if (layout === "royal") return <RoyalLayout {...layoutProps} />;
           if (layout === "celestial") return <CelestialLayout {...layoutProps} />;
-          if (layout === "animal") return <AnimalLayout {...layoutProps} />;
+          if (layout === "cat" || layout === "animal") return <CatLayout {...layoutProps} />;
+          if (layout === "notebook") return <NotebookLayout {...layoutProps} />;
           if (layout === "bubbles") return <BubbleLayout {...layoutProps} />;
           return <GridLayout {...layoutProps} />;
         })()}
@@ -456,7 +464,7 @@ const ROYAL_PALETTES: Record<ThemeKey, RoyalPalette> = {
 
 const RoyalLayout = ({
   title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle, theme,
-  charScale, charOffsetX, charOffsetY,
+  charScale, charOffsetX, charOffsetY, ornaments, W, H,
 }: LayoutProps) => {
   const range = parseRange(dateRange) || { d1: "01", m1: "WEEK", d2: "07", m2: "OF" };
   const p: RoyalPalette = ROYAL_PALETTES[theme];
@@ -466,6 +474,14 @@ const RoyalLayout = ({
       background: `linear-gradient(90deg, ${p.dark} 0%, ${p.dark} 46%, ${p.light} 46%, ${p.light} 100%)`,
       fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
     }}>
+      {/* Ornaments dari editor — dirender di dalam Royal agar terlihat di atas background opaque tapi di bawah konten (zIndex 1) */}
+      {ornaments && ornaments.length > 0 && W && H && (
+        <div className="absolute inset-0" style={{ pointerEvents: "none", zIndex: 1 }}>
+          {ornaments.slice(0, 3).map((ly, i) => (
+            <OrnamentLayerView key={i} idx={i} layer={ly} W={W} H={H} />
+          ))}
+        </div>
+      )}
       {/* LEFT character panel */}
       <div className="absolute" style={{ left: 0, top: 0, bottom: 0, width: "44%", overflow: "hidden" }}>
         <div className="absolute" style={{ inset: 0, background: "radial-gradient(circle at 30% 40%, rgba(255,255,255,0.15), transparent 60%)" }} />
@@ -645,7 +661,7 @@ const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, c
 
   return (
     <div className="relative h-full flex" style={{ padding: 56, gap: 48 }}>
-      <div className="relative flex-shrink-0" style={{ width: ratio === "16:9" ? 720 : 820 }}>
+      <div className="relative flex-shrink-0" style={{ width: 720 }}>
         <div className="relative" style={{
           height: "100%", background: "hsl(var(--t-card))", borderRadius: 36, padding: 24,
           boxShadow: "var(--shadow-glow)", border: "3px solid hsl(var(--t-border) / 0.55)",
@@ -840,7 +856,7 @@ const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, cha
       </div>
 
       <div className="relative flex-shrink-0 overflow-hidden" style={{
-        width: ratio === "16:9" ? 600 : 700, height: "100%", borderRadius: 24,
+        width: 600, height: "100%", borderRadius: 24,
         background: "hsl(var(--t-card))", border: "4px solid hsl(var(--t-border))",
         boxShadow: "var(--shadow-glow)",
       }}>
@@ -899,7 +915,7 @@ const Constellation = ({ style }: { style: React.CSSProperties }) => (
 
 const CelestialLayout = ({
   title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle, theme,
-  charScale = 1, charOffsetX = 0, charOffsetY = 0,
+  charScale = 1, charOffsetX = 0, charOffsetY = 0, ornaments, W, H,
 }: LayoutProps) => {
   const p = CELESTIAL_PALETTES[theme];
   const socials = buildSocials({ youtube: youtubeHandle, twitch: twitchHandle, instagram: instagramHandle, x: xHandle, tiktok: tiktokHandle });
@@ -911,6 +927,14 @@ const CelestialLayout = ({
       fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
       padding: "50px 60px",
     }}>
+      {/* Ornaments dari editor — di dalam Celestial agar terlihat (background opaque menutupi ornaments global) */}
+      {ornaments && ornaments.length > 0 && W && H && (
+        <div className="absolute inset-0" style={{ pointerEvents: "none", zIndex: 1 }}>
+          {ornaments.slice(0, 3).map((ly, i) => (
+            <OrnamentLayerView key={i} idx={i} layer={ly} W={W} H={H} />
+          ))}
+        </div>
+      )}
       {/* corner constellations */}
       <Constellation style={{ top: 20, right: 40, width: 360, height: 360, opacity: 0.55 }} />
       <Constellation style={{ bottom: 20, left: 20, width: 320, height: 320, opacity: 0.45, transform: "scaleY(-1)" }} />
@@ -1068,22 +1092,26 @@ const CelestialLayout = ({
             </div>
           </div>
 
-          {/* Schedule big text */}
+          {/* Schedule big text — fix: pakai backgroundImage + WebkitTextFillColor agar gradient selalu ke-render setelah ganti tema */}
           <div className="relative" style={{ marginTop: 16, lineHeight: 0.9, zIndex: 5 }}>
             <div style={{
               fontFamily: "'Cormorant Garamond', serif",
               fontSize: 76, fontWeight: 700, letterSpacing: "0.1em",
-              background: `linear-gradient(180deg, ${p.goldSoft} 0%, ${p.gold} 100%)`,
-              WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
-              textShadow: `0 2px 0 ${p.deep}44`,
+              backgroundImage: `linear-gradient(180deg, ${p.goldSoft} 0%, ${p.gold} 100%)`,
+              WebkitBackgroundClip: "text", backgroundClip: "text",
+              WebkitTextFillColor: "transparent" as unknown as string, color: "transparent",
+              WebkitTextStroke: `0.5px ${p.deep}22` as unknown as string,
+              filter: `drop-shadow(0 1px 0 ${p.deep}44)`,
             }}>SCHE</div>
             <div className="flex items-end justify-between" style={{ marginTop: -10 }}>
               <div style={{
                 fontFamily: "'Cormorant Garamond', serif",
                 fontSize: 76, fontWeight: 700, letterSpacing: "0.1em",
-                background: `linear-gradient(180deg, ${p.goldSoft} 0%, ${p.gold} 100%)`,
-                WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
-                textShadow: `0 2px 0 ${p.deep}44`,
+                backgroundImage: `linear-gradient(180deg, ${p.goldSoft} 0%, ${p.gold} 100%)`,
+                WebkitBackgroundClip: "text", backgroundClip: "text",
+                WebkitTextFillColor: "transparent" as unknown as string, color: "transparent",
+                WebkitTextStroke: `0.5px ${p.deep}22` as unknown as string,
+                filter: `drop-shadow(0 1px 0 ${p.deep}44)`,
               }}>DULE</div>
               <div style={{ textAlign: "right", color: p.text, fontFamily: "'Cormorant Garamond', serif" }}>
                 <div style={{ fontSize: 18, fontStyle: "italic", opacity: 0.8 }}>week of {dateRange}</div>
@@ -1110,39 +1138,44 @@ const CelestialLayout = ({
 };
 
 /* ============================================================
-   ANIMAL LAYOUT v3 — cozy animal poster
-   Fundamentally animal-themed: paw corner stamps, cat ears clipped
+   CAT LAYOUT v3 — cozy cat poster (renamed from Animal)
+   Fundamentally cat-themed: paw corner stamps, cat ears clipped
    onto the wordmark, fish & speech-paw icons, a soft cloud band
    along the bottom, and a paw DATE badge on every day row.
    ============================================================ */
-const ANIMAL_V2_DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+const CAT_DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+const ANIMAL_V2_DAYS = CAT_DAYS; // alias legacy
 
 type AnimalDecoProps = { size?: number; color: string; opacity?: number; rotate?: number };
+type CatDecoProps = AnimalDecoProps;
 
-// Paw glyph — classic cute silhouette (sesuai referensi):
-// wide rounded mound pad + 4 vertical toe beans, dua jari tengah paling tinggi
-{/* paw = file SVG resmi Font Awesome Free 6.7.2 (CC BY 4.0) — src/assets/paw.svg.
-    Di-render lewat CSS mask supaya transparan & warnanya tetap mengikuti palet tema */}
+// Paw — Font Awesome Free 6.7.2 "paw" (CC BY 4.0, https://fontawesome.com)
+// Di-render sebagai inline SVG (fill=currentColor) supaya selalu muncul dengan baik:
+// — tidak tergantung fetch/mask-image (yang gagal di html2canvas/export & di beberapa browser),
+// — warna tetap mengikuti palet via prop `color`,
+// — bentuk tetap vektor tajam di semua ukuran & tema.
+// File sumber tetap ada di src/assets/paw.svg untuk atribusi lisensi.
+const PAW_PATH =
+  "M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5s.3-86.2 32.6-96.8s70.1 15.6 84.4 58.5zM100.4 198.6c18.9 32.4 14.3 70.1-10.2 84.1s-59.7-.9-78.5-33.3S-2.7 179.3 21.8 165.3s59.7 .9 78.5 33.3zM69.2 401.2C121.6 259.9 214.7 224 256 224s134.4 35.9 186.8 177.2c3.6 9.7 5.2 20.1 5.2 30.5l0 1.6c0 25.8-20.9 46.7-46.7 46.7c-11.5 0-22.9-1.4-34-4.2l-88-22c-15.3-3.8-31.3-3.8-46.6 0l-88 22c-11.1 2.8-22.5 4.2-34 4.2C84.9 480 64 459.1 64 433.3l0-1.6c0-10.4 1.6-20.8 5.2-30.5zM421.8 282.7c-24.5-14-29.1-51.7-10.2-84.1s54-47.3 78.5-33.3s29.1 51.7 10.2 84.1s-54 47.3-78.5 33.3zM310.1 189.7c-32.3-10.6-46.9-53.9-32.6-96.8s52.1-69.1 84.4-58.5s46.9 53.9 32.6 96.8s-52.1 69.1-84.4 58.5z";
+
 const PawStamp = ({ size = 40, color, opacity = 1, rotate = 0 }: AnimalDecoProps) => (
-  <div
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 512 512"
     aria-hidden="true"
+    focusable="false"
     style={{
-      width: size,
-      height: size,
+      display: "block",
       flexShrink: 0,
-      backgroundColor: color,
-      WebkitMaskImage: `url(${pawSvgUrl})`,
-      maskImage: `url(${pawSvgUrl})`,
-      WebkitMaskSize: "contain",
-      maskSize: "contain",
-      WebkitMaskRepeat: "no-repeat",
-      maskRepeat: "no-repeat",
-      WebkitMaskPosition: "center",
-      maskPosition: "center",
+      color,
       opacity,
       transform: `rotate(${rotate}deg)`,
+      overflow: "visible",
     }}
-  />
+  >
+    <path d={PAW_PATH} fill="currentColor" />
+  </svg>
 );
 
 const HeartStamp = ({ size = 20, color, opacity = 1, rotate = 0 }: AnimalDecoProps) => (
@@ -1160,16 +1193,11 @@ const StarStamp = ({ size = 18, color, opacity = 1, rotate = 0 }: AnimalDecoProp
   </svg>
 );
 
-// Line-art fish — clear animal cue without needing an image asset
-const FishStamp = ({ size = 34, color, opacity = 1, rotate = 0 }: AnimalDecoProps) => (
-  <svg width={size} height={Math.round(size * 0.625)} viewBox="0 0 32 20"
-       style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
-    <g stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <ellipse cx="13" cy="10" rx="10" ry="6.5" />
-      <path d="M23 10 L30 4.5 L30 15.5 Z" />
-    </g>
-    <circle cx="8" cy="9" r="1.3" fill={color} />
-  </svg>
+// Fish — pakai lucide Fish (SVG asli dari library) — lebih rapi daripada handmade
+const FishStamp = ({ size = 34, color, opacity = 1, rotate = 0 }: CatDecoProps) => (
+  <span style={{ display: "inline-block", transform: `rotate(${rotate}deg)`, opacity, lineHeight: 0 }}>
+    <Fish size={size} color={color} />
+  </span>
 );
 
 
@@ -1200,13 +1228,14 @@ const CloudBand = ({ color }: { color: string }) => (
   </svg>
 );
 
-const AnimalLayout = ({
+const CatLayout = ({
   title, subtitle, dateRange, days,
   characterUrl, charFit, artBy, theme,
   youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle,
   charScale = 1, charOffsetX = 0, charOffsetY = 0,
-}: LayoutProps) => {
-  const p = ANIMAL_V2_PALETTES[theme];
+  ornaments: catOrnaments, W: catW, H: catH,
+}: LayoutProps & { ornaments?: OrnamentLayer[]; W?: number; H?: number }) => {
+  const p = CAT_PALETTES[theme];
   const socials = buildSocials({ youtube: youtubeHandle, twitch: twitchHandle, instagram: instagramHandle, x: xHandle, tiktok: tiktokHandle });
   // Editable title — satu baris melebar KE SAMPING (tidak ditumpuk ke bawah)
   // supaya area jadwal dapat ruang vertikal lebih banyak.
@@ -1241,7 +1270,7 @@ const AnimalLayout = ({
     >
       {/* fluffy pastel blobs */}
       <div className="absolute pointer-events-none" style={{
-        top: -180, left: -160, width: 620, height: 620, borderRadius: "50%",
+        top: -180, left: -160, width: 580, height: 620, borderRadius: "50%",
         background: `radial-gradient(closest-side, ${p.accent}33, transparent 70%)`, filter: "blur(10px)",
       }} />
       <div className="absolute pointer-events-none" style={{
@@ -1258,6 +1287,15 @@ const AnimalLayout = ({
              mixBlendMode: "multiply",
            }}
       />
+
+      {/* Ornaments dari editor — di dalam Cat agar terlihat di atas background opaque tapi di bawah konten (zIndex 1) */}
+      {catOrnaments && catOrnaments.length > 0 && catW && catH && (
+        <div className="absolute inset-0" style={{ pointerEvents: "none", zIndex: 1 }}>
+          {catOrnaments.slice(0, 3).map((ly, i) => (
+            <OrnamentLayerView key={i} idx={i} layer={ly} W={catW} H={catH} />
+          ))}
+        </div>
+      )}
 
       {/* soft clouds along the bottom */}
       <CloudBand color={`${p.cream}cc`} />
@@ -1370,7 +1408,7 @@ const AnimalLayout = ({
         display: "flex", flexDirection: "column",
       }}>
         {days.slice(0, 7).map((d: DayItem, i: number) => {
-          const label = ANIMAL_V2_DAYS[i] || d.day.slice(0, 3).toLowerCase();
+          const label = CAT_DAYS[i] || d.day.slice(0, 3).toLowerCase();
           const { num } = parseDay(d.day);
           const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platforms: [] } as Slot];
           const first = slots[0];
@@ -1496,7 +1534,7 @@ const AnimalLayout = ({
 
 
 
-      {/* scattered animal ornaments — evenly spaced in the side margins, no collisions */}
+      {/* scattered cat ornaments — evenly spaced in the side margins, no collisions */}
       <div className="absolute" style={{ top: 96, left: 60, zIndex: 4 }}>
         <PawStamp size={26} color={p.accent} opacity={0.55} rotate={-24} />
       </div>
@@ -1546,6 +1584,402 @@ const AnimalLayout = ({
     </div>
   );
 };
+// Backward compat: layout "animal" tetap didukung (alias ke "cat")
+const AnimalLayout = CatLayout;
+
+/* ============================================================
+   NOTEBOOK LAYOUT — pastel diary (referensi screenshot)
+   Desain 1:1 dari gambar: paper putih dengan spiral binding,
+   tab pink 01/01 • 07/01, header weekly ◇ schedule ◇, 7 baris
+   dengan badge bulat dashed + star, title uppercase + note pink,
+   titik waktu 10 PM, foto kanan dengan frame polaroid + stars,
+   cloud bawah, dan left bar scalloped @username.
+   Palette fixed pastel pink (tidak ikut theme) agar akurat.
+   ============================================================ */
+const getNotebookPalette = (_theme: ThemeKey) => {
+  // Tracing 1:1 dari screenshot — palette fixed pastel pink biar rapih & akurat
+  return {
+    bg: "#ffeef2",
+    bar: "#4a2432",
+    barText: "#fde8ec",
+    paper: "#ffffff",
+    tabBg: "#f48aa6",
+    tabText: "#ffffff",
+    weekly: "#f08aa6",
+    schedule: "#4a2d3a",
+    dash: "#f3c2ce",
+    dashLight: "#fbe2e7",
+    circleBorder: "#f0a0b8",
+    title: "#3a2d35",
+    note: "#e78aa2",
+    time: "#f48aa6",
+    timeDot: "#f48aa6",
+    offline: "#f48aa6",
+    star: "#ffb3c6",
+    starDeep: "#f48aa6",
+    cloud: "#ffffff",
+    cloudPink: "#ffeef2",
+  } as const;
+};
+
+// Parse tab dates 01/01 • 07/01 dari dateRange (fallback pakai days)
+const parseNotebookTab = (dateRange: string, days: DayItem[]): { d1: string; m1: string; d2: string; m2: string } => {
+  // coba ambil dari days[0] & days[6] -> "Senin 01" etc.
+  const getNum = (s: string): string => {
+    const m = s.match(/(\d{1,2})/);
+    return m ? m[1].padStart(2, "0") : "01";
+  };
+  let d1 = "01", d2 = "07", m1 = "01", m2 = "01";
+  if (days.length >= 7) {
+    d1 = getNum(days[0].day);
+    d2 = getNum(days[6].day);
+  } else {
+    const nums = (dateRange.match(/\d{1,2}/g) || []);
+    if (nums.length >= 2) { d1 = nums[0].padStart(2,"0"); d2 = nums[1].padStart(2,"0"); }
+  }
+  // bulan dari dateRange -> map nama bulan Indonesia/English ke angka
+  const monthMap: Record<string,string> = {
+    januari:"01", january:"01", jan:"01",
+    februari:"02", february:"02", feb:"02",
+    maret:"03", march:"03", mar:"03",
+    april:"04", apr:"04",
+    mei:"05", may:"05",
+    juni:"06", june:"06", jun:"06",
+    juli:"07", july:"07", jul:"07",
+    agustus:"08", august:"08", aug:"08",
+    september:"09", sep:"09", sept:"09",
+    oktober:"10", october:"10", oct:"10",
+    november:"11", nov:"11",
+    desember:"12", december:"12", dec:"12",
+  };
+  const lower = dateRange.toLowerCase();
+  for (const [k,v] of Object.entries(monthMap)) {
+    if (lower.includes(k)) { m1 = v; m2 = v; break; }
+  }
+  return { d1, m1, d2, m2 };
+};
+
+const NotebookLayout = ({
+  title, subtitle, dateRange, days,
+  characterUrl, charFit, artBy, theme,
+  charScale = 1, charOffsetX = 0, charOffsetY = 0,
+  ornaments: nbOrnaments, W: nbW, H: nbH,
+}: LayoutProps) => {
+  const p = getNotebookPalette(theme);
+  const displayTitle = (title && String(title).trim()) || "weekly schedule";
+  // Left bar handle: pakai artBy atau handle pertama yang ada
+  const leftHandle = (() => {
+    const a = (artBy || "").replace(/^Art by\s*/i, "").trim();
+    if (a) return a.startsWith("@") ? a : `@${a}`;
+    return "@username";
+  })();
+  const tab = parseNotebookTab(dateRange, days);
+
+  // 7 hari — selalu tampil 7 baris, kosong diisi placeholder
+  const rows = Array.from({ length: 7 }, (_, i) => {
+    const d = days[i];
+    if (!d) return { abbr: ["MON","TUE","WED","THU","FRI","SAT","SUN"][i], num: String(i+1).padStart(2,"0"), slot: null as Slot | null };
+    const { abbr, num } = parseDay(d.day);
+    const slot = d.slots[0] || null;
+    // map abbr ke 3 huruf uppercase (MON etc.) — parseDay sudah handle
+    const dayAbbr = (abbr || ["MON","TUE","WED","THU","FRI","SAT","SUN"][i]).toUpperCase().slice(0,3);
+    return { abbr: dayAbbr, num: num || String(i+1).padStart(2,"0"), slot };
+  });
+
+  return (
+    <div className="relative h-full w-full overflow-hidden" style={{ background: p.bg, fontFamily: "'Quicksand','Poppins',sans-serif" }}>
+      {/* bg blobs di-handle oleh image — opacity kecil biar tidak dobel */}
+      <div className="absolute pointer-events-none" style={{ top: -80, left: 200, width: 600, height: 400, background: "radial-gradient(closest-side, #f8d6e0 0%, transparent 70%)", opacity: 0.6 }} />
+      <div className="absolute pointer-events-none" style={{ bottom: -60, left: 120, width: 900, height: 300, background: "radial-gradient(closest-side, #fce4e8 0%, transparent 70%)", opacity: 0.7 }} />
+
+      {/* Ornaments di dalam notebook agar di atas paper tapi di bawah konten */}
+      {nbOrnaments && nbOrnaments.length > 0 && nbW && nbH && (
+        <div className="absolute inset-0" style={{ pointerEvents: "none", zIndex: 1 }}>
+          {nbOrnaments.slice(0, 3).map((ly, i) => (
+            <OrnamentLayerView key={i} idx={i} layer={ly} W={nbW} H={nbH} />
+          ))}
+        </div>
+      )}
+
+      {/* Asset: Left scalloped bar (template terpisah) */}
+      <div className="absolute" style={{ left: 0, top: 0, bottom: 0, width: 56, zIndex: 3 }}>
+        <svg width="56" height="1080" viewBox="0 0 56 1080" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} aria-hidden>
+          <path
+            d={(() => {
+              const w = 38, r = 16, step = 34;
+              let d = `M0 0 H${w} `;
+              for (let y = 0; y < 1080; y += step) d += `A${r} ${r} 0 0 1 ${w} ${y + step} `;
+              d += `V1080 H0 Z`;
+              return d;
+            })()}
+            fill={p.bar}
+          />
+        </svg>
+        {/* vertical repeated handle */}
+        <div className="absolute inset-0 flex flex-col items-center justify-around py-16" style={{ paddingRight: 14 }}>
+          {[0,1,2,3].map((i) => (
+            <div key={i} style={{
+              writingMode: "vertical-rl" as const,
+              transform: "rotate(180deg)",
+              color: p.barText,
+              fontSize: 13,
+              letterSpacing: "0.14em",
+              fontFamily: "'Inter','Quicksand',sans-serif",
+              fontWeight: 600,
+              opacity: 0.95,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: p.star, display: "inline-block", flexShrink: 0 }} />
+              {leftHandle}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Asset: Paper card — template terpisah, komposisi rapih */}
+      <div className="absolute" style={{
+        left: 76, top: 22, width: 1060, bottom: 22,
+        background: p.paper,
+        borderRadius: 18,
+        transform: "none",
+        boxShadow: "0 12px 28px rgba(74,36,50,0.10), 0 2px 6px rgba(74,36,50,0.05)",
+        zIndex: 4,
+        overflow: "visible",
+        display: "flex",
+        flexDirection: "column",
+      }}>
+        {/* Asset: Spiral binding — 13 loop, notebook beneran */}
+        <div className="absolute pointer-events-none" style={{ left: -10, top: 32, bottom: 32, width: 22, zIndex: 6, display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center" }}>
+          {Array.from({ length: 13 }).map((_, i) => (
+            <div key={i} style={{
+              width: 20, height: 16,
+              border: `1.8px solid ${p.circleBorder}`,
+              borderRadius: "50%",
+              background: "#fff",
+              boxShadow: "0 1px 1px rgba(91,58,68,0.06)",
+              transform: "rotate(-12deg)",
+              flexShrink: 0,
+            }} />
+          ))}
+        </div>
+        {/* Asset: inner holes shadow */}
+        <div className="absolute pointer-events-none" style={{ left: 14, top: 0, bottom: 0, width: 22, zIndex: 5, opacity: 0.06,
+          background: `repeating-linear-gradient(180deg, transparent 0 26px, ${p.bar} 26px 28px)` }} />
+
+        {/* Asset: Pink tab — template terpisah */}
+        <div className="absolute" style={{
+          top: -10, right: 68, width: 92, height: 68,
+          background: p.tabBg,
+          borderRadius: "10px 10px 6px 6px",
+          boxShadow: "0 6px 14px rgba(233,138,163,0.35)",
+          zIndex: 7,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          color: p.tabText,
+          fontFamily: "'Quicksand','Inter',sans-serif",
+          fontWeight: 800,
+          lineHeight: 1,
+          overflow: "hidden",
+        }}>
+          <div style={{ position: "absolute", top: -6, left: "50%", transform: "translateX(-50%)", width: 28, height: 10, background: "#c97a8e", borderRadius: 6, opacity: 0.9 }} />
+          <div style={{ fontSize: 16, letterSpacing: "0.04em", marginTop: 8 }}>{tab.d1}/{tab.m1}</div>
+          <div style={{ fontSize: 9, lineHeight: 1, margin: "4px 0", opacity: 0.95 }}>•</div>
+          <div style={{ fontSize: 16, letterSpacing: "0.04em" }}>{tab.d2}/{tab.m2}</div>
+          <div style={{ position: "absolute", bottom: -8, left: 0, right: 0, height: 10, background: p.tabBg, clipPath: "polygon(0 0, 100% 0, 50% 100%)" }} />
+        </div>
+
+        {/* Header — referensi: weekly kecil di atas */}
+        <div style={{ padding: "22px 32px 0 40px", flexShrink: 0 }}>
+          <div style={{
+            fontFamily: "'Caveat','Pacifico',cursive",
+            fontSize: 12.5, color: p.weekly, fontWeight: 700, fontStyle: "italic",
+            lineHeight: 1, letterSpacing: "0.02em", marginLeft: 2,
+          }}>weekly</div>
+          <div style={{
+            fontFamily: "'Poppins','Quicksand',sans-serif",
+            fontSize: 26, fontWeight: 900, color: p.schedule, letterSpacing: "-0.02em",
+            display: "inline-flex", alignItems: "center", gap: 10, lineHeight: 1, marginTop: 3,
+            maxWidth: "100%", overflow: "hidden",
+          }}>
+            <span style={{ color: p.star, fontSize: 11, transform: "translateY(-1px)", flexShrink: 0 }}>◇</span>
+            <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{(displayTitle || "schedule").replace(/^weekly\s*/i, "").trim() || "schedule"}</span>
+            <span style={{ color: p.star, fontSize: 11, transform: "translateY(-1px)", flexShrink: 0 }}>◇</span>
+          </div>
+          <div style={{ height: 1, marginTop: 12, borderTop: `1.8px dashed ${p.dash}`, opacity: 0.95 }} />
+        </div>
+
+        {/* Day rows */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "10px 72px 12px 38px", gap: 0, minHeight: 0 }}>
+          {rows.map((r, i) => {
+            const isOffline = !r.slot || r.slot.type === "offline" || !r.slot.title?.trim();
+            const isDayOff = isOffline;
+            const timeText = r.slot?.time ? String(r.slot.time).replace(/\s*WIB.*$/i, "").trim().slice(0, 7) : "10 PM";
+            // title: uppercase bold, note: small pink
+            const titleText = isDayOff ? "" : (r.slot?.title || "Untitled").toUpperCase();
+            const noteText = isDayOff ? "" : (r.slot?.note || "").trim();
+            return (
+              <div key={i} style={{
+                height: 78, minHeight: 78, maxHeight: 78,
+                display: "flex", alignItems: "center", gap: 12,
+                borderBottom: i === 6 ? "none" : `1.3px dashed ${p.dashLight}`,
+                flexShrink: 0,
+                position: "relative",
+              }}>
+                {/* Day badge */}
+                <div style={{ position: "relative", width: 56, height: 56, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {/* star at top-left of badge */}
+                  <div style={{ position: "absolute", top: -3, left: -1, color: p.star, fontSize: 12, lineHeight: 1, transform: "rotate(-14deg)", filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.04))" }}>★</div>
+                  <div style={{
+                    width: 50, height: 50, borderRadius: "50%",
+                    border: `1.7px dashed ${p.circleBorder}`,
+                    background: "#fff",
+                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                    boxShadow: "0 1px 2px rgba(91,58,68,0.05)",
+                  }}>
+                    <div style={{ fontSize: 14, fontWeight: 900, color: p.schedule, lineHeight: 1, letterSpacing: "0.01em" }}>{r.num}</div>
+                    <div style={{ fontSize: 9, fontWeight: 800, color: p.weekly, letterSpacing: "0.07em", marginTop: 1 }}>{r.abbr}</div>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 12 }}>
+                  {isDayOff ? (
+                    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                      <span style={{ color: p.star, fontSize: 12 }}>✦</span>
+                      <span style={{
+                        fontSize: 16, fontWeight: 800, color: p.offline, letterSpacing: "0.08em",
+                        fontFamily: "'Quicksand','Poppins',sans-serif",
+                      }}>* DAY OFF - NO STREAM *</span>
+                      <span style={{ color: p.star, fontSize: 12 }}>✦</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center", gap: 2, overflow: "hidden" }}>
+                        <div style={{
+                          fontSize: 14, fontWeight: 800, color: p.title, letterSpacing: "0.01em",
+                          whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.1,
+                        }}>{titleText}</div>
+                        {noteText && (
+                          <div style={{
+                            fontSize: 10, fontWeight: 500, color: p.note, fontStyle: "italic",
+                            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1,
+                            fontFamily: "'Quicksand','Poppins',sans-serif",
+                          }}>{noteText}</div>
+                        )}
+                      </div>
+                      {/* dotted leader — flex mengisi ruang antara judul dan jam (seperti referensi) */}
+                      <div style={{ flex: 1, height: 1, borderTop: `1.6px dotted ${p.circleBorder}`, opacity: 0.75, margin: "0 10px", minWidth: 24 }} />
+                      <div style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: p.timeDot, display: "inline-block", boxShadow: `0 0 0 3px ${p.timeDot}22` }} />
+                        <span style={{
+                          fontSize: 11.5, fontWeight: 800, color: p.time, letterSpacing: "0.04em",
+                          fontFamily: "'Quicksand','Inter',sans-serif",
+                        }}>{timeText}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* bottom tiny footer line */}
+        <div style={{ height: 10, flexShrink: 0 }} />
+      </div>
+
+      {/* Asset: Photo polaroid — tracing rapih */}
+      <div className="absolute" style={{ right: 36, top: 28, bottom: 120, width: 580, zIndex: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {/* back card peeking */}
+        <div className="absolute" style={{
+          width: 560, height: 820, right: 18, top: 18,
+          background: "#ffffff", borderRadius: 22,
+          transform: "rotate(2.2deg)",
+          boxShadow: "0 12px 32px rgba(91,58,68,0.12)",
+          border: "1px solid #f3d6de",
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "flex-end",
+          padding: 14,
+        }}>
+          <span style={{
+            writingMode: "vertical-rl" as const,
+            fontSize: 11, color: "#b48a96", letterSpacing: "0.12em", fontFamily: "'Inter',sans-serif", fontWeight: 600,
+            transform: "rotate(180deg)",
+          }}>art by : {leftHandle}</span>
+        </div>
+        {/* main polaroid frame */}
+        <div className="absolute" style={{
+          width: 560, height: 800, right: 8, top: 12,
+          background: "#ffffff",
+          borderRadius: 26,
+          padding: 12,
+          boxShadow: "0 20px 48px rgba(91,58,68,0.18), 0 4px 12px rgba(91,58,68,0.10)",
+          border: "1px solid #fde8ec",
+          overflow: "hidden",
+        }}>
+          <div style={{
+            width: "100%", height: "100%", borderRadius: 18, overflow: "hidden", background: "#fdf2f5",
+            position: "relative",
+          }}>
+            {characterUrl ? (
+              <CharImage url={characterUrl} fit={charFit} scale={charScale} ox={charOffsetX} oy={charOffsetY} pos="center" />
+            ) : (
+              <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: p.note, fontSize: 22, fontWeight: 800, fontFamily: "'Quicksand',sans-serif" }}>
+                upload your character ♡
+              </div>
+            )}
+            {/* subtle inner vignette */}
+            <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 0 40px rgba(91,58,68,0.08)", pointerEvents: "none" }} />
+          </div>
+          {/* photo border stars */}
+          <div style={{ position: "absolute", top: -10, right: 24, color: p.star, fontSize: 42, lineHeight: 1, transform: "rotate(14deg)", filter: "drop-shadow(0 3px 6px rgba(248,177,194,0.5))", pointerEvents: "none" }}>★</div>
+        </div>
+        {/* decorative stars around photo */}
+        <div style={{ position: "absolute", top: 24, left: 8, color: p.starDeep, fontSize: 36, lineHeight: 1, transform: "rotate(-18deg)", opacity: 0.95, filter: "drop-shadow(0 2px 4px rgba(233,138,163,0.3))", pointerEvents: "none" }}>★</div>
+        <div style={{ position: "absolute", bottom: 42, right: -6, color: p.star, fontSize: 52, lineHeight: 1, transform: "rotate(12deg)", opacity: 0.95, filter: "drop-shadow(0 4px 8px rgba(248,177,194,0.45))", pointerEvents: "none" }}>★</div>
+        <div style={{ position: "absolute", bottom: 98, left: -6, color: "#fff", fontSize: 34, lineHeight: 1, transform: "rotate(-10deg)", opacity: 0.95, textShadow: "0 2px 8px rgba(248,177,194,0.6)", WebkitTextStroke: `1.2px ${p.star}`, pointerEvents: "none" }}>★</div>
+        <div style={{ position: "absolute", top: 180, right: -8, color: "#fff", fontSize: 28, lineHeight: 1, transform: "rotate(8deg)", opacity: 0.9, textShadow: "0 2px 6px rgba(248,177,194,0.5)", WebkitTextStroke: `1px ${p.star}`, pointerEvents: "none" }}>★</div>
+      </div>
+
+      {/* Asset: Bottom fluffy cloud — template terpisah */}
+      <svg className="absolute pointer-events-none" style={{ left: 0, right: 0, bottom: 0, width: "100%", height: 200, zIndex: 7 }} viewBox="0 0 1920 200" preserveAspectRatio="none" aria-hidden>
+        <g fill={p.cloud} stroke="#fde8ec" strokeWidth="1.5">
+          {[
+            [-40, 170, 140, 110], [100, 140, 160, 100], [260, 155, 150, 95], [420, 125, 170, 105],
+            [600, 150, 160, 100], [780, 120, 180, 110], [980, 145, 170, 100], [1180, 125, 180, 105],
+            [1380, 150, 160, 100], [1580, 130, 170, 105], [1760, 150, 180, 110], [1920, 165, 120, 100],
+          ].map(([x, y, rx, ry], i) => (
+            <ellipse key={i} cx={x} cy={200} rx={rx} ry={ry} />
+          ))}
+        </g>
+        <g fill={p.cloudPink} opacity="0.85">
+          {[
+            [20, 180, 120, 85], [180, 165, 130, 80], [340, 175, 120, 75], [520, 160, 140, 85],
+            [700, 175, 130, 80], [880, 155, 150, 85], [1080, 175, 130, 80], [1280, 160, 140, 85],
+            [1480, 175, 130, 80], [1680, 160, 150, 85], [1860, 175, 100, 80],
+          ].map(([x, y, rx, ry], i) => (
+            <ellipse key={`p-${i}`} cx={x} cy={200} rx={rx} ry={ry} />
+          ))}
+        </g>
+        <g transform="translate(520, 148) rotate(-10)" opacity="0.96">
+          <path d="M0 -12 L3 -3.5 L12 -3 L5 2 L6.5 11 L0 6 L-6.5 11 L-5 2 L-12 -3 L-3 -3.5 Z" fill={p.star} stroke="#fff" strokeWidth="1.1" />
+        </g>
+        <g transform="translate(1480, 152) rotate(8)" opacity="0.92">
+          <path d="M0 -10 L2.5 -3 L10 -2.5 L4 1.5 L5.5 9 L0 5.5 L-5.5 9 L-4 1.5 L-10 -2.5 L-2.5 -3 Z" fill={p.star} stroke="#fff" strokeWidth="1" />
+        </g>
+      </svg>
+      {/* tiny cloud highlight */}
+      <div className="absolute pointer-events-none" style={{ bottom: 18, left: 96, right: 96, height: 1, background: `repeating-linear-gradient(90deg, transparent 0 18px, ${p.dash} 18px 20px)`, opacity: 0.0 }} />
+    </div>
+  );
+};
+
 
 
 
