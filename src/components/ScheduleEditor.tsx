@@ -61,9 +61,9 @@ const makeLayer = (over: Partial<OrnamentLayer> = {}): OrnamentLayer => ({
 const themes: { key: ThemeKey; label: string; swatch: string; defaultLayers: OrnamentLayer[] }[] = [
   { key: "cute",      label: "Cute",      swatch: "linear-gradient(135deg,hsl(330 100% 78%),hsl(25 100% 82%))", defaultLayers: [makeLayer({ icon: "heart", count: 50, size: 36 })] },
   { key: "aesthetic", label: "Aesthetic", swatch: "linear-gradient(135deg,hsl(280 90% 75%),hsl(200 95% 75%))",  defaultLayers: [makeLayer({ icon: "sparkle", count: 45 })] },
-  { key: "gothic",    label: "Gothic",    swatch: "linear-gradient(135deg,hsl(0 0% 4%),hsl(0 80% 55%))",       defaultLayers: [makeLayer({ icon: "cross", count: 35 })] },
+  { key: "gothic",    label: "Gothic",    swatch: "linear-gradient(135deg,hsl(0 0% 4%),hsl(0 80% 55%))",       defaultLayers: [makeLayer({ icon: "moon", count: 35 })] }, // cross dihapus -> moon (elegan)
   { key: "sakura",    label: "Sakura",    swatch: "linear-gradient(135deg,hsl(340 90% 70%),hsl(350 100% 88%))", defaultLayers: [makeLayer({ icon: "sakura", count: 40, size: 42 })] },
-  { key: "cyber",     label: "Cyber",     swatch: "linear-gradient(135deg,hsl(180 100% 55%),hsl(320 100% 60%))", defaultLayers: [makeLayer({ icon: "circuit", count: 40 })] },
+  { key: "cyber",     label: "Cyber",     swatch: "linear-gradient(135deg,hsl(180 100% 55%),hsl(320 100% 60%))", defaultLayers: [makeLayer({ icon: "star", count: 40 })] }, // circuit dihapus -> star
   { key: "mint",      label: "Mint",      swatch: "linear-gradient(135deg,hsl(160 70% 55%),hsl(190 80% 70%))",  defaultLayers: [makeLayer({ icon: "dot", count: 80, size: 14, spacing: 120 })] },
   { key: "royalred",  label: "Royal Red", swatch: "linear-gradient(90deg,#6b1622 50%,#e6c168 50%)",             defaultLayers: [] },
   { key: "magic",     label: "Magic",     swatch: "linear-gradient(135deg,hsl(270 60% 55%),hsl(35 80% 70%))",   defaultLayers: [makeLayer({ icon: "star", count: 45 }), makeLayer({ icon: "moon", count: 12, size: 44, opacity: 0.4 })] },
@@ -100,7 +100,6 @@ const NAV_ITEMS = [
   { id: "sec-karakter", label: "Karakter" },
   { id: "sec-jadwal", label: "Jadwal" },
   { id: "sec-texture", label: "Texture" },
-  { id: "sec-export", label: "Export" },
 ] as const;
 
 const scrollToSection = (id: string) =>
@@ -117,16 +116,14 @@ const formatRange = (from?: Date, to?: Date) => {
 
 const ornamentIconOptions: { key: OrnamentIconKey; label: string; glyph: string }[] = [
   { key: "dot", label: "Dot", glyph: "●" },
-  { key: "square", label: "Diamond", glyph: "◇" },
-  { key: "diagonal", label: "Slash", glyph: "╱" },
   { key: "star", label: "Star", glyph: "✦" },
   { key: "sparkle", label: "Sparkle", glyph: "✧" },
   { key: "heart", label: "Heart", glyph: "♥" },
   { key: "sakura", label: "Sakura", glyph: "❀" },
-  { key: "cross", label: "Cross", glyph: "✚" },
-  { key: "circuit", label: "Circuit", glyph: "⌁" },
   { key: "moon", label: "Moon", glyph: "☾" },
   { key: "paw", label: "Paw", glyph: "🐾" },
+  { key: "feather", label: "Feather", glyph: "🪶" }, // dari Celestial
+  { key: "fish", label: "Fish", glyph: "🐟" }, // dari Cat
 ];
 
 export const ScheduleEditor = () => {
@@ -172,8 +169,8 @@ export const ScheduleEditor = () => {
     setOrnaments((prev) => prev.map((l, idx) => idx === i ? { ...l, ...patch } : l));
   const addLayer = () => setOrnaments((prev) => prev.length >= 3 ? prev : [...prev, makeLayer()]);
   const removeLayer = (i: number) => setOrnaments((prev) => prev.filter((_, idx) => idx !== i));
-  const [layout, setLayout] = useState<LayoutKey>(persisted?.layout ?? "bubbles");
-  const [ratio, setRatio] = useState<"16:9" | "4:3">(persisted?.ratio ?? "16:9");
+  const [layout, setLayout] = useState<LayoutKey>(persisted?.layout ?? "notebook");
+  const ratio = "16:9" as const; // 4:3 dihapus — hanya 16:9 (persisted lama otomatis jadi 16:9)
   const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [scale, setScale] = useState(0.4);
@@ -197,14 +194,17 @@ export const ScheduleEditor = () => {
 
   const pickTheme = (k: ThemeKey) => {
     setTheme(k);
-    const t = themes.find((x) => x.key === k);
-    if (t) setOrnaments(t.defaultLayers.map((l) => ({ ...l })));
-    if (k === "magic") setLayout("celestial");
+    // FIX #4: ganti Color tidak lagi ikut ganti Layout ornaments.
+    // Sebelumnya: pilih tema magic otomatis ganti layout ke celestial & reset ornaments ke default tema — bikin "ganti warna ikut ganti layout".
+    // Sekarang: theme, layout, dan ornaments independen — user atur manual masing-masing.
   };
 
   const pickLayout = (k: LayoutKey) => {
-    setLayout(k);
-    if (k === "animal") setOrnaments([makeLayer({ icon: "paw", count: 30, size: 44, opacity: 0.3 })]);
+    // Normalisasi alias legacy animal -> cat
+    const normalized = (k === "animal" ? "cat" : k) as LayoutKey;
+    setLayout(normalized);
+    // FIX #3: jangan reset ornaments saat ganti layout (termasuk cat).
+    // Sebelumnya pickLayout("animal") selalu reset ke 1 layer paw, jadi user yang sudah tambah 2-3 layer merasa "tidak bisa tambah layer" karena ke-reset.
   };
 
   const handleDateRange = (r: DateRange | undefined) => {
@@ -307,7 +307,7 @@ export const ScheduleEditor = () => {
     setDays(buildDayLabels(CURRENT_MONDAY).map((d) => ({ day: d, slots: [makeSlot()] })));
     setCharacterUrl(null); setCharFit("cover"); setCharScale(1); setCharOffsetX(0); setCharOffsetY(0);
     setTheme("cute"); setOrnaments([makeLayer({ icon: "heart", count: 50, size: 36 })]);
-    setLayout("bubbles"); setRatio("16:9");
+    setLayout("notebook");
     setTexture({ url: null, blend: "overlay", opacity: 0.5, size: 100, repeat: true, scope: "all", offsetX: 0, offsetY: 0, rotation: 0 });
     setTextureEdit(false);
     toast.success("Kembali ke default ✨");
@@ -317,7 +317,7 @@ export const ScheduleEditor = () => {
     const wrap = previewWrapRef.current;
     if (!wrap) return;
     let raf = 0;
-    const canvasH = ratio === "16:9" ? 1080 : 1440;
+    const canvasH = 1080;
     const update = () => {
       raf = 0;
       const sx = wrap.clientWidth / 1920;
@@ -329,7 +329,7 @@ export const ScheduleEditor = () => {
     window.addEventListener("resize", update);
     update();
     return () => { ro.disconnect(); window.removeEventListener("resize", update); if (raf) cancelAnimationFrame(raf); };
-  }, [ratio]);
+  }, []); // ratio fixed 16:9 — tidak perlu depend
 
   // ── Zoom via wheel ─────────────────────────────────────────────────
   // React 17+ memasang handler onWheel sebagai passive listener →
@@ -363,20 +363,20 @@ export const ScheduleEditor = () => {
     setBusy(true);
     try {
       const node = canvasRef.current;
-      const w = 1920; const h = ratio === "16:9" ? 1080 : 1440;
+      const w = 1920; const h = 1080; // hanya 16:9
       const dataUrl = await toPng(node, {
         width: w, height: h, pixelRatio: 2, cacheBust: true,
         style: { transform: "none", margin: "0", inset: "auto" },
       });
       const a = document.createElement("a");
-      a.href = dataUrl; a.download = `${title.replace(/\s+/g, "_")}_${ratio.replace(":", "x")}.png`;
+      a.href = dataUrl; a.download = `${title.replace(/\s+/g, "_")}_16x9.png`;
       a.click();
       toast.success("Schedule berhasil di-download! ✨");
     } catch (err) { console.error(err); toast.error("Gagal export. Coba lagi."); }
     finally { setBusy(false); }
   };
 
-  const canvasH = ratio === "16:9" ? 1080 : 1440;
+  const canvasH = 1080 as const; // hanya 16:9
 
   return (
     <div className="min-h-screen p-4 md:p-8">
@@ -385,7 +385,7 @@ export const ScheduleEditor = () => {
           <img src={appLogo} alt="VTuber Schedule Maker logo" className="w-12 h-12 shadow-md" />
           <div>
             <h1 className="text-3xl md:text-4xl font-black gradient-text leading-tight">VTuber Schedule Maker</h1>
-            <p className="text-sm text-muted-foreground">Buat jadwal mingguan keren — export PNG kualitas tinggi</p>
+            <p className="text-sm text-muted-foreground">Bikin jadwal streaming mingguanmu jadi rapi & estetik — tinggal atur, langsung export jadi gambar siap posting ✨</p>
           </div>
         </div>
         <div className="text-xs text-muted-foreground md:text-right" aria-live="polite">
@@ -471,17 +471,17 @@ export const ScheduleEditor = () => {
           <Section title="Layout" id="sec-layout">
             <div className="grid grid-cols-2 gap-2">
               {([
-                { key: "bubbles", label: "Bubbles", desc: "Polaroid + chat" },
-                { key: "grid", label: "Grid", desc: "2-col cards" },
-                { key: "royal", label: "Royal", desc: "Red/gold banner" },
-                { key: "celestial", label: "Celestial", desc: "Magic oval + bubble" },
-                { key: "animal", label: "Cute Animal", desc: "Pastel + paws" },
-              ] as { key: LayoutKey; label: string; desc: string }[]).map((l) => (
+                { key: "bubbles", label: "Bubbles" },
+                { key: "grid", label: "Grid" },
+                { key: "royal", label: "Royal" },
+                { key: "celestial", label: "Celestial" },
+                { key: "cat", label: "Cat" },
+                { key: "notebook", label: "Notebook" },
+              ] as { key: LayoutKey; label: string }[]).map((l) => (
                 <button key={l.key} type="button" onClick={() => pickLayout(l.key)}
-                  className={cn("rounded-xl p-3 border-2 text-left transition-all hover:scale-[1.02]",
+                  className={cn("rounded-xl p-3 border-2 text-center transition-all hover:scale-[1.02] relative",
                     layout === l.key ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border")}>
-                  <div className="text-sm font-bold">{l.label}</div>
-                  <div className="text-[11px] text-muted-foreground">{l.desc}</div>
+                  <div className="text-sm font-bold flex items-center justify-center gap-1">{l.label}{l.key === "notebook" && <span className="text-[8px] bg-pink-400 text-white px-1 py-0.5 rounded-full leading-none">NEW</span>}</div>
                 </button>
               ))}
             </div>
@@ -773,18 +773,6 @@ export const ScheduleEditor = () => {
 
 
 
-          <Section title="Export" id="sec-export">
-            <Field label="Rasio">
-              <Select value={ratio} onValueChange={(v) => setRatio(v as "16:9" | "4:3")}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="16:9">16:9 (1920×1080)</SelectItem>
-                  <SelectItem value="4:3">4:3 (1920×1440)</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-            <p className="text-xs text-muted-foreground mt-2">Output di-render @2x untuk hasil ultra HD.</p>
-          </Section>
         </aside>
 
         {/* Sticky hanya di HP (<md): <main> sebagai flex item bisa bergerak mengikuti
@@ -793,8 +781,8 @@ export const ScheduleEditor = () => {
         <main className="animate-fade-in order-1 lg:order-none lg:col-start-2 lg:row-start-1 sticky top-[76px] z-30 w-full md:static">
           <div className="glass rounded-2xl p-4 lg:sticky lg:top-4">
             <div className="flex items-center justify-between mb-3 px-2">
-              <span className="text-sm text-muted-foreground">Preview ({ratio})</span>
-              <span className="text-xs text-muted-foreground">Output: {ratio === "16:9" ? "3840×2160" : "3840×2880"} (HD)</span>
+              <span className="text-sm text-muted-foreground">Preview (16:9)</span>
+              <span className="text-xs text-muted-foreground">Output: 3840×2160 (HD)</span>
             </div>
             <div ref={previewWrapRef} className="w-full overflow-hidden rounded-xl border border-border bg-black/30 relative"
               style={{ height: canvasH * scale, cursor: (textureEdit && texture.url) || characterUrl ? "grab" : "default" }}

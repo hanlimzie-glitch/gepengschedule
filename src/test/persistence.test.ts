@@ -39,7 +39,7 @@ const sampleState = (): PersistedState => ({
     { icon: "star", count: 40, size: 32, spacing: 160, offsetX: 0, offsetY: 0, rotation: 0, opacity: 0.35, color: "" },
   ],
   layout: "celestial",
-  ratio: "4:3",
+  ratio: "16:9", // 4:3 dihapus — hanya 16:9
   texture: { url: null, blend: "overlay", opacity: 0.5, size: 100, repeat: true, scope: "all", offsetX: 0, offsetY: 0, rotation: 0 },
 });
 

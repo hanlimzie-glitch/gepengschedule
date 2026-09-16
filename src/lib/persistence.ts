@@ -11,7 +11,7 @@ import type {
 } from "@/components/ScheduleCanvas";
 import { SOCIAL_KEYS } from "@/lib/palettes";
 
-export const STORAGE_KEY = "vsm.state.v1";
+export const STORAGE_KEY = "vsm.state.v2"; // bump untuk paksa default notebook baru terlihat
 
 export interface PersistedState {
   v: 1;
@@ -36,7 +36,7 @@ export interface PersistedState {
   theme: ThemeKey;
   ornaments: OrnamentLayer[];
   layout: LayoutKey;
-  ratio: "16:9" | "4:3";
+  ratio: "16:9"; // 4:3 dihapus — sekarang hanya 16:9
   texture: TextureSettings;
 }
 
@@ -51,15 +51,15 @@ export type SaveResult = "saved" | "stripped" | "error";
 const THEMES: readonly ThemeKey[] = [
   "cute", "aesthetic", "gothic", "sakura", "cyber", "mint", "royalred", "magic", "mono",
 ];
-const LAYOUTS: readonly LayoutKey[] = ["grid", "bubbles", "royal", "celestial", "animal"];
-const RATIOS = ["16:9", "4:3"] as const;
+const LAYOUTS: readonly LayoutKey[] = ["grid", "bubbles", "royal", "celestial", "cat", "animal", "notebook"]; // "notebook" = diary baru
+const RATIOS = ["16:9"] as const; // 4:3 dihapus
 const FITS = ["cover", "contain"] as const;
 const SCOPES = ["all", "background", "character"] as const;
 const SLOT_TYPES: readonly Slot["type"][] = ["solo", "collab", "offline"];
 const PLATFORMS: readonly PlatformKey[] = ["twitch", "youtube", "tiktok"];
 const ORNAMENT_ICONS: readonly OrnamentIconKey[] = [
-  "dot", "square", "diagonal", "star", "sparkle", "heart", "sakura", "cross", "circuit", "moon", "paw",
-];
+  "dot", "star", "sparkle", "heart", "sakura", "moon", "paw", "feather", "fish",
+]; // slash (diagonal) & jelek (square/cross/circuit) dihapus, diganti feather/fish dari layout lain
 
 /* ---------- tiny coercion helpers ---------- */
 const asStr = (v: unknown, dflt = ""): string => (typeof v === "string" ? v : dflt);
@@ -187,7 +187,11 @@ export function sanitizeState(raw: unknown): PersistedState | null {
     charOffsetY: asNum(r.charOffsetY, 0, -100, 100),
     theme: asPick(r.theme, THEMES, "cute"),
     ornaments: sanitizeOrnaments(r.ornaments),
-    layout: asPick(r.layout, LAYOUTS, "bubbles"),
+    layout: (() => {
+      const raw = asPick(r.layout, LAYOUTS, "bubbles");
+      // migrasi: layout lama "animal" -> "cat" (Animal kini bernama Cat)
+      return (raw === "animal" ? "cat" : raw) as LayoutKey;
+    })(),
     ratio: asPick(r.ratio, RATIOS, "16:9"),
     texture: sanitizeTexture(r.texture),
   };

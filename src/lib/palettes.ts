@@ -26,7 +26,10 @@ export type AnimalPalette = {
   sub: string; accent: string; accent2: string; cream: string; chipInk: string;
 };
 
-export const ANIMAL_V2_PALETTES: Record<ThemeKey, AnimalPalette> = {
+// Alias: Cat = Animal (tema "Animal" kini bernama "Cat", palet sama)
+export type CatPalette = AnimalPalette;
+
+export const CAT_PALETTES: Record<ThemeKey, CatPalette> = {
   cute:      { bg1: "#ffe8f1", bg2: "#fff3e0", bg3: "#ffd9e8", dot: "#ffb4cf", ink: "#5b2a3e", sub: "#b07289", accent: "#ff6fa3", accent2: "#ffb84d", cream: "#fff8ef", chipInk: "#ffffff" },
   sakura:    { bg1: "#ffe4ee", bg2: "#ffeef4", bg3: "#ffd0e0", dot: "#f7a5c0", ink: "#6e2340", sub: "#b56d8a", accent: "#ff5c94", accent2: "#ffc0d4", cream: "#fff5f8", chipInk: "#ffffff" },
   mint:      { bg1: "#dff5e5", bg2: "#eefbe6", bg3: "#c9ecd3", dot: "#8fd3a5", ink: "#1f4a34", sub: "#5c8874", accent: "#57c48a", accent2: "#ffd66b", cream: "#f4fff2", chipInk: "#ffffff" },
@@ -37,6 +40,11 @@ export const ANIMAL_V2_PALETTES: Record<ThemeKey, AnimalPalette> = {
   magic:     { bg1: "#eadfff", bg2: "#fff0d8", bg3: "#e0d0ff", dot: "#c1a3ff", ink: "#2b1656", sub: "#7566a0", accent: "#9a76ff", accent2: "#ffd580", cream: "#f6f0ff", chipInk: "#ffffff" },
   mono:      { bg1: "#fafafa", bg2: "#efefef", bg3: "#f4f4f4", dot: "#cccccc", ink: "#0a0a0a", sub: "#5f5f5f", accent: "#1f1f1f", accent2: "#8a8a8a", cream: "#ffffff", chipInk: "#ffffff" },
 };
+
+// Backward compat: nama lama "ANIMAL" tetap diekspor agar state lama & import lama tidak pecah
+export const ANIMAL_V2_PALETTES = CAT_PALETTES;
+
+export type AnimalPalettesAlias = typeof CAT_PALETTES;
 
 /* ---------- media sosial di footer poster ---------- */
 export type SocialKey = "youtube" | "twitch" | "instagram" | "x" | "tiktok";
