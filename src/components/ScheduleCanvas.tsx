@@ -1,7 +1,6 @@
 import { forwardRef } from "react";
-import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Twitch, Youtube, Crown, Wand2, Feather, Star, Circle, Instagram, X, Music2, type LucideIcon } from "lucide-react";
-import { CELESTIAL_PALETTES, ANIMAL_V2_PALETTES, SOCIAL_KEYS, type SocialKey } from "@/lib/palettes";
-import pawSvgUrl from "../assets/paw.svg";
+import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Twitch, Youtube, Crown, Wand2, Feather, Fish, Star, Circle, Instagram, X, Music2, type LucideIcon } from "lucide-react";
+import { CELESTIAL_PALETTES, CAT_PALETTES, SOCIAL_KEYS, type SocialKey } from "@/lib/palettes";
 
 export type PlatformKey = "twitch" | "youtube" | "tiktok";
 
@@ -19,9 +18,11 @@ export type DayItem = {
 };
 
 export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint" | "royalred" | "magic" | "mono";
-export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial" | "animal";
+export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial" | "cat" | "animal"; // "animal"=legacy cat
+// Kurasi ornamen: hapus slash (diagonal) & yang jelek (square/cross/circuit) — ganti dengan ornamen dari layout lain (feather/fish)
+// Sekarang hanya ornamen estetik yang konsisten dengan tema cat/celestial/royal
 export type OrnamentIconKey =
-  | "dot" | "square" | "diagonal" | "star" | "sparkle" | "heart" | "sakura" | "cross" | "circuit" | "moon" | "paw";
+  | "dot" | "star" | "sparkle" | "heart" | "sakura" | "moon" | "paw" | "feather" | "fish";
 
 export type OrnamentLayer = {
   icon: OrnamentIconKey;
@@ -58,7 +59,7 @@ export type ScheduleProps = {
   characterUrl: string | null;
   charFit: "cover" | "contain";
   theme: ThemeKey;
-  ratio: "16:9" | "4:3";
+  ratio: "16:9"; // 4:3 dihapus — hanya 16:9
   ornaments: OrnamentLayer[];
   artBy?: string;
   layout?: LayoutKey;
@@ -94,7 +95,11 @@ export type LayoutProps = {
   xHandle?: string;
   tiktokHandle?: string;
   theme: ThemeKey;
-  ratio: "16:9" | "4:3";
+  ratio: "16:9"; // 4:3 dihapus
+  // ornaments diteruskan untuk layout opaque (cat/celestial/royal) agar "Tambah Layer" selalu terlihat
+  ornaments?: OrnamentLayer[];
+  W?: number;
+  H?: number;
 };
 
 export const CharImage = ({
@@ -155,10 +160,6 @@ const renderOrnamentIcon = (icon: OrnamentIconKey, size: number, color: string):
   switch (icon) {
     case "dot":
       return <svg width={size} height={size} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill={color} /></svg>;
-    case "square":
-      return <IconGlyph ch="◇" size={size} color={color} />;
-    case "diagonal":
-      return <IconGlyph ch="╱" size={size} color={color} />;
     case "star":
       return <IconGlyph ch="✦" size={size} color={color} />;
     case "sparkle":
@@ -176,15 +177,17 @@ const renderOrnamentIcon = (icon: OrnamentIconKey, size: number, color: string):
           <circle cx="12" cy="12" r="1.8" fill="#fff" opacity="0.9" />
         </svg>
       );
-    case "cross":
-      return <IconGlyph ch="✚" size={size} color={color} />;
-    case "circuit":
-      return <IconGlyph ch="⌁" size={size} color={color} />;
     case "moon":
       return <IconGlyph ch="☾" size={size} color={color} />;
     case "paw":
       return <IconSVG size={size} color={color}
         d="M12 13.5c-2.6 0-6 2.6-6 5 0 1.6 1.4 2.5 3 2.5 1 0 1.8-.4 3-.4s2 .4 3 .4c1.6 0 3-.9 3-2.5 0-2.4-3.4-5-6-5zM6 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm12 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM9.5 6.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm5 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />;
+    case "feather":
+      // Diambil dari layout Celestial (Feather) — ornamen elegan untuk tema magic/aesthetic
+      return <Feather size={size} color={color} style={{ display: "block" } as React.CSSProperties} />;
+    case "fish":
+      // SVG asli dari lucide-react (Fish) — bukan buatan, vektor rapi dari internet
+      return <Fish size={size} color={color} style={{ display: "block" } as React.CSSProperties} />;
   }
 };
 
@@ -355,7 +358,7 @@ const normalize = (d: LegacyDay): DayItem => {
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
   ({ title, subtitle, dateRange, days: rawDays, characterUrl, charFit, theme, ratio, ornaments, artBy, layout = "grid", youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0, texture }, ref) => {
     const w = 1920;
-    const h = ratio === "16:9" ? 1080 : 1440;
+    const h = 1080; // 4:3 dihapus — hanya 16:9
     const days = rawDays.map(normalize);
 
     const textureOverlay = texture?.url && (texture.scope === "all" || texture.scope === "background") ? (
@@ -390,13 +393,6 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
           fontFamily: themeFont[theme],
         }}
       >
-        {ornaments && ornaments.length > 0 && (
-          <div className="absolute inset-0" style={{ pointerEvents: "none" }}>
-            {ornaments.slice(0, 3).map((ly, i) => (
-              <OrnamentLayerView key={i} idx={i} layer={ly} W={w} H={h} />
-            ))}
-          </div>
-        )}
         {layout !== "royal" && (
           <>
             <div className="absolute" style={{ top: -160, right: -160, width: 600, height: 600, borderRadius: "9999px", filter: "blur(80px)", opacity: 0.4, background: "var(--gradient-accent)" }} />
@@ -406,15 +402,26 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
 
         {textureOverlay}
 
+        {/* Ornaments global — dirender DI BELAKANG layout opaque? untuk grid/bubbles tetap terlihat di sela layout.
+            Untuk layout opaque (cat/celestial/royal) yang background-nya menutupi, ornaments juga dirender DI DALAM layout masing-masing (lihat CatLayout/CelestialLayout/RoyalLayout) di layer zIndex 1. */}
+        {ornaments && ornaments.length > 0 && layout !== "cat" && layout !== "animal" && layout !== "celestial" && layout !== "royal" && (
+          <div className="absolute inset-0" style={{ pointerEvents: "none" }}>
+            {ornaments.slice(0, 3).map((ly, i) => (
+              <OrnamentLayerView key={i} idx={i} layer={ly} W={w} H={h} />
+            ))}
+          </div>
+        )}
+
         {(() => {
           const layoutProps: LayoutProps = {
             title, subtitle, dateRange, days, characterUrl, charFit,
             charScale, charOffsetX, charOffsetY,
             artBy, youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle, theme, ratio,
+            ornaments, W: w, H: h,
           };
           if (layout === "royal") return <RoyalLayout {...layoutProps} />;
           if (layout === "celestial") return <CelestialLayout {...layoutProps} />;
-          if (layout === "animal") return <AnimalLayout {...layoutProps} />;
+          if (layout === "cat" || layout === "animal") return <CatLayout {...layoutProps} />;
           if (layout === "bubbles") return <BubbleLayout {...layoutProps} />;
           return <GridLayout {...layoutProps} />;
         })()}
@@ -456,7 +463,7 @@ const ROYAL_PALETTES: Record<ThemeKey, RoyalPalette> = {
 
 const RoyalLayout = ({
   title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle, theme,
-  charScale, charOffsetX, charOffsetY,
+  charScale, charOffsetX, charOffsetY, ornaments, W, H,
 }: LayoutProps) => {
   const range = parseRange(dateRange) || { d1: "01", m1: "WEEK", d2: "07", m2: "OF" };
   const p: RoyalPalette = ROYAL_PALETTES[theme];
@@ -466,6 +473,14 @@ const RoyalLayout = ({
       background: `linear-gradient(90deg, ${p.dark} 0%, ${p.dark} 46%, ${p.light} 46%, ${p.light} 100%)`,
       fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
     }}>
+      {/* Ornaments dari editor — dirender di dalam Royal agar terlihat di atas background opaque tapi di bawah konten (zIndex 1) */}
+      {ornaments && ornaments.length > 0 && W && H && (
+        <div className="absolute inset-0" style={{ pointerEvents: "none", zIndex: 1 }}>
+          {ornaments.slice(0, 3).map((ly, i) => (
+            <OrnamentLayerView key={i} idx={i} layer={ly} W={W} H={H} />
+          ))}
+        </div>
+      )}
       {/* LEFT character panel */}
       <div className="absolute" style={{ left: 0, top: 0, bottom: 0, width: "44%", overflow: "hidden" }}>
         <div className="absolute" style={{ inset: 0, background: "radial-gradient(circle at 30% 40%, rgba(255,255,255,0.15), transparent 60%)" }} />
@@ -645,7 +660,7 @@ const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, c
 
   return (
     <div className="relative h-full flex" style={{ padding: 56, gap: 48 }}>
-      <div className="relative flex-shrink-0" style={{ width: ratio === "16:9" ? 720 : 820 }}>
+      <div className="relative flex-shrink-0" style={{ width: 720 }}>
         <div className="relative" style={{
           height: "100%", background: "hsl(var(--t-card))", borderRadius: 36, padding: 24,
           boxShadow: "var(--shadow-glow)", border: "3px solid hsl(var(--t-border) / 0.55)",
@@ -840,7 +855,7 @@ const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, cha
       </div>
 
       <div className="relative flex-shrink-0 overflow-hidden" style={{
-        width: ratio === "16:9" ? 600 : 700, height: "100%", borderRadius: 24,
+        width: 600, height: "100%", borderRadius: 24,
         background: "hsl(var(--t-card))", border: "4px solid hsl(var(--t-border))",
         boxShadow: "var(--shadow-glow)",
       }}>
@@ -899,7 +914,7 @@ const Constellation = ({ style }: { style: React.CSSProperties }) => (
 
 const CelestialLayout = ({
   title, subtitle, dateRange, days, characterUrl, charFit, artBy, youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle, theme,
-  charScale = 1, charOffsetX = 0, charOffsetY = 0,
+  charScale = 1, charOffsetX = 0, charOffsetY = 0, ornaments, W, H,
 }: LayoutProps) => {
   const p = CELESTIAL_PALETTES[theme];
   const socials = buildSocials({ youtube: youtubeHandle, twitch: twitchHandle, instagram: instagramHandle, x: xHandle, tiktok: tiktokHandle });
@@ -911,6 +926,14 @@ const CelestialLayout = ({
       fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
       padding: "50px 60px",
     }}>
+      {/* Ornaments dari editor — di dalam Celestial agar terlihat (background opaque menutupi ornaments global) */}
+      {ornaments && ornaments.length > 0 && W && H && (
+        <div className="absolute inset-0" style={{ pointerEvents: "none", zIndex: 1 }}>
+          {ornaments.slice(0, 3).map((ly, i) => (
+            <OrnamentLayerView key={i} idx={i} layer={ly} W={W} H={H} />
+          ))}
+        </div>
+      )}
       {/* corner constellations */}
       <Constellation style={{ top: 20, right: 40, width: 360, height: 360, opacity: 0.55 }} />
       <Constellation style={{ bottom: 20, left: 20, width: 320, height: 320, opacity: 0.45, transform: "scaleY(-1)" }} />
@@ -1068,22 +1091,26 @@ const CelestialLayout = ({
             </div>
           </div>
 
-          {/* Schedule big text */}
+          {/* Schedule big text — fix: pakai backgroundImage + WebkitTextFillColor agar gradient selalu ke-render setelah ganti tema */}
           <div className="relative" style={{ marginTop: 16, lineHeight: 0.9, zIndex: 5 }}>
             <div style={{
               fontFamily: "'Cormorant Garamond', serif",
               fontSize: 76, fontWeight: 700, letterSpacing: "0.1em",
-              background: `linear-gradient(180deg, ${p.goldSoft} 0%, ${p.gold} 100%)`,
-              WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
-              textShadow: `0 2px 0 ${p.deep}44`,
+              backgroundImage: `linear-gradient(180deg, ${p.goldSoft} 0%, ${p.gold} 100%)`,
+              WebkitBackgroundClip: "text", backgroundClip: "text",
+              WebkitTextFillColor: "transparent" as unknown as string, color: "transparent",
+              WebkitTextStroke: `0.5px ${p.deep}22` as unknown as string,
+              filter: `drop-shadow(0 1px 0 ${p.deep}44)`,
             }}>SCHE</div>
             <div className="flex items-end justify-between" style={{ marginTop: -10 }}>
               <div style={{
                 fontFamily: "'Cormorant Garamond', serif",
                 fontSize: 76, fontWeight: 700, letterSpacing: "0.1em",
-                background: `linear-gradient(180deg, ${p.goldSoft} 0%, ${p.gold} 100%)`,
-                WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
-                textShadow: `0 2px 0 ${p.deep}44`,
+                backgroundImage: `linear-gradient(180deg, ${p.goldSoft} 0%, ${p.gold} 100%)`,
+                WebkitBackgroundClip: "text", backgroundClip: "text",
+                WebkitTextFillColor: "transparent" as unknown as string, color: "transparent",
+                WebkitTextStroke: `0.5px ${p.deep}22` as unknown as string,
+                filter: `drop-shadow(0 1px 0 ${p.deep}44)`,
               }}>DULE</div>
               <div style={{ textAlign: "right", color: p.text, fontFamily: "'Cormorant Garamond', serif" }}>
                 <div style={{ fontSize: 18, fontStyle: "italic", opacity: 0.8 }}>week of {dateRange}</div>
@@ -1110,39 +1137,44 @@ const CelestialLayout = ({
 };
 
 /* ============================================================
-   ANIMAL LAYOUT v3 — cozy animal poster
-   Fundamentally animal-themed: paw corner stamps, cat ears clipped
+   CAT LAYOUT v3 — cozy cat poster (renamed from Animal)
+   Fundamentally cat-themed: paw corner stamps, cat ears clipped
    onto the wordmark, fish & speech-paw icons, a soft cloud band
    along the bottom, and a paw DATE badge on every day row.
    ============================================================ */
-const ANIMAL_V2_DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+const CAT_DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+const ANIMAL_V2_DAYS = CAT_DAYS; // alias legacy
 
 type AnimalDecoProps = { size?: number; color: string; opacity?: number; rotate?: number };
+type CatDecoProps = AnimalDecoProps;
 
-// Paw glyph — classic cute silhouette (sesuai referensi):
-// wide rounded mound pad + 4 vertical toe beans, dua jari tengah paling tinggi
-{/* paw = file SVG resmi Font Awesome Free 6.7.2 (CC BY 4.0) — src/assets/paw.svg.
-    Di-render lewat CSS mask supaya transparan & warnanya tetap mengikuti palet tema */}
+// Paw — Font Awesome Free 6.7.2 "paw" (CC BY 4.0, https://fontawesome.com)
+// Di-render sebagai inline SVG (fill=currentColor) supaya selalu muncul dengan baik:
+// — tidak tergantung fetch/mask-image (yang gagal di html2canvas/export & di beberapa browser),
+// — warna tetap mengikuti palet via prop `color`,
+// — bentuk tetap vektor tajam di semua ukuran & tema.
+// File sumber tetap ada di src/assets/paw.svg untuk atribusi lisensi.
+const PAW_PATH =
+  "M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5s.3-86.2 32.6-96.8s70.1 15.6 84.4 58.5zM100.4 198.6c18.9 32.4 14.3 70.1-10.2 84.1s-59.7-.9-78.5-33.3S-2.7 179.3 21.8 165.3s59.7 .9 78.5 33.3zM69.2 401.2C121.6 259.9 214.7 224 256 224s134.4 35.9 186.8 177.2c3.6 9.7 5.2 20.1 5.2 30.5l0 1.6c0 25.8-20.9 46.7-46.7 46.7c-11.5 0-22.9-1.4-34-4.2l-88-22c-15.3-3.8-31.3-3.8-46.6 0l-88 22c-11.1 2.8-22.5 4.2-34 4.2C84.9 480 64 459.1 64 433.3l0-1.6c0-10.4 1.6-20.8 5.2-30.5zM421.8 282.7c-24.5-14-29.1-51.7-10.2-84.1s54-47.3 78.5-33.3s29.1 51.7 10.2 84.1s-54 47.3-78.5 33.3zM310.1 189.7c-32.3-10.6-46.9-53.9-32.6-96.8s52.1-69.1 84.4-58.5s46.9 53.9 32.6 96.8s-52.1 69.1-84.4 58.5z";
+
 const PawStamp = ({ size = 40, color, opacity = 1, rotate = 0 }: AnimalDecoProps) => (
-  <div
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 512 512"
     aria-hidden="true"
+    focusable="false"
     style={{
-      width: size,
-      height: size,
+      display: "block",
       flexShrink: 0,
-      backgroundColor: color,
-      WebkitMaskImage: `url(${pawSvgUrl})`,
-      maskImage: `url(${pawSvgUrl})`,
-      WebkitMaskSize: "contain",
-      maskSize: "contain",
-      WebkitMaskRepeat: "no-repeat",
-      maskRepeat: "no-repeat",
-      WebkitMaskPosition: "center",
-      maskPosition: "center",
+      color,
       opacity,
       transform: `rotate(${rotate}deg)`,
+      overflow: "visible",
     }}
-  />
+  >
+    <path d={PAW_PATH} fill="currentColor" />
+  </svg>
 );
 
 const HeartStamp = ({ size = 20, color, opacity = 1, rotate = 0 }: AnimalDecoProps) => (
@@ -1160,16 +1192,11 @@ const StarStamp = ({ size = 18, color, opacity = 1, rotate = 0 }: AnimalDecoProp
   </svg>
 );
 
-// Line-art fish — clear animal cue without needing an image asset
-const FishStamp = ({ size = 34, color, opacity = 1, rotate = 0 }: AnimalDecoProps) => (
-  <svg width={size} height={Math.round(size * 0.625)} viewBox="0 0 32 20"
-       style={{ transform: `rotate(${rotate}deg)`, opacity, display: "block" }}>
-    <g stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <ellipse cx="13" cy="10" rx="10" ry="6.5" />
-      <path d="M23 10 L30 4.5 L30 15.5 Z" />
-    </g>
-    <circle cx="8" cy="9" r="1.3" fill={color} />
-  </svg>
+// Fish — pakai lucide Fish (SVG asli dari library) — lebih rapi daripada handmade
+const FishStamp = ({ size = 34, color, opacity = 1, rotate = 0 }: CatDecoProps) => (
+  <span style={{ display: "inline-block", transform: `rotate(${rotate}deg)`, opacity, lineHeight: 0 }}>
+    <Fish size={size} color={color} />
+  </span>
 );
 
 
@@ -1200,13 +1227,14 @@ const CloudBand = ({ color }: { color: string }) => (
   </svg>
 );
 
-const AnimalLayout = ({
+const CatLayout = ({
   title, subtitle, dateRange, days,
   characterUrl, charFit, artBy, theme,
   youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle,
   charScale = 1, charOffsetX = 0, charOffsetY = 0,
-}: LayoutProps) => {
-  const p = ANIMAL_V2_PALETTES[theme];
+  ornaments: catOrnaments, W: catW, H: catH,
+}: LayoutProps & { ornaments?: OrnamentLayer[]; W?: number; H?: number }) => {
+  const p = CAT_PALETTES[theme];
   const socials = buildSocials({ youtube: youtubeHandle, twitch: twitchHandle, instagram: instagramHandle, x: xHandle, tiktok: tiktokHandle });
   // Editable title — satu baris melebar KE SAMPING (tidak ditumpuk ke bawah)
   // supaya area jadwal dapat ruang vertikal lebih banyak.
@@ -1241,7 +1269,7 @@ const AnimalLayout = ({
     >
       {/* fluffy pastel blobs */}
       <div className="absolute pointer-events-none" style={{
-        top: -180, left: -160, width: 620, height: 620, borderRadius: "50%",
+        top: -180, left: -160, width: 580, height: 620, borderRadius: "50%",
         background: `radial-gradient(closest-side, ${p.accent}33, transparent 70%)`, filter: "blur(10px)",
       }} />
       <div className="absolute pointer-events-none" style={{
@@ -1258,6 +1286,15 @@ const AnimalLayout = ({
              mixBlendMode: "multiply",
            }}
       />
+
+      {/* Ornaments dari editor — di dalam Cat agar terlihat di atas background opaque tapi di bawah konten (zIndex 1) */}
+      {catOrnaments && catOrnaments.length > 0 && catW && catH && (
+        <div className="absolute inset-0" style={{ pointerEvents: "none", zIndex: 1 }}>
+          {catOrnaments.slice(0, 3).map((ly, i) => (
+            <OrnamentLayerView key={i} idx={i} layer={ly} W={catW} H={catH} />
+          ))}
+        </div>
+      )}
 
       {/* soft clouds along the bottom */}
       <CloudBand color={`${p.cream}cc`} />
@@ -1370,7 +1407,7 @@ const AnimalLayout = ({
         display: "flex", flexDirection: "column",
       }}>
         {days.slice(0, 7).map((d: DayItem, i: number) => {
-          const label = ANIMAL_V2_DAYS[i] || d.day.slice(0, 3).toLowerCase();
+          const label = CAT_DAYS[i] || d.day.slice(0, 3).toLowerCase();
           const { num } = parseDay(d.day);
           const slots = d.slots.length ? d.slots : [{ time: "", title: "", note: "", type: "solo", platforms: [] } as Slot];
           const first = slots[0];
@@ -1496,7 +1533,7 @@ const AnimalLayout = ({
 
 
 
-      {/* scattered animal ornaments — evenly spaced in the side margins, no collisions */}
+      {/* scattered cat ornaments — evenly spaced in the side margins, no collisions */}
       <div className="absolute" style={{ top: 96, left: 60, zIndex: 4 }}>
         <PawStamp size={26} color={p.accent} opacity={0.55} rotate={-24} />
       </div>
@@ -1546,6 +1583,6 @@ const AnimalLayout = ({
     </div>
   );
 };
-
-
+// Backward compat: layout "animal" tetap didukung (alias ke "cat")
+const AnimalLayout = CatLayout;
 

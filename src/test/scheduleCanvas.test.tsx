@@ -2,12 +2,12 @@ import { render } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { describe, expect, it } from "vitest";
 import { ScheduleCanvas, type DayItem, type LayoutKey, type ThemeKey } from "@/components/ScheduleCanvas";
-import { CELESTIAL_PALETTES, ANIMAL_V2_PALETTES } from "@/lib/palettes";
+import { CELESTIAL_PALETTES, CAT_PALETTES, ANIMAL_V2_PALETTES } from "@/lib/palettes";
 
 const THEMES: ThemeKey[] = [
   "cute", "aesthetic", "gothic", "sakura", "cyber", "mint", "royalred", "magic", "mono",
 ];
-const LAYOUTS: LayoutKey[] = ["grid", "bubbles", "royal", "celestial", "animal"];
+const LAYOUTS: LayoutKey[] = ["grid", "bubbles", "royal", "celestial", "cat", "animal"]; // animal = legacy alias untuk cat
 
 const days: DayItem[] = [
   "Senin 8", "Selasa 9", "Rabu 10", "Kamis 11", "Jumat 12", "Sabtu 13", "Minggu 14",
@@ -54,54 +54,67 @@ describe("ScheduleCanvas", () => {
     });
   });
 
-  it("setiap tema punya palet animal", () => {
+  it("setiap tema punya palet cat (alias animal)", () => {
     THEMES.forEach((t) => {
+      expect(CAT_PALETTES[t], `CAT_PALETTES.${t}`).toBeTruthy();
       expect(ANIMAL_V2_PALETTES[t], `ANIMAL_V2_PALETTES.${t}`).toBeTruthy();
+      expect(CAT_PALETTES[t]).toEqual(ANIMAL_V2_PALETTES[t]);
     });
   });
 
   it('layout celestial + tema mono memakai palet mono (grayscale), bukan fallback magic', () => {
     const { container } = renderCanvas({ layout: "celestial", theme: "mono" });
-    // Frame oval celestial memakai bubbleBorder palet mono (#b5b5b5), bukan ungu magic
     expect(container.innerHTML).toContain(CELESTIAL_PALETTES.mono.bubbleBorder);
     expect(container.innerHTML).not.toContain(CELESTIAL_PALETTES.magic.bubbleBorder);
   });
 
-  it("animal v3: paw badge berisi tanggal; tanggal di samping nama hari dihapus", () => {
-    const { container } = renderCanvas({ layout: "animal" });
-    const text = container.textContent ?? "";
-    expect(text).toContain("14"); // tanggal hari terakhir ("Minggu 14") tampil di badge
-    expect(text).not.toContain("07"); // nomor urut lama (01-07) sudah tidak dipakai
-    expect(text).not.toMatch(/·\d/); // tidak ada tanggal di samping nama hari ("mon ·14")
+  it("cat v3: paw badge berisi tanggal; tanggal di samping nama hari dihapus (cat & legacy animal)", () => {
+    for (const layout of ["cat", "animal"] as const) {
+      const { container, unmount } = renderCanvas({ layout });
+      const text = container.textContent ?? "";
+      expect(text).toContain("14");
+      expect(text).not.toContain("07");
+      expect(text).not.toMatch(/·\d/);
+      unmount();
+    }
   });
 
-  it('animal v3: eyebrow "Vol. 01" dihapus, tanggal tampil di atas judul', () => {
-    const { container } = renderCanvas({ layout: "animal" });
-    const text = container.textContent ?? "";
-    expect(text).not.toContain("Weekly Broadcast");
-    expect(text).toContain("8 - 14 September 2026"); // dateRange tetap tampil
+  it('cat v3: eyebrow "Vol. 01" dihapus, tanggal tampil di atas judul (cat & animal)', () => {
+    for (const layout of ["cat", "animal"] as const) {
+      const { container, unmount } = renderCanvas({ layout });
+      const text = container.textContent ?? "";
+      expect(text).not.toContain("Weekly Broadcast");
+      expect(text).toContain("8 - 14 September 2026");
+      unmount();
+    }
   });
 
-  it("animal: handle Instagram/X/TikTok tampil di footer; kosong = tidak tampil", () => {
-    const { container } = renderCanvas({
-      layout: "animal",
-      youtubeHandle: "", twitchHandle: "", // editor mengirim "" saat platform di-uncek
-      instagramHandle: "@igku", xHandle: "@xku", tiktokHandle: "@ttku",
-    });
-    const text = container.textContent ?? "";
-    expect(text).toContain("@igku");
-    expect(text).toContain("@xku");
-    expect(text).toContain("@ttku");
+  it("cat: handle Instagram/X/TikTok tampil di footer; kosong = tidak tampil (cat & animal)", () => {
+    for (const layout of ["cat", "animal"] as const) {
+      const { container, unmount } = renderCanvas({
+        layout,
+        youtubeHandle: "", twitchHandle: "",
+        instagramHandle: "@igku", xHandle: "@xku", tiktokHandle: "@ttku",
+      });
+      const text = container.textContent ?? "";
+      expect(text).toContain("@igku");
+      expect(text).toContain("@xku");
+      expect(text).toContain("@ttku");
+      unmount();
+    }
   });
 
-  it('animal: "jadwal kedua" (slot ke-2) ikut dirender di baris hari', () => {
-    const twoSlotDays = days.map((d, i) =>
-      i === 0 ? { ...d, slots: [...d.slots, { time: "22:00 WIB", title: "Stream Kedua", note: "", type: "solo" as const, platforms: ["youtube" as const] }] } : d
-    );
-    const { container } = renderCanvas({ layout: "animal", days: twoSlotDays });
-    const text = container.textContent ?? "";
-    expect(text).toContain("Just Chatting"); // slot pertama tetap tampil
-    expect(text).toContain("Stream Kedua");  // slot kedua kini tampil
-    expect(text).toContain("22:00 WIB");     // beserta jamnya
+  it('cat: "jadwal kedua" (slot ke-2) ikut dirender di baris hari (cat & animal)', () => {
+    for (const layout of ["cat", "animal"] as const) {
+      const daysWith2 = days.map((d, i) =>
+        i === 0 ? { ...d, slots: [...d.slots, { time: "22:00 WIB", title: "Stream Kedua", note: "", type: "solo" as const, platforms: ["youtube" as const] }] } : d
+      );
+      const { container, unmount } = renderCanvas({ layout, days: daysWith2 as any });
+      const text = container.textContent ?? "";
+      expect(text).toContain("Just Chatting");
+      expect(text).toContain("Stream Kedua");
+      expect(text).toContain("22:00 WIB");
+      unmount();
+    }
   });
 });
