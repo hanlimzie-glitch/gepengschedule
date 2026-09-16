@@ -169,7 +169,7 @@ export const ScheduleEditor = () => {
     setOrnaments((prev) => prev.map((l, idx) => idx === i ? { ...l, ...patch } : l));
   const addLayer = () => setOrnaments((prev) => prev.length >= 3 ? prev : [...prev, makeLayer()]);
   const removeLayer = (i: number) => setOrnaments((prev) => prev.filter((_, idx) => idx !== i));
-  const [layout, setLayout] = useState<LayoutKey>(persisted?.layout ?? "notebook");
+  const [layout, setLayout] = useState<LayoutKey>(persisted?.layout ?? "cat");
   const ratio = "16:9" as const; // 4:3 dihapus — hanya 16:9 (persisted lama otomatis jadi 16:9)
   const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -307,7 +307,7 @@ export const ScheduleEditor = () => {
     setDays(buildDayLabels(CURRENT_MONDAY).map((d) => ({ day: d, slots: [makeSlot()] })));
     setCharacterUrl(null); setCharFit("cover"); setCharScale(1); setCharOffsetX(0); setCharOffsetY(0);
     setTheme("cute"); setOrnaments([makeLayer({ icon: "heart", count: 50, size: 36 })]);
-    setLayout("notebook");
+    setLayout("cat");
     setTexture({ url: null, blend: "overlay", opacity: 0.5, size: 100, repeat: true, scope: "all", offsetX: 0, offsetY: 0, rotation: 0 });
     setTextureEdit(false);
     toast.success("Kembali ke default ✨");
@@ -472,16 +472,17 @@ export const ScheduleEditor = () => {
             <div className="grid grid-cols-2 gap-2">
               {([
                 { key: "bubbles", label: "Bubbles" },
+                { key: "bubbles", label: "Bubbles" },
                 { key: "grid", label: "Grid" },
                 { key: "royal", label: "Royal" },
                 { key: "celestial", label: "Celestial" },
                 { key: "cat", label: "Cat" },
-                { key: "notebook", label: "Notebook" },
+                
               ] as { key: LayoutKey; label: string }[]).map((l) => (
                 <button key={l.key} type="button" onClick={() => pickLayout(l.key)}
                   className={cn("rounded-xl p-3 border-2 text-center transition-all hover:scale-[1.02] relative",
                     layout === l.key ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border")}>
-                  <div className="text-sm font-bold flex items-center justify-center gap-1">{l.label}{l.key === "notebook" && <span className="text-[8px] bg-pink-400 text-white px-1 py-0.5 rounded-full leading-none">NEW</span>}</div>
+                  <div className="text-sm font-bold flex items-center justify-center gap-1">{l.label}{l.key === "cat" && <span className="text-[8px] bg-pink-400 text-white px-1 py-0.5 rounded-full leading-none">NEW</span>}</div>
                 </button>
               ))}
             </div>

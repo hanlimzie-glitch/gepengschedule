@@ -11,7 +11,7 @@ import type {
 } from "@/components/ScheduleCanvas";
 import { SOCIAL_KEYS } from "@/lib/palettes";
 
-export const STORAGE_KEY = "vsm.state.v2"; // bump untuk paksa default notebook baru terlihat
+export const STORAGE_KEY = "vsm.state.v2";
 
 export interface PersistedState {
   v: 1;
@@ -51,7 +51,7 @@ export type SaveResult = "saved" | "stripped" | "error";
 const THEMES: readonly ThemeKey[] = [
   "cute", "aesthetic", "gothic", "sakura", "cyber", "mint", "royalred", "magic", "mono",
 ];
-const LAYOUTS: readonly LayoutKey[] = ["grid", "bubbles", "royal", "celestial", "cat", "animal", "notebook"]; // "notebook" = diary baru
+const LAYOUTS: readonly LayoutKey[] = ["grid", "bubbles", "royal", "celestial", "cat", "animal"];
 const RATIOS = ["16:9"] as const; // 4:3 dihapus
 const FITS = ["cover", "contain"] as const;
 const SCOPES = ["all", "background", "character"] as const;
