@@ -7,7 +7,7 @@ import { CELESTIAL_PALETTES, CAT_PALETTES, ANIMAL_V2_PALETTES } from "@/lib/pale
 const THEMES: ThemeKey[] = [
   "cute", "aesthetic", "gothic", "sakura", "cyber", "mint", "royalred", "magic", "mono",
 ];
-const LAYOUTS: LayoutKey[] = ["grid", "bubbles", "royal", "celestial", "cat", "animal"]; // animal = legacy alias untuk cat
+const LAYOUTS: LayoutKey[] = ["grid", "bubbles", "royal", "celestial", "cat", "animal", "scrapbook"]; // animal = legacy alias untuk cat; scrapbook = reference-based template
 
 const days: DayItem[] = [
   "Senin 8", "Selasa 9", "Rabu 10", "Kamis 11", "Jumat 12", "Sabtu 13", "Minggu 14",

@@ -19,6 +19,12 @@ import { ScheduleCanvas, type DayItem, type Slot, type ThemeKey, type OrnamentIc
 import { loadState, saveState, clearState, type SaveResult } from "@/lib/persistence";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  DEFAULT_SCRAP_DECO, DEFAULT_SCRAP_THEME, SCRAP_ANIMALS, SCRAP_ANIMAL_LABELS,
+  SCRAP_COLOR_FIELDS, SCRAP_DECO_SETS, SCRAP_DECO_SET_LABELS, SCRAP_THEME_KEYS,
+  SCRAP_THEME_LABELS, SCRAP_THEME_PRESETS, resolveScrapTheme,
+  type ScrapDecoConfig, type ScrapThemeColors, type ScrapThemeKey,
+} from "@/template/scrapbook/types";
 
 const DAY_NAMES_ID = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
 
@@ -169,7 +175,25 @@ export const ScheduleEditor = () => {
     setOrnaments((prev) => prev.map((l, idx) => idx === i ? { ...l, ...patch } : l));
   const addLayer = () => setOrnaments((prev) => prev.length >= 3 ? prev : [...prev, makeLayer()]);
   const removeLayer = (i: number) => setOrnaments((prev) => prev.filter((_, idx) => idx !== i));
-  const [layout, setLayout] = useState<LayoutKey>(persisted?.layout ?? "cat");
+  const [layout, setLayout] = useState<LayoutKey>(persisted?.layout ?? "scrapbook");
+  /* ── scrapbook template (Layer C): theme + controlled decorations ── */
+  const [scrapTheme, setScrapTheme] = useState<ScrapThemeKey>(persisted?.scrapTheme ?? DEFAULT_SCRAP_THEME);
+  const [scrapCustom, setScrapCustom] = useState<Partial<ScrapThemeColors>>(persisted?.scrapCustom ?? {});
+  const [scrapDeco, setScrapDeco] = useState<ScrapDecoConfig>(persisted?.scrapDeco ?? DEFAULT_SCRAP_DECO);
+  const [scrapRibbon, setScrapRibbon] = useState<string>(
+    persisted?.scrapRibbonStart && persisted?.scrapRibbonEnd
+      ? `${persisted.scrapRibbonStart} - ${persisted.scrapRibbonEnd}`
+      : ""
+  );
+  const updateScrapDeco = (patch: Partial<ScrapDecoConfig>) => setScrapDeco((d) => ({ ...d, ...patch }));
+  const setScrapColor = (key: keyof ScrapThemeColors, value: string) => {
+    setScrapCustom((c) => ({ ...c, [key]: value }));
+    setScrapTheme("custom");
+  };
+  const pickScrapTheme = (k: ScrapThemeKey) => {
+    if (k === "custom") setScrapCustom((c) => ({ ...resolveScrapTheme(scrapTheme, c) }));
+    setScrapTheme(k);
+  };
   const ratio = "16:9" as const; // 4:3 dihapus — hanya 16:9 (persisted lama otomatis jadi 16:9)
   const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -188,6 +212,20 @@ export const ScheduleEditor = () => {
     r.onload = (e) => updateTexture("url", e.target?.result as string);
     r.readAsDataURL(file);
   };
+
+  // Ribbon tanggal scrapbook: override manual ("01/01 - 07/01") atau otomatis dari date picker
+  const autoRibbon = (() => {
+    const f = dateRangeObj?.from;
+    const t2 = dateRangeObj?.to ?? dateRangeObj?.from;
+    if (!f || !t2) return { start: "01/01", end: "07/01" };
+    return { start: format(f, "dd/MM"), end: format(t2, "dd/MM") };
+  })();
+  const ribbonOverride = (() => {
+    const m = scrapRibbon.trim().match(/^([^\-–•]+)[-–•]+(.+)$/);
+    return m ? { start: m[1].trim(), end: m[2].trim() } : null;
+  })();
+  const ribbonStart = ribbonOverride?.start ?? autoRibbon.start;
+  const ribbonEnd = ribbonOverride?.end ?? autoRibbon.end;
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const previewWrapRef = useRef<HTMLDivElement>(null);
@@ -266,12 +304,14 @@ export const ScheduleEditor = () => {
         socials, socialEnabled,
         days, characterUrl, charFit, charScale, charOffsetX, charOffsetY,
         theme, ornaments, layout, ratio, texture,
+        scrapTheme, scrapCustom, scrapDeco, scrapRibbonStart: ribbonStart, scrapRibbonEnd: ribbonEnd,
       });
       setSaveStatus({ status: res, at: Date.now() });
     }, 400);
     return () => clearTimeout(t);
   }, [title, subtitle, dateRange, dateRangeObj, artBy, socials, socialEnabled, days,
-      characterUrl, charFit, charScale, charOffsetX, charOffsetY, theme, ornaments, layout, ratio, texture]);
+      characterUrl, charFit, charScale, charOffsetX, charOffsetY, theme, ornaments, layout, ratio, texture,
+      scrapTheme, scrapCustom, scrapDeco, ribbonStart, ribbonEnd]);
 
   // Peringatan hanya saat status BERUBAH (tidak spam toast)
   const lastToastStatus = useRef<string>("idle");
@@ -295,6 +335,11 @@ export const ScheduleEditor = () => {
   const resetAll = () => {
     if (!window.confirm("Kembali ke default? Semua perubahan & data tersimpan akan hilang.")) return;
     clearState();
+    setLayout("scrapbook");
+    setScrapTheme(DEFAULT_SCRAP_THEME);
+    setScrapCustom({});
+    setScrapDeco(DEFAULT_SCRAP_DECO);
+    setScrapRibbon("");
     setTitle("Huan Weekly Schedule"); setSubtitle("powered by Huan");
     setDateRange(formatRange(CURRENT_MONDAY, CURRENT_SUNDAY));
     setDateRangeObj({ from: CURRENT_MONDAY, to: CURRENT_SUNDAY });
@@ -369,7 +414,7 @@ export const ScheduleEditor = () => {
         style: { transform: "none", margin: "0", inset: "auto" },
       });
       const a = document.createElement("a");
-      a.href = dataUrl; a.download = `${title.replace(/\s+/g, "_")}_16x9.png`;
+      a.href = dataUrl; a.download = `${(title || "schedule").replace(/\s+/g, "_")}_16x9.png`;
       a.click();
       toast.success("Schedule berhasil di-download! ✨");
     } catch (err) { console.error(err); toast.error("Gagal export. Coba lagi."); }
@@ -403,7 +448,14 @@ export const ScheduleEditor = () => {
       {/* Toolbar navigasi section — sticky; tidak perlu scroll bolak-balik */}
       <nav aria-label="Navigasi section" className="sticky top-2 z-40 max-w-[1800px] mx-auto mb-6">
         <div className="glass rounded-2xl px-2 py-1.5 flex items-center gap-1 overflow-x-auto">
-          {NAV_ITEMS.map((it) => (
+          {(layout === "scrapbook" ? [
+            { id: "sec-judul", label: "Judul" },
+            { id: "sec-layout", label: "Layout" },
+            { id: "sec-scrapcolor", label: "Color" },
+            { id: "sec-scrapdeco", label: "Dekorasi" },
+            { id: "sec-karakter", label: "Karakter" },
+            { id: "sec-jadwal", label: "Jadwal" },
+          ] : NAV_ITEMS).map((it) => (
             <button key={it.id} type="button" onClick={() => scrollToSection(it.id)}
               className="px-3 h-8 rounded-lg text-xs font-semibold whitespace-nowrap text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors">
               {it.label}
@@ -442,6 +494,12 @@ export const ScheduleEditor = () => {
                   </PopoverContent>
                 </Popover>
               </Field>
+              {layout === "scrapbook" && (
+                <Field label="Date ribbon (kosong = otomatis dari tanggal)">
+                  <Input value={scrapRibbon} onChange={(e) => setScrapRibbon(e.target.value)}
+                    placeholder={`${autoRibbon.start} - ${autoRibbon.end}`} className="h-8" />
+                </Field>
+              )}
               <Field label="Art credit (di bawah karakter)"><Input value={artBy} onChange={(e) => setArtBy(e.target.value)} placeholder="Art by @yourname" /></Field>
               <Field label="Media sosial — centang yang ingin ditampilkan">
                 <div className="space-y-1.5 pt-0.5">
@@ -471,22 +529,23 @@ export const ScheduleEditor = () => {
           <Section title="Layout" id="sec-layout">
             <div className="grid grid-cols-2 gap-2">
               {([
+                { key: "scrapbook", label: "Scrapbook" },
                 { key: "bubbles", label: "Bubbles" },
                 { key: "grid", label: "Grid" },
                 { key: "royal", label: "Royal" },
                 { key: "celestial", label: "Celestial" },
                 { key: "cat", label: "Cat" },
-                
               ] as { key: LayoutKey; label: string }[]).map((l) => (
                 <button key={l.key} type="button" onClick={() => pickLayout(l.key)}
                   className={cn("rounded-xl p-3 border-2 text-center transition-all hover:scale-[1.02] relative",
                     layout === l.key ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border")}>
-                  <div className="text-sm font-bold flex items-center justify-center gap-1">{l.label}{l.key === "cat" && <span className="text-[8px] bg-pink-400 text-white px-1 py-0.5 rounded-full leading-none">NEW</span>}</div>
+                  <div className="text-sm font-bold flex items-center justify-center gap-1">{l.label}{l.key === "scrapbook" && <span className="text-[8px] bg-pink-400 text-white px-1 py-0.5 rounded-full leading-none">REF</span>}{l.key === "cat" && <span className="text-[8px] bg-pink-400 text-white px-1 py-0.5 rounded-full leading-none">NEW</span>}</div>
                 </button>
               ))}
             </div>
           </Section>
 
+          {layout !== "scrapbook" && (<>
           <Section title="Color" id="sec-color">
             <div className="grid grid-cols-2 gap-3">
               {themes.map((t) => (
@@ -562,6 +621,90 @@ export const ScheduleEditor = () => {
               )}
             </div>
           </Section>
+          </>)}
+
+          {layout === "scrapbook" && (<>
+          <Section title="Scrapbook Color" id="sec-scrapcolor">
+            <p className="text-[11px] text-muted-foreground mb-3">
+              Ganti warna tidak mengubah komposisi template — hanya properti visual.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {SCRAP_THEME_KEYS.map((k) => {
+                const pal = k === "custom" ? resolveScrapTheme("custom", scrapCustom) : SCRAP_THEME_PRESETS[k];
+                return (
+                  <button type="button" key={k} onClick={() => pickScrapTheme(k)}
+                    className={cn("rounded-xl p-3 border-2 text-left transition-all hover:scale-[1.02]",
+                      scrapTheme === k ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "border-border")}
+                    style={{ background: "hsl(var(--card))" }}>
+                    <div className="h-10 rounded-lg mb-2" style={{ background: `linear-gradient(135deg, ${pal.bg} 45%, ${pal.accent} 45%)` }} />
+                    <div className="text-sm font-semibold">{SCRAP_THEME_LABELS[k]}</div>
+                  </button>
+                );
+              })}
+            </div>
+            {scrapTheme === "custom" && (
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                {SCRAP_COLOR_FIELDS.map((f) => (
+                  <div key={f.key} className="flex items-center gap-2">
+                    <input type="color" value={resolveScrapTheme("custom", scrapCustom)[f.key]}
+                      onChange={(e) => setScrapColor(f.key, e.target.value)}
+                      className="h-8 w-10 rounded border border-border cursor-pointer bg-transparent" />
+                    <span className="text-xs text-muted-foreground">{f.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Section>
+
+          <Section title="Scrapbook Decoration" id="sec-scrapdeco">
+            <div className="space-y-4">
+              <Field label="Animal theme">
+                <div className="grid grid-cols-4 gap-2">
+                  {SCRAP_ANIMALS.map((a) => (
+                    <button key={a} type="button" onClick={() => updateScrapDeco({ animal: a })}
+                      className={cn("rounded-lg border-2 p-2 text-xs font-bold transition-colors",
+                        scrapDeco.animal === a ? "border-primary text-primary" : "border-border text-muted-foreground hover:border-primary/50")}>
+                      {SCRAP_ANIMAL_LABELS[a]}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+              <Field label="Decoration set">
+                <div className="grid grid-cols-4 gap-2">
+                  {SCRAP_DECO_SETS.map((s) => (
+                    <button key={s} type="button" onClick={() => updateScrapDeco({ set: s })}
+                      className={cn("rounded-lg border-2 p-2 text-xs font-bold transition-colors",
+                        scrapDeco.set === s ? "border-primary text-primary" : "border-border text-muted-foreground hover:border-primary/50")}>
+                      {SCRAP_DECO_SET_LABELS[s]}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+              <div className="space-y-1.5">
+                {([
+                  ["showClouds", "Awan (clouds)"],
+                  ["showStickers", "Stiker tersebar"],
+                  ["showSidebar", "Strip username kiri"],
+                  ["showRibbon", "Pita tanggal"],
+                ] as [keyof ScrapDecoConfig, string][]).map(([key, label]) => (
+                  <label key={key} className="flex items-center gap-2 text-xs cursor-pointer">
+                    <Checkbox checked={Boolean(scrapDeco[key])} onCheckedChange={(v) => updateScrapDeco({ [key]: v === true })} />
+                    {label}
+                  </label>
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <Label className="text-xs text-muted-foreground w-24">Warna dekorasi</Label>
+                <input type="color" value={scrapDeco.decoColor || resolveScrapTheme(scrapTheme, scrapCustom).deco}
+                  onChange={(e) => updateScrapDeco({ decoColor: e.target.value })}
+                  className="h-8 w-12 rounded border border-border cursor-pointer bg-transparent" />
+                <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => updateScrapDeco({ decoColor: "" })}>
+                  Auto (tema)
+                </Button>
+              </div>
+            </div>
+          </Section>
+          </>)}
 
 
           <Section title="Karakter VTuber" id="sec-karakter">
@@ -681,6 +824,7 @@ export const ScheduleEditor = () => {
             </div>
           </Section>
 
+          {layout !== "scrapbook" && (
           <Section title="Texture Overlay" id="sec-texture">
             <div
               className="border-2 border-dashed rounded-xl p-4 text-center cursor-pointer hover:border-primary/60 transition-colors"
@@ -770,6 +914,7 @@ export const ScheduleEditor = () => {
               </div>
             )}
           </Section>
+          )}
 
 
 
@@ -828,7 +973,9 @@ export const ScheduleEditor = () => {
                   xHandle={socialEnabled.x ? socials.x : ""}
                   tiktokHandle={socialEnabled.tiktok ? socials.tiktok : ""}
                   charScale={charScale} charOffsetX={charOffsetX} charOffsetY={charOffsetY}
-                  texture={texture} />
+                  texture={texture}
+                  scrapTheme={scrapTheme} scrapCustom={scrapCustom} scrapDeco={scrapDeco}
+                  scrapRibbonStart={ribbonStart} scrapRibbonEnd={ribbonEnd} />
               </div>
             </div>
             <Button size="lg" onClick={downloadPng} disabled={busy}

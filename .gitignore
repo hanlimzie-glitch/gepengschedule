@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# verification artifacts (screenshots, reference image)
+.cache/
+reference/

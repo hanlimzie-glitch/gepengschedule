@@ -1,6 +1,12 @@
 import { forwardRef } from "react";
 import { Sparkles, Heart, Moon, Flower2, Skull, Cpu, Leaf, UserRound, UsersRound, CloudOff, Twitch, Youtube, Crown, Wand2, Feather, Fish, Star, Circle, Instagram, X, Music2, type LucideIcon } from "lucide-react";
 import { CELESTIAL_PALETTES, CAT_PALETTES, SOCIAL_KEYS, type SocialKey } from "@/lib/palettes";
+import { parseDay } from "@/lib/dayParse";
+import { ScrapbookLayout } from "@/template/scrapbook/ScrapbookLayout";
+import {
+  DEFAULT_SCRAP_DECO, DEFAULT_SCRAP_THEME,
+  type ScrapDecoConfig, type ScrapThemeColors, type ScrapThemeKey,
+} from "@/template/scrapbook/types";
 
 export type PlatformKey = "twitch" | "youtube" | "tiktok";
 
@@ -18,7 +24,7 @@ export type DayItem = {
 };
 
 export type ThemeKey = "cute" | "aesthetic" | "gothic" | "sakura" | "cyber" | "mint" | "royalred" | "magic" | "mono";
-export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial" | "cat" | "animal"; // "animal"=legacy cat
+export type LayoutKey = "grid" | "bubbles" | "royal" | "celestial" | "cat" | "animal" | "scrapbook"; // "animal"=legacy cat; "scrapbook"=reference-based template
 // Kurasi ornamen: hapus slash (diagonal) & yang jelek (square/cross/circuit) — ganti dengan ornamen dari layout lain (feather/fish)
 // Sekarang hanya ornamen estetik yang konsisten dengan tema cat/celestial/royal
 export type OrnamentIconKey =
@@ -72,6 +78,12 @@ export type ScheduleProps = {
   charOffsetX?: number;
   charOffsetY?: number;
   texture?: TextureSettings;
+  /* ── scrapbook template (Layer C) — hanya dipakai layout "scrapbook" ── */
+  scrapTheme?: ScrapThemeKey;
+  scrapCustom?: Partial<ScrapThemeColors>;
+  scrapDeco?: ScrapDecoConfig;
+  scrapRibbonStart?: string;
+  scrapRibbonEnd?: string;
 };
 
 /**
@@ -250,17 +262,7 @@ const OrnamentLayerView = ({ layer, W, H, idx }: { layer: OrnamentLayer; W: numb
 };
 
 
-const DAY_ABBR: Record<string, string> = {
-  minggu: "SUN", senin: "MON", selasa: "TUE", rabu: "WED", kamis: "THU", jumat: "FRI", sabtu: "SAT",
-  sunday: "SUN", monday: "MON", tuesday: "TUE", wednesday: "WED", thursday: "THU", friday: "FRI", saturday: "SAT",
-};
-const parseDay = (raw: string) => {
-  const m = raw.trim().match(/^(\S+)\s*(\d+)?/);
-  const word = (m?.[1] || raw).toLowerCase();
-  const abbr = DAY_ABBR[word] || (m?.[1] || raw).slice(0, 3).toUpperCase();
-  const num = m?.[2] || "";
-  return { abbr, num };
-};
+// parseDay kini di src/lib/dayParse.ts (dipakai semua layout, termasuk scrapbook)
 
 const TikTokIcon = ({ size = 14 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -356,7 +358,8 @@ const normalize = (d: LegacyDay): DayItem => {
 };
 
 export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
-  ({ title, subtitle, dateRange, days: rawDays, characterUrl, charFit, theme, ratio, ornaments, artBy, layout = "grid", youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0, texture }, ref) => {
+    ({ title, subtitle, dateRange, days: rawDays, characterUrl, charFit, theme, ratio, ornaments, artBy, layout = "grid", youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle, charScale = 1, charOffsetX = 0, charOffsetY = 0, texture,
+      scrapTheme = DEFAULT_SCRAP_THEME, scrapCustom = {}, scrapDeco = DEFAULT_SCRAP_DECO, scrapRibbonStart = "01/01", scrapRibbonEnd = "07/01" }, ref) => {
     const w = 1920;
     const h = 1080; // 4:3 dihapus — hanya 16:9
     const days = rawDays.map(normalize);
@@ -404,7 +407,7 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
 
         {/* Ornaments global — dirender DI BELAKANG layout opaque? untuk grid/bubbles tetap terlihat di sela layout.
             Untuk layout opaque (cat/celestial/royal) yang background-nya menutupi, ornaments juga dirender DI DALAM layout masing-masing (lihat CatLayout/CelestialLayout/RoyalLayout) di layer zIndex 1. */}
-        {ornaments && ornaments.length > 0 && layout !== "cat" && layout !== "animal" && layout !== "celestial" && layout !== "royal" && (
+        {ornaments && ornaments.length > 0 && layout !== "cat" && layout !== "animal" && layout !== "celestial" && layout !== "royal" && layout !== "scrapbook" && (
           <div className="absolute inset-0" style={{ pointerEvents: "none" }}>
             {ornaments.slice(0, 3).map((ly, i) => (
               <OrnamentLayerView key={i} idx={i} layer={ly} W={w} H={h} />
@@ -419,6 +422,22 @@ export const ScheduleCanvas = forwardRef<HTMLDivElement, ScheduleProps>(
             artBy, youtubeHandle, twitchHandle, instagramHandle, xHandle, tiktokHandle, theme, ratio,
             ornaments, W: w, H: h,
           };
+          if (layout === "scrapbook") {
+            return (
+              <ScrapbookLayout
+                title={title} subtitle={subtitle} days={days}
+                characterUrl={characterUrl} charFit={charFit}
+                charScale={charScale} charOffsetX={charOffsetX} charOffsetY={charOffsetY}
+                artBy={artBy}
+                socialHandles={buildSocials({
+                  youtube: youtubeHandle, twitch: twitchHandle, instagram: instagramHandle,
+                  x: xHandle, tiktok: tiktokHandle,
+                }).map((s) => s.handle)}
+                ribbonStart={scrapRibbonStart} ribbonEnd={scrapRibbonEnd}
+                themeKey={scrapTheme} custom={scrapCustom} deco={scrapDeco}
+              />
+            );
+          }
           if (layout === "royal") return <RoyalLayout {...layoutProps} />;
           if (layout === "celestial") return <CelestialLayout {...layoutProps} />;
           if (layout === "cat" || layout === "animal") return <CatLayout {...layoutProps} />;
@@ -656,7 +675,7 @@ const DiamondBadge = ({ num, label, tag, accent, text }: { num: string; label: s
 /* ============================================================
    BUBBLE LAYOUT (existing, with multi-slot support)
    ============================================================ */
-const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, charFit, artBy, charScale, charOffsetX, charOffsetY }: LayoutProps) => {
+const BubbleLayout = ({ title, subtitle, dateRange, days, characterUrl, charFit, artBy, charScale, charOffsetX, charOffsetY }: LayoutProps) => {
 
   return (
     <div className="relative h-full flex" style={{ padding: 56, gap: 48 }}>
@@ -779,7 +798,7 @@ const BubbleLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, c
 /* ============================================================
    GRID LAYOUT (existing, with multi-slot support)
    ============================================================ */
-const GridLayout = ({ title, subtitle, dateRange, ratio, days, characterUrl, charFit, theme, artBy, charScale, charOffsetX, charOffsetY }: LayoutProps) => (
+const GridLayout = ({ title, subtitle, dateRange, days, characterUrl, charFit, theme, artBy, charScale, charOffsetX, charOffsetY }: LayoutProps) => (
   <div className="relative h-full flex flex-col" style={{ padding: 64 }}>
     <header className="flex items-end justify-between" style={{ marginBottom: 40 }}>
       <div>
@@ -1143,7 +1162,6 @@ const CelestialLayout = ({
    along the bottom, and a paw DATE badge on every day row.
    ============================================================ */
 const CAT_DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
-const ANIMAL_V2_DAYS = CAT_DAYS; // alias legacy
 
 type AnimalDecoProps = { size?: number; color: string; opacity?: number; rotate?: number };
 type CatDecoProps = AnimalDecoProps;
@@ -1583,6 +1601,5 @@ const CatLayout = ({
     </div>
   );
 };
-// Backward compat: layout "animal" tetap didukung (alias ke "cat")
-const AnimalLayout = CatLayout;
+// Backward compat: layout "animal" dialias ke "cat" di dispatch & persistence.
 

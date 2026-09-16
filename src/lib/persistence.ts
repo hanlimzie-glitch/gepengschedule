@@ -10,6 +10,11 @@ import type {
   ThemeKey,
 } from "@/components/ScheduleCanvas";
 import { SOCIAL_KEYS } from "@/lib/palettes";
+import {
+  DEFAULT_SCRAP_DECO, DEFAULT_SCRAP_THEME, SCRAP_ANIMALS, SCRAP_COLOR_FIELDS,
+  SCRAP_DECO_SETS, SCRAP_THEME_KEYS,
+  type ScrapDecoConfig, type ScrapThemeColors, type ScrapThemeKey,
+} from "@/template/scrapbook/types";
 
 export const STORAGE_KEY = "vsm.state.v2";
 
@@ -38,6 +43,12 @@ export interface PersistedState {
   layout: LayoutKey;
   ratio: "16:9"; // 4:3 dihapus — sekarang hanya 16:9
   texture: TextureSettings;
+  /* scrapbook template (Layer C) */
+  scrapTheme: ScrapThemeKey;
+  scrapCustom: Partial<ScrapThemeColors>;
+  scrapDeco: ScrapDecoConfig;
+  scrapRibbonStart: string; // "" = otomatis dari rentang tanggal
+  scrapRibbonEnd: string;
 }
 
 /**
@@ -51,7 +62,7 @@ export type SaveResult = "saved" | "stripped" | "error";
 const THEMES: readonly ThemeKey[] = [
   "cute", "aesthetic", "gothic", "sakura", "cyber", "mint", "royalred", "magic", "mono",
 ];
-const LAYOUTS: readonly LayoutKey[] = ["grid", "bubbles", "royal", "celestial", "cat", "animal"];
+const LAYOUTS: readonly LayoutKey[] = ["grid", "bubbles", "royal", "celestial", "cat", "animal", "scrapbook"];
 const RATIOS = ["16:9"] as const; // 4:3 dihapus
 const FITS = ["cover", "contain"] as const;
 const SCOPES = ["all", "background", "character"] as const;
@@ -121,6 +132,34 @@ const sanitizeOrnaments = (raw: unknown): OrnamentLayer[] => {
       color: asStr(r.color),
     };
   });
+};
+
+const HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+const asHex = (v: unknown): string | null =>
+  typeof v === "string" && HEX_RE.test(v.trim()) ? v.trim() : null;
+
+const sanitizeScrapCustom = (raw: unknown): Partial<ScrapThemeColors> => {
+  if (!raw || typeof raw !== "object") return {};
+  const r = raw as Record<string, unknown>;
+  const out: Partial<ScrapThemeColors> = {};
+  for (const { key } of SCRAP_COLOR_FIELDS) {
+    const hex = asHex(r[key]);
+    if (hex) out[key] = hex;
+  }
+  return out;
+};
+
+const sanitizeScrapDeco = (raw: unknown): ScrapDecoConfig => {
+  const r = (raw ?? {}) as Record<string, unknown>;
+  return {
+    animal: asPick(r.animal, SCRAP_ANIMALS, DEFAULT_SCRAP_DECO.animal),
+    set: asPick(r.set, SCRAP_DECO_SETS, DEFAULT_SCRAP_DECO.set),
+    showClouds: asBool(r.showClouds, true),
+    showStickers: asBool(r.showStickers, true),
+    showSidebar: asBool(r.showSidebar, true),
+    showRibbon: asBool(r.showRibbon, true),
+    decoColor: asHex(r.decoColor) ?? "",
+  };
 };
 
 const sanitizeTexture = (raw: unknown): TextureSettings => {
@@ -194,6 +233,11 @@ export function sanitizeState(raw: unknown): PersistedState | null {
     })(),
     ratio: asPick(r.ratio, RATIOS, "16:9"),
     texture: sanitizeTexture(r.texture),
+    scrapTheme: asPick(r.scrapTheme, SCRAP_THEME_KEYS, DEFAULT_SCRAP_THEME),
+    scrapCustom: sanitizeScrapCustom(r.scrapCustom),
+    scrapDeco: sanitizeScrapDeco(r.scrapDeco),
+    scrapRibbonStart: asStr(r.scrapRibbonStart),
+    scrapRibbonEnd: asStr(r.scrapRibbonEnd),
   };
 }
 

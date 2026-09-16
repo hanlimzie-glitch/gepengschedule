@@ -41,6 +41,11 @@ const sampleState = (): PersistedState => ({
   layout: "celestial",
   ratio: "16:9", // 4:3 dihapus — hanya 16:9
   texture: { url: null, blend: "overlay", opacity: 0.5, size: 100, repeat: true, scope: "all", offsetX: 0, offsetY: 0, rotation: 0 },
+  scrapTheme: "pink",
+  scrapCustom: {},
+  scrapDeco: { animal: "cat", set: "stars", showClouds: true, showStickers: true, showSidebar: true, showRibbon: true, decoColor: "" },
+  scrapRibbonStart: "",
+  scrapRibbonEnd: "",
 });
 
 describe("persistence", () => {
