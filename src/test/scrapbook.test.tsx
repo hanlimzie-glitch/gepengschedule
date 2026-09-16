@@ -46,8 +46,8 @@ const rgb = (hex: string) => {
   return `rgb(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255})`;
 };
 
-const PAPER_STYLE = { left: "150px", top: "40px", width: "950px", height: "1000px" };
-const CHAR_STYLE = { right: "108px", top: "84px", width: "660px", height: "872px" };
+const PAPER_STYLE = { left: "118px", top: "26px", width: "1000px", height: "1024px" };
+const CHAR_STYLE = { right: "96px", top: "64px", width: "680px", height: "900px" };
 
 describe("scrapbook template (reference-based)", () => {
   it("render komposisi lengkap: paper, ribbon, 7 baris, karakter, sidebar, awan", () => {
